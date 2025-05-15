@@ -1,119 +1,135 @@
-/* BALANCE PAGE STYLES */
-
-.balance-page {
-  padding: 2rem;
-  max-width: 800px;
-  margin: 80px auto;
+/* Container nyamukuru */
+.form-container {
+  max-width: 400px;
+  margin: 110px auto;
+  padding: 25px 30px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f9f9f9;
-  min-height: 100vh;
+  color: #333333;
 }
 
-.balance-box {
-  background-color: #ffffff;
-  border-radius: 12px;
-  padding: 1.5rem 2rem;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 2rem;
+/* Card ya NeS points */
+.form-container > div:first-child {
+  padding: 22px 20px;
+  margin-bottom: 25px;
+  background-color: #e3f2fd;
+  border-radius: 10px;
+  box-shadow: 0 3px 7px rgba(3, 169, 244, 0.3);
   text-align: center;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #0277bd;
+  user-select: none;
 }
 
-.balance-box h2 {
-  margin-bottom: 0.5rem;
-  color: #222;
-}
-
-.balance-box h3 {
-  margin-bottom: 1rem;
-  color: #555;
-}
-
-.balance-box p {
-  margin: 0.5rem 0;
-  font-size: 16px;
-}
-
-.balance-box button {
-  margin: 0.5rem 0.25rem;
-  padding: 0.5rem 1rem;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.balance-box button:hover {
-  background-color: #0056b3;
-}
-
-/* FORMS */
-.purchase-form, .withdraw-form {
-  background-color: #ffffff;
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  margin-top: 1rem;
-}
-
-.purchase-form h1, .withdraw-form h1 {
+/* Umutwe wa form */
+h2 {
   text-align: center;
-  color: #444;
-  margin-bottom: 1.5rem;
+  color: #0277bd;
+  margin-bottom: 20px;
+  font-weight: 700;
 }
 
-form .form-step {
-  margin-bottom: 1rem;
+/* Ubutumwa bwo kohereza */
+.success-message {
+  padding: 22px 20px;
+  background-color: #dcedc8;
+  border-radius: 12px;
+  border: 2px solid #8bc34a;
+  color: #558b2f;
+  font-size: 1.1rem;
+  line-height: 1.5;
+  user-select: none;
 }
 
-form label {
+.success-message h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-weight: 700;
+}
+
+/* List ya nimero zishyurwaho */
+.success-message ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 10px 0 10px 0;
+}
+
+.success-message ul li {
+  font-weight: 600;
+  font-size: 1rem;
+  margin: 6px 0;
+}
+
+/* Formulaire yose */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* Labels */
+label {
+  font-weight: 600;
+  margin-bottom: 6px;
   display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: #333;
+  color: #555555;
 }
 
-form input,
-form select {
+/* Inputs na selects */
+input[type="text"],
+input[type="tel"],
+select {
   width: 100%;
-  padding: 0.6rem;
-  border: 1px solid #ccc;
+  padding: 10px 12px;
+  font-size: 1rem;
+  border: 2px solid #ccc;
   border-radius: 8px;
-  margin-bottom: 1rem;
-  font-size: 15px;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
 }
 
-form button {
-  padding: 0.6rem 1.5rem;
-  background-color: #28a745;
+input[type="text"]:focus,
+input[type="tel"]:focus,
+select:focus {
+  outline: none;
+  border-color: #0288d1;
+  box-shadow: 0 0 5px #81d4fa;
+}
+
+/* Button */
+button[type="submit"] {
+  background-color: #0288d1;
   color: white;
+  padding: 12px;
   border: none;
-  border-radius: 8px;
-  font-weight: bold;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 1.1rem;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
-form button:hover {
-  background-color: #1e7e34;
+button[type="submit"]:hover {
+  background-color: #0277bd;
 }
 
 /* Responsive */
-@media (max-width: 600px) {
-  .balance-page {
-    padding: 1rem;
+@media screen and (max-width: 480px) {
+  .form-container {
+    margin: 20px 15px;
+    padding: 20px 15px;
   }
 
-  .balance-box {
-    padding: 1rem;
+  .form-container > div:first-child {
+    font-size: 1.1rem;
+    padding: 18px 15px;
   }
 
-  .purchase-form, .withdraw-form {
-    padding: 1rem;
-  }
-
-  form button {
-    width: 100%;
+  button[type="submit"] {
+    font-size: 1rem;
+    padding: 10px;
   }
 }

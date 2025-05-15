@@ -1,177 +1,130 @@
-import React, { useState } from 'react';
-import './Balance.css';
+import React, { useEffect, useState } from "react";
+import { db } from "../firebase";
+import {
+  doc,
+  setDoc,
+  onSnapshot,
+  getDoc,
+} from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
+import "./balance.css";
 
 const Balance = () => {
-  const [activeForm, setActiveForm] = useState(null); // 'purchase' or 'withdraw'
-  const [step, setStep] = useState(1);
-  const [purchaseData, setPurchaseData] = useState({
-    name: '',
-    momoName: '',
-    phone: '',
-    paymentMethod: 'mobile-money',
-    plan: 'onestory'
+  const [formData, setFormData] = useState({
+    names: "",
+    phone: "",
+    plan: "",
+    amount: "",
+    paymentMethod: "", // uburyo bwo kwishyura
   });
 
-  const [withdrawData, setWithdrawData] = useState({
-    name: '',
-    phone: '',
-    amount: ''
-  });
+  const [nes, setNes] = useState(0);
+  const [message, setMessage] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const navigate = useNavigate();
 
-  const handlePurchaseChange = (e) => {
-    setPurchaseData({...purchaseData, [e.target.name]: e.target.value});
+  const username = localStorage.getItem("username");
+
+  useEffect(() => {
+    if (!username) return;
+    const unsub = onSnapshot(doc(db, "depositers", username), (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setNes(data.nes || 0);
+      }
+    });
+
+    return () => unsub();
+  }, [username]);
+
+  const handleChange = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
   };
 
-  const handleWithdrawChange = (e) => {
-    setWithdrawData({...withdrawData, [e.target.name]: e.target.value});
-  };
-
-  const nextStep = () => {
-    setStep(prev => prev + 1);
-  };
-
-  const handlePurchaseSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Purchase Data:", purchaseData);
-    alert("Twakiriye ubusabe bwawe bwo kugura NeS.");
-  };
+    if (!username) return;
 
-  const handleWithdrawSubmit = (e) => {
-    e.preventDefault();
-    console.log("Withdraw Data:", withdrawData);
-    alert("Twakiriye ubusabe bwawe bwo kubikuza.");
+    setSubmitting(true);
+
+    const docRef = doc(db, "depositers", username);
+    const docSnap = await getDoc(docRef);
+    const existingData = docSnap.exists() ? docSnap.data() : {};
+
+    await setDoc(docRef, {
+      ...existingData,
+      ...formData,
+      nes: existingData.nes || 0,
+    });
+
+    setMessage(
+      "Wohereje ubusabe bwo guhabwa NeS points mushaka kugura. Mwishyure kuri 0780786300 (MTN) cyangwa 0722319367 (Airtel)."
+    );
+
+    setTimeout(() => {
+      navigate("/home");
+    }, 30000);
   };
 
   return (
-    <div className="balance-page">
-      <div className="balance-box">
-        <h2>Balance Account</h2>
-        <div className="balance-details">
-          <h3>Account</h3>
-          <p>Your balance: <strong>0 RWF</strong></p>
-          <p>Nes points: <strong>0 NeS</strong></p>
-          <button onClick={() => { setActiveForm('purchase'); setStep(1); }}>Gura NeS</button>
-          <button onClick={() => setActiveForm('withdraw')}>Bikuza NeS</button>
-        </div>
+    <div className="form-container">
+      <div className="nes-card">Your
+        NeS Points: <span>{nes}</span>
       </div>
 
-      {activeForm === 'purchase' && (
-        <div className="purchase-form">
-          <h1>Gura NeS Points</h1>
-          <form onSubmit={handlePurchaseSubmit}>
-            {step === 1 && (
-              <div className="form-step">
-                <label>Izina ukoresha kuri uru rubuga:</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={purchaseData.name}
-                  onChange={handlePurchaseChange}
-                  required
-                />
-                <button type="button" onClick={nextStep}>Next</button>
-              </div>
-            )}
-            {step === 2 && (
-              <div className="form-step">
-                <label>Izina ribaruye kuri Mobile Money:</label>
-                <input
-                  type="text"
-                  name="momoName"
-                  value={purchaseData.momoName}
-                  onChange={handlePurchaseChange}
-                  required
-                />
-                <button type="button" onClick={nextStep}>Next</button>
-              </div>
-            )}
-            {step === 3 && (
-              <div className="form-step">
-                <label>Nimero ya Mobile Money:</label>
-                <input
-                  type="tel"
-                  name="phone"
-                  value={purchaseData.phone}
-                  onChange={handlePurchaseChange}
-                  required
-                />
-                <button type="button" onClick={nextStep}>Next</button>
-              </div>
-            )}
-            {step === 4 && (
-              <div className="form-step">
-                <label>Uburyo bwo kwishyura:</label>
-                <select
-                  name="paymentMethod"
-                  value={purchaseData.paymentMethod}
-                  onChange={handlePurchaseChange}
-                  required
-                >
-                  <option value="mobile-money">Mobile Money</option>
-                </select>
-                <button type="button" onClick={nextStep}>Next</button>
-              </div>
-            )}
-            {step === 5 && (
-              <div className="form-step">
-                <label>Hitamo Plan:</label>
-                <select
-                  name="plan"
-                  value={purchaseData.plan}
-                  onChange={handlePurchaseChange}
-                  required
-                >
-                  <option value="onestory">1 Episode (20 RWF)</option>
-                  <option value="fivestory">5 Episodes (70 RWF)</option>
-                  <option value="tenth">10 Episodes (140 RWF)</option>
-                  <option value="weekly">Icyumweru (200 RWF)</option>
-                  <option value="monthly">Ukwezi (600 RWF)</option>
-                </select>
-                <button type="submit">Ohereza</button>
-              </div>
-            )}
-          </form>
-        </div>
-      )}
+      {message && <div className="success-message">{message}</div>}
 
-      {activeForm === 'withdraw' && (
-        <div className="withdraw-form">
-          <h1>Bikuza NeS</h1>
-          <form onSubmit={handleWithdrawSubmit}>
-            <div className="form-step">
-              <label>Izina ukoresha kuri uru rubuga:</label>
-              <input
-                type="text"
-                name="name"
-                value={withdrawData.name}
-                onChange={handleWithdrawChange}
-                required
-              />
-            </div>
-            <div className="form-step">
-              <label>Nimero yawe ya Mobile Money:</label>
-              <input
-                type="tel"
-                name="phone"
-                value={withdrawData.phone}
-                onChange={handleWithdrawChange}
-                required
-              />
-            </div>
-            <div className="form-step">
-              <label>Ingano ya NeS ushaka kubikuza:</label>
-              <input
-                type="number"
-                name="amount"
-                value={withdrawData.amount}
-                onChange={handleWithdrawChange}
-                required
-              />
-            </div>
-            <button type="submit">Ohereza</button>
-          </form>
-        </div>
-      )}
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          name="names"
+          placeholder="Andika amazina yawe abaruye kuri nimero ukoresha wishyura."
+          value={formData.names}
+          onChange={handleChange}
+          required
+        />
+
+        <input
+          type="tel"
+          name="phone"
+          placeholder="Andika nimero ya telefone ukoresha wishyura"
+          value={formData.phone}
+          onChange={handleChange}
+          required
+        />
+
+        <select
+          name="plan"
+          value={formData.plan}
+          onChange={handleChange}
+          required
+        >
+          <option value="">-- Hitamo Plan --</option>
+          <option value="Daily">Daily - 250 RWF</option>
+          <option value="Weekly">Weekly - 500 RWF</option>
+          <option value="Monthly">Monthly - 1000 RWF</option>
+        </select>
+
+        <select
+          name="paymentMethod"
+          value={formData.paymentMethod}
+          onChange={handleChange}
+          required
+        >
+          <option value="">-- Hitamo Uburyo bwo Kwishyura --</option>
+          <option value="MTN">MTN Mobile Money</option>
+          <option value="Airtel">Airtel Money</option>
+        </select>
+
+       
+
+        <button type="submit" disabled={submitting}>
+          {submitting ? "Kohereza..." : "Ohereza"}
+        </button>
+      </form>
     </div>
   );
 };

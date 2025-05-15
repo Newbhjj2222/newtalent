@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "../firebase";
 import { doc, getDoc } from "firebase/firestore";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom"; // Link yongewemo
 import "./style.css";
 
 const Login = () => {
@@ -16,11 +16,9 @@ const Login = () => {
     setMessage("");
 
     try {
-      // 1. Injiza user
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      // 2. Fata document ya "data"
       const docRef = doc(db, "userdate", "data");
       const docSnap = await getDoc(docRef);
 
@@ -28,7 +26,6 @@ const Login = () => {
         const data = docSnap.data();
         let found = false;
 
-        // 3. Shaka email ihuye
         for (const key in data) {
           if (data[key].email === email) {
             const fName = data[key].fName || "";
@@ -42,7 +39,7 @@ const Login = () => {
           setMessage("Email ntiyabonywe muri database.");
         } else {
           setMessage("Winjiye neza!");
-          navigate("/home"); // Redirect to home
+          navigate("/home");
         }
 
       } else {
@@ -81,6 +78,16 @@ const Login = () => {
         </div>
         <button className="btn" type="submit">Sign In</button>
       </form>
+
+      {/* Link yerekeza ku register page */}
+      <div className="register-link">
+        <p>
+          Nta konti ufite?{" "}
+          <Link to="/Register">
+            Iyandikishe hano
+          </Link>
+        </p>
+      </div>
     </div>
   );
 };

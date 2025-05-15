@@ -9,9 +9,10 @@ import PostDetails from './components/PostDetails';
 import Contact from './pages/Contact';
 
 import Login from './pages/Login';
+import Register from './pages/Register'; // ✅ SHYIZEMO IYI
 import Profile from './pages/Profile';
 import Tv from './pages/Tv';
-import Balance from './pages/Balance'; // yinjijwe hano
+import Balance from './pages/Balance';
 
 import { MdAccountBalance } from 'react-icons/md';
 import './App.css';
@@ -32,9 +33,10 @@ const App = () => {
             <Route path="/contact" element={<Contact />} />
             <Route path="/posts/:id" element={<PostDetails />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} /> {/* ✅ HERE */}
             <Route path="/profile" element={<Profile />} />
             <Route path="/tv" element={<Tv />} />
-            <Route path="/balance" element={<Balance />} /> {/* Balance Page */}
+            <Route path="/balance" element={<Balance />} />
           </Routes>
 
           <Footer />

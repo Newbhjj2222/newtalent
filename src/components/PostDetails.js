@@ -3,6 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getFirestore, doc, getDoc, collection, addDoc, getDocs } from 'firebase/firestore';
 import { FaShareAlt } from 'react-icons/fa';
 import Header from './Header';
+import Banner from './Banner';
+import './PostDetails.css';
 
 const PostDetails = () => {
   const { id } = useParams();
@@ -38,8 +40,7 @@ const PostDetails = () => {
       }
     };
 
-    // Fata username muri localStorage
-    const storedUsername = localStorage.getItem('username'); // Hindura niba wakoresheje indi key
+    const storedUsername = localStorage.getItem('username');
     if (storedUsername) {
       setCurrentUser(storedUsername);
       console.log("Logged in as:", storedUsername);
@@ -47,13 +48,45 @@ const PostDetails = () => {
 
     fetchPostAndComments();
     recordView();
-  }, [id]);
+  }, [id, db]);
 
-  const handleShare = () => {
+  const handleShare = async () => {
+  try {
     const postUrl = window.location.href;
-    navigator.clipboard.writeText(postUrl);
-    alert("Post URL copied to clipboard!");
-  };
+
+    const plainTextStory = post.story
+      .replace(/<[^>]+>/g, '')
+      .replace(/&nbsp;/g, ' ');
+
+    const excerpt = plainTextStory.length > 150
+      ? plainTextStory.slice(0, 150) + '...'
+      : plainTextStory;
+
+    const shareText = `${post.head}\n\n${excerpt}\n\nRead more here: ${postUrl}`;
+
+    await navigator.clipboard.writeText(shareText);
+
+    if (post.imageUrl) {
+      const imageResponse = await fetch(post.imageUrl);
+      const imageBlob = await imageResponse.blob();
+      const imageURL = URL.createObjectURL(imageBlob);
+
+      const downloadLink = document.createElement('a');
+      downloadLink.href = imageURL;
+      downloadLink.download = 'post-image.jpg';
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+      URL.revokeObjectURL(imageURL);
+    }
+
+    alert("Post info copied to clipboard and image downloaded!");
+  } catch (error) {
+    alert("Failed to share post: " + error.message);
+  }
+};
+
+
 
   const handleCommentSubmit = async () => {
     if (newComment.trim() === '') return;
@@ -79,6 +112,7 @@ const PostDetails = () => {
   return (
     <>
       <Header />
+      <Banner />
       <div className="post-details" style={{ padding: '20px', maxWidth: '700px', margin: '0 auto' }}>
         {post.imageUrl && (
           <img
@@ -103,7 +137,10 @@ const PostDetails = () => {
               padding: '8px 16px',
               borderRadius: '8px',
               color: 'white',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
             }}
           >
             <FaShareAlt /> Share

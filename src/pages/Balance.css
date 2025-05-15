@@ -7,7 +7,7 @@
   border-radius: 12px;
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: #333333;
+  color: #333;
 }
 
 /* Card ya NeS points */
@@ -53,8 +53,8 @@ h2 {
 /* List ya nimero zishyurwaho */
 .success-message ul {
   list-style: none;
-  padding-left: 0;
-  margin: 10px 0 10px 0;
+  padding: 0;
+  margin: 10px 0;
 }
 
 .success-message ul li {
@@ -75,7 +75,7 @@ label {
   font-weight: 600;
   margin-bottom: 6px;
   display: block;
-  color: #555555;
+  color: #555;
 }
 
 /* Inputs na selects */
@@ -102,7 +102,7 @@ select:focus {
 /* Button */
 button[type="submit"] {
   background-color: #0288d1;
-  color: white;
+  color: #fff;
   padding: 12px;
   border: none;
   border-radius: 10px;

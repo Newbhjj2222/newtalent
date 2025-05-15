@@ -2,7 +2,7 @@
 /* Form container */
 form {
   background: white;
-  margin-top: 50px;
+  margin: 50px auto;
   padding: 30px 40px;
   border-radius: 10px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
@@ -62,6 +62,22 @@ form p a {
 }
 
 form p a:hover {
+  text-decoration: underline;
+}
+.register-link {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.register-link a {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.register-link a:hover {
   text-decoration: underline;
 }
 

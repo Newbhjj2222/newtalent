@@ -7,34 +7,35 @@ header {
   top: 0;
   z-index: 1000;
   display: flex;
-  padding: 5px;
-  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 /* LOGO */
 .logo {
   display: flex;
   align-items: center;
-  gap: 5px;
   font-size: 24px;
   font-weight: bold;
+  gap: 5px;
 }
 
 .logo span {
   opacity: 0;
-  animation: fadeIn 2s forwards;
+  animation: fadeIn 2s forwards infinite;
 }
 
+/* Colored animated letters */
 .logo span:nth-child(1) {
   color: red;
   animation-delay: 0.2s;
 }
-
 .logo span:nth-child(2) {
   color: white;
   animation-delay: 0.4s;
 }
-
 .logo span:nth-child(3) {
   color: yellow;
   animation-delay: 0.6s;
@@ -44,20 +45,17 @@ header {
   animation-delay: 0.8s;
 }
 
-/* Continuous typing effect (loop) */
+/* Animation keyframes */
 @keyframes fadeIn {
   0% { opacity: 0; transform: translateY(-5px); }
   50% { opacity: 1; transform: translateY(0); }
   100% { opacity: 0; transform: translateY(5px); }
 }
 
-.logo span {
-  animation-iteration-count: infinite;
-}
-
-/* NAVBAR */
+/* NAVIGATION */
 .nav-links {
   display: flex;
+  margin-right: 30px;
   list-style: none;
   gap: 20px;
 }
@@ -67,36 +65,35 @@ header {
   color: white;
   font-size: 16px;
   padding: 10px;
+  transition: background 0.3s, border-radius 0.3s;
 }
 
 .nav-links li a:hover {
   background-color: #006669;
   border-radius: 4px;
-  transition: 0.3s;
 }
 
-/* MENU TOGGLE ICON */
+/* MENU TOGGLE ICON (hamburger icon) */
 .menu-toggle {
   display: none;
   color: white;
   font-size: 28px;
   cursor: pointer;
-  margin-right: 40px;
 }
 
-/* RESPONSIVE MENU */
+/* RESPONSIVE DESIGN */
 @media screen and (max-width: 768px) {
   .nav-links {
     position: absolute;
-    top: 44px;
-    padding: 5px;
-    height: 235px;
-    right: 0;
+    top: 50px;
+    right: 10px;
+    width: 60%;
+    height: auto;
     background: #008489;
-    width: 50%;
-    border-radius: 10px;
     flex-direction: column;
     align-items: flex-start;
+    padding: 10px;
+    border-radius: 10px;
     display: none;
   }
 
@@ -106,15 +103,16 @@ header {
 
   .menu-toggle {
     display: block;
-    position: absolute;
-    right: 5px;
-    top: 20px;
-    font-size: 1.9em; 
- }
-  .logo span{
-    font-size: 25px;
-}
-  header{
-  height: 50px;
-}
+    margin-right: 30px;
+    margin-top: 32px;
+  }
+
+  .logo span {
+    font-size: 22px;
+  }
+
+  header {
+    height: 55px;
+    padding: 5px 15px;
+  }
 }

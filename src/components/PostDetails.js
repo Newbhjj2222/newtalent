@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getFirestore, doc, getDoc, collection, addDoc, getDocs } from 'firebase/firestore';
+import { getFirestore, doc, getDoc, collection, addDoc, getDocs, updateDoc } from 'firebase/firestore';
 import { FaShareAlt } from 'react-icons/fa';
 import Header from './Header';
 import Banner from './Banner';
@@ -16,80 +16,120 @@ const PostDetails = () => {
   const db = getFirestore();
 
   useEffect(() => {
-    const fetchPostAndComments = async () => {
-      const postRef = doc(db, 'posts', id);
-      const postSnap = await getDoc(postRef);
-      if (postSnap.exists()) {
-        setPost(postSnap.data());
-      }
+    const storedUsername = localStorage.getItem('username');
 
-      const commentsRef = collection(db, 'posts', id, 'comments');
-      const querySnap = await getDocs(commentsRef);
-      const commentsData = querySnap.docs.map(doc => doc.data());
-      setComments(commentsData);
+    if (!storedUsername) {
+      navigate('/login');
+      return;
+    }
+
+    setCurrentUser(storedUsername);
+
+    const fetchPostAndComments = async () => {
+      try {
+        const postRef = doc(db, 'posts', id);
+        const postSnap = await getDoc(postRef);
+
+        if (postSnap.exists()) {
+          const postData = postSnap.data();
+          setPost(postData);
+
+          const commentsRef = collection(db, 'posts', id, 'comments');
+          const querySnap = await getDocs(commentsRef);
+          const commentsData = querySnap.docs.map(doc => doc.data());
+          setComments(commentsData);
+
+          await handleFirestoreAfterDelay(postData, storedUsername);
+        } else {
+          alert('Post not found.');
+          navigate('/');
+        }
+      } catch (error) {
+        console.error("Error fetching post and comments:", error);
+      }
     };
 
     const recordView = async () => {
       try {
         const readerRef = collection(db, 'readers', id, 'views');
-        await addDoc(readerRef, {
-          viewedAt: new Date().toISOString()
-        });
+        await addDoc(readerRef, { viewedAt: new Date().toISOString() });
       } catch (error) {
         console.error("Failed to record view", error);
       }
     };
 
-    const storedUsername = localStorage.getItem('username');
-    if (storedUsername) {
-      setCurrentUser(storedUsername);
-      console.log("Logged in as:", storedUsername);
-    }
+    const handleFirestoreAfterDelay = async (postData, username) => {
+      try {
+        const depositerRef = doc(db, 'depositers', username);
+        const depositerSnap = await getDoc(depositerRef);
 
-    fetchPostAndComments();
-    recordView();
-  }, [id, db]);
+        if (!depositerSnap.exists()) {
+          alert('Ntabwo tubona account yawe. ntabwo urinjira banza winjire cyangwa wiyandikishe.');
+          navigate('/login');
+          return;
+        }
+
+        const depositerData = depositerSnap.data();
+        const currentNes = Number(depositerData.nes) || 0;
+
+        if (currentNes < 1) {
+          alert("Musomyi, nta NeS point ufite zihagije ngo wemererwe gusoma iyi nkuru. tugiye kukujyana aho uzigurira.");
+          navigate('/balance');
+          return;
+        }
+
+        await updateDoc(depositerRef, { nes: currentNes - 1 });
+
+        const authorRef = doc(db, 'authors', postData.author);
+        const authorSnap = await getDoc(authorRef);
+
+        if (authorSnap.exists()) {
+          const currentAuthorNes = Number(authorSnap.data().nes) || 0;
+          await updateDoc(authorRef, { nes: currentAuthorNes + 1 });
+        }
+
+      } catch (error) {
+        console.error("Error updating NES fields:", error);
+      }
+    };
+
+    (async () => {
+      await fetchPostAndComments();
+      await recordView();
+    })();
+  }, [id, navigate, db]);
 
   const handleShare = async () => {
-  try {
-    const postUrl = window.location.href;
+    try {
+      const postUrl = window.location.href;
+      const plainTextStory = post.story.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ');
+      const excerpt = plainTextStory.length > 150 ? plainTextStory.slice(0, 150) + '...' : plainTextStory;
+      const shareText = `${post.head}\n\n${excerpt}\n\nRead more here: ${postUrl}`;
 
-    const plainTextStory = post.story
-      .replace(/<[^>]+>/g, '')
-      .replace(/&nbsp;/g, ' ');
+      await navigator.clipboard.writeText(shareText);
 
-    const excerpt = plainTextStory.length > 150
-      ? plainTextStory.slice(0, 150) + '...'
-      : plainTextStory;
+      if (post.imageUrl) {
+        const imageResponse = await fetch(post.imageUrl);
+        const imageBlob = await imageResponse.blob();
+        const imageURL = URL.createObjectURL(imageBlob);
+        const downloadLink = document.createElement('a');
+        downloadLink.href = imageURL;
+        downloadLink.download = 'post-image.jpg';
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+        URL.revokeObjectURL(imageURL);
+      }
 
-    const shareText = `${post.head}\n\n${excerpt}\n\nRead more here: ${postUrl}`;
-
-    await navigator.clipboard.writeText(shareText);
-
-    if (post.imageUrl) {
-      const imageResponse = await fetch(post.imageUrl);
-      const imageBlob = await imageResponse.blob();
-      const imageURL = URL.createObjectURL(imageBlob);
-
-      const downloadLink = document.createElement('a');
-      downloadLink.href = imageURL;
-      downloadLink.download = 'post-image.jpg';
-      document.body.appendChild(downloadLink);
-      downloadLink.click();
-      document.body.removeChild(downloadLink);
-      URL.revokeObjectURL(imageURL);
+      alert("Post info copied to clipboard and image downloaded!");
+    } catch (error) {
+      alert("Failed to share post: " + error.message);
     }
-
-    alert("Post info copied to clipboard and image downloaded!");
-  } catch (error) {
-    alert("Failed to share post: " + error.message);
-  }
-};
-
-
+  };
 
   const handleCommentSubmit = async () => {
     if (newComment.trim() === '') return;
+
     try {
       const commentRef = collection(db, 'posts', id, 'comments');
       await addDoc(commentRef, {
@@ -97,8 +137,8 @@ const PostDetails = () => {
         author: currentUser,
         createdAt: new Date().toISOString()
       });
-      setNewComment('');
 
+      setNewComment('');
       const newCommentsSnap = await getDocs(commentRef);
       const newComments = newCommentsSnap.docs.map(doc => doc.data());
       setComments(newComments);
@@ -121,12 +161,14 @@ const PostDetails = () => {
             style={{ maxWidth: '100%', borderRadius: '12px', marginBottom: '20px' }}
           />
         )}
+
         <h2>{post.head}</h2>
         <div
           className="post-story"
           dangerouslySetInnerHTML={{ __html: post.story }}
           style={{ lineHeight: '1.7', fontSize: '1.05rem', marginTop: '10px' }}
         />
+
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '15px' }}>
           <small>By: {post.author}</small>
           <button

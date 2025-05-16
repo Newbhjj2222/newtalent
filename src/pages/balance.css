@@ -119,7 +119,7 @@ button[type="submit"]:hover {
 /* Responsive */
 @media screen and (max-width: 480px) {
   .form-container {
-    margin: 20px 15px;
+    margin: 80px 15px;
     padding: 20px 15px;
   }
 

@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { auth, db } from '../firebase';
-
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 import { useNavigate, Link } from 'react-router-dom';
 import './style.css';
 
@@ -17,10 +16,27 @@ function Register() {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const uid = userCredential.user.uid;
-      await setDoc(doc(db, "userdata", uid), {
-        username,
-        email
-      });
+
+      const docRef = doc(db, "userdate", "data");
+      const docSnap = await getDoc(docRef);
+      let existingData = {};
+
+      if (docSnap.exists()) {
+        existingData = docSnap.data();
+      }
+
+      const newUserData = {
+        fName: username,
+        email: email
+      };
+
+      const updatedData = {
+        ...existingData,
+        [uid]: newUserData
+      };
+
+      await setDoc(docRef, updatedData);
+
       navigate('/login');
     } catch (error) {
       alert(error.message);

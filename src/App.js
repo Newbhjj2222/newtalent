@@ -7,9 +7,8 @@ import About from './pages/About';
 import Home from './pages/Home';
 import PostDetails from './components/PostDetails';
 import Contact from './pages/Contact';
-
 import Login from './pages/Login';
-import Register from './pages/Register'; // ✅ SHYIZEMO IYI
+import Register from './pages/Register';
 import Profile from './pages/Profile';
 import Tv from './pages/Tv';
 import Balance from './pages/Balance';
@@ -18,6 +17,7 @@ import { MdAccountBalance } from 'react-icons/md';
 import './App.css';
 
 import { UserProvider } from './contexts/UserContext';
+import ScrollToTop from './components/ScrollToTop'; // ✅ Hano uyitumize
 
 const App = () => {
   return (
@@ -26,6 +26,7 @@ const App = () => {
         <div className="app-container">
           <Header />
 
+          <ScrollToTop /> {/* ✅ Hano niho uyishyira */}
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/home" element={<Home />} />
@@ -33,7 +34,7 @@ const App = () => {
             <Route path="/contact" element={<Contact />} />
             <Route path="/posts/:id" element={<PostDetails />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} /> {/* ✅ HERE */}
+            <Route path="/register" element={<Register />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/tv" element={<Tv />} />
             <Route path="/balance" element={<Balance />} />

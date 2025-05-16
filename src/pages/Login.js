@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "../firebase";
 import { doc, getDoc } from "firebase/firestore";
-import { useNavigate, Link } from "react-router-dom"; // Link yongewemo
+import { useNavigate, Link } from "react-router-dom";
 import "./style.css";
 
 const Login = () => {
@@ -16,9 +16,11 @@ const Login = () => {
     setMessage("");
 
     try {
+      // Injira muri Firebase Authentication
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
+      // Fata document 'data' ibitse users bose
       const docRef = doc(db, "userdate", "data");
       const docSnap = await getDoc(docRef);
 
@@ -26,24 +28,25 @@ const Login = () => {
         const data = docSnap.data();
         let found = false;
 
+        // Shaka aho email yinjijwe ihuye n’iyo ibitse muri database
         for (const key in data) {
-          if (data[key].email === email) {
-            const fName = data[key].fName || "";
+          const userData = data[key];
+          if (userData.email === email) {
+            const fName = userData.fName || "Unknown";
             localStorage.setItem("username", fName);
             found = true;
             break;
           }
         }
 
-        if (!found) {
-          setMessage("Email ntiyabonywe muri database.");
-        } else {
+        if (found) {
           setMessage("Winjiye neza!");
           navigate("/home");
+        } else {
+          setMessage("Email ntiyabonywe muri Firestore.");
         }
-
       } else {
-        setMessage("Document 'data' ntiyabonywe.");
+        setMessage("Nta document 'data' ibonetse muri Firestore.");
       }
 
     } catch (error) {
@@ -60,7 +63,6 @@ const Login = () => {
           <i className="fas fa-envelope"></i>
           <input
             type="email"
-            id="email"
             placeholder="Email"
             required
             onChange={(e) => setEmail(e.target.value)}
@@ -70,7 +72,6 @@ const Login = () => {
           <i className="fas fa-lock"></i>
           <input
             type="password"
-            id="password"
             placeholder="Password"
             required
             onChange={(e) => setPassword(e.target.value)}
@@ -79,13 +80,10 @@ const Login = () => {
         <button className="btn" type="submit">Sign In</button>
       </form>
 
-      {/* Link yerekeza ku register page */}
       <div className="register-link">
         <p>
           Nta konti ufite?{" "}
-          <Link to="/Register">
-            Iyandikishe hano
-          </Link>
+          <Link to="/Register">Iyandikishe hano</Link>
         </p>
       </div>
     </div>

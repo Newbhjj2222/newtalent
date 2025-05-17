@@ -64,16 +64,16 @@ const Footer = () => {
       <div className="footer-section">
         <h4>Quick Links</h4>
         <ul>
-          <li><a href="#home">Home</a></li>
-          <li><a href="#posts">Posts</a></li>
-          <li><a href="#stories">Stories</a></li>
-          <li><a href="#contact">Contact</a></li>
+          <li><a href="/home">Home</a></li>
+          <li><a href="/balance">Your Balance</a></li>
+          <li><a href="/about">About</a></li>
+          <li><a href="/contact">Contact</a></li>
         </ul>
       </div>
 
       <div className="footer-section">
         <h4>About Us</h4>
-        <p>NewtalentsG is a creative platform for young talents.</p>
+        <p>NewtalentsG is a creative platform for young talents. is libary of differents Stories</p>
       </div>
 
       {!user && (

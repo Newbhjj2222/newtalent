@@ -103,7 +103,7 @@ const PostDetails = () => {
     try {
       const postUrl = window.location.href;
       const plainTextStory = post.story.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ');
-      const excerpt = plainTextStory.length > 150 ? plainTextStory.slice(0, 150) + '...' : plainTextStory;
+      const excerpt = plainTextStory.length > 150 ? plainTextStory.slice(0, 650) + '...' : plainTextStory;
       const shareText = `${post.head}\n\n${excerpt}\n\nRead more here: ${postUrl}`;
 
       await navigator.clipboard.writeText(shareText);

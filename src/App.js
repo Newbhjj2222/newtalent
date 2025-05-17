@@ -36,6 +36,7 @@ const App = () => {
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/post/:id" element={<PostDetails />} /> {/* ✅ Route imwe gusa ya PostDetails */}
+    <Route path="/posts/:id" element={<PostDetails />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/profile" element={<Profile />} />
@@ -44,7 +45,7 @@ const App = () => {
             <Route path="/balance" element={<Balance />} />
           </Routes>
 
-          <Footer />
+          <Footer />c
 
           <Link to="/balance" className="floating-btn">
             <MdAccountBalance size={24} />

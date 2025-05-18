@@ -99,33 +99,7 @@ const PostDetails = () => {
     })();
   }, [id, navigate, db]);
 
-  const handleShare = async () => {
-    try {
-      const postUrl = window.location.href;
-      const plainTextStory = post.story.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ');
-      const excerpt = plainTextStory.length > 150 ? plainTextStory.slice(0, 650) + '...' : plainTextStory;
-      const shareText = `${post.head}\n\n${excerpt}\n\nRead more here: ${postUrl}`;
-
-      await navigator.clipboard.writeText(shareText);
-
-      if (post.imageUrl) {
-        const imageResponse = await fetch(post.imageUrl);
-        const imageBlob = await imageResponse.blob();
-        const imageURL = URL.createObjectURL(imageBlob);
-        const downloadLink = document.createElement('a');
-        downloadLink.href = imageURL;
-        downloadLink.download = 'post-image.jpg';
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
-        URL.revokeObjectURL(imageURL);
-      }
-
-      alert("Post info copied to clipboard and image downloaded!");
-    } catch (error) {
-      alert("Failed to share post: " + error.message);
-    }
-  };
+  
 
   const handleCommentSubmit = async () => {
     if (newComment.trim() === '') return;
@@ -153,7 +127,53 @@ const PostDetails = () => {
     <>
       <Header />
       <Banner />
-      <div className="post-details" style={{ padding: '20px', maxWidth: '700px', margin: '0 auto' }}>
+ const handleShare = async () => {
+  try {
+    const postUrl   = window.location.href;
+    const cleanText = post.story
+                         .replace(/<[^>]+>/g, '')
+                         .replace(/&nbsp;/g, ' ')
+                         .slice(0, 650);
+    const shareText = `${post.head}\n\n${cleanText}...\n\nRead more: ${postUrl}`;
+
+    // Fata image niba tuyikeneye
+    let files = [];
+    if (post.imageUrl && canShareFiles) {
+      const resp     = await fetch(post.imageUrl);
+      const blob     = await resp.blob();
+      const fileName = `post-${Date.now()}.${blob.type.split('/')[1]}`;
+      files.push(new File([blob], fileName, { type: blob.type }));
+    }
+
+    if (canShareFiles) {
+      await navigator.share({
+        title: post.head,
+        text : shareText,
+        url  : postUrl,
+        files
+      });
+    } else if (canShareBasic) {
+      // fallback: text + link gusa
+      await navigator.share({
+        title: post.head,
+        text : shareText,
+        url  : postUrl
+      });
+    } else {
+      // fallback indi – dushyire text ku clipboard nkoresheje writeText
+      await navigator.clipboard.writeText(shareText);
+      alert("Browser yawe ntishyigikira Web Share; text yashyizwe kuri clipboard.");
+      return;
+    }
+
+    alert("Post yoherejwe neza!");
+  } catch (err) {
+    console.error(err);
+    alert("Sharing yanze: " + err.message);
+  }
+};
+    
+    <div className="post-details" style={{ padding: '20px', maxWidth: '700px', margin: '0 auto' }}>
         {post.imageUrl && (
           <img
             src={post.imageUrl}

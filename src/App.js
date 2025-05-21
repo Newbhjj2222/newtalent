@@ -45,8 +45,7 @@ const App = () => {
             <Route path="/balance" element={<Balance />} />
           </Routes>
 
-          <Footer />c
-
+          <Footer />
           <Link to="/balance" className="floating-btn">
             <MdAccountBalance size={24} />
           </Link>

@@ -27,7 +27,7 @@ const App = () => {
       <Router>
         <div className="app-container">
           <Header />
-
+           <Banner />
           <ScrollToTop />
 
           <Routes>

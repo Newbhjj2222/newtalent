@@ -18,6 +18,7 @@
 .post-card {
   background: white;
   display: flex;
+  width: 92%;
   flex-direction: column;
   border-radius: 12px;
   overflow: hidden;

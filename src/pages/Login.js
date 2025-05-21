@@ -56,7 +56,7 @@ const Login = () => {
 
   return (
     <div className="container">
-      <h1 className="form-title">Sign In</h1>
+     <h2>Sign in</h2>
       <form onSubmit={handleLogin}>
         {message && <div className="messageDiv">{message}</div>}
         <div className="input-group">

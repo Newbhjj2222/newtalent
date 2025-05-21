@@ -14,7 +14,8 @@ import Profile from './pages/Profile';
 import Tv from './pages/Tv';
 import Balance from './pages/Balance';
 import Slider from './components/Slider';
-import Banner from './Banner';
+import Banner from './components/Banner';
+
 import { MdAccountBalance } from 'react-icons/md';
 import './App.css';
 

@@ -182,6 +182,7 @@ const PostDetails = () => {
       className="post-details"
       style={{ padding: 20, maxWidth: 700, margin: '0 auto' }}
     >
+  <Banner /> 
       {post.imageUrl && (
         <img
           src={post.imageUrl}

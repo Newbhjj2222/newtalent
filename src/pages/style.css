@@ -2,12 +2,12 @@
 /* Form container */
 form {
   background: white;
-  margin: 130px auto;
+  margin: 330px auto;
   padding: 30px 40px;
   border-radius: 10px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   width: 100%;
-  max-width: 400px;
+  max-width: 300px;
   box-sizing: border-box;
 }
 

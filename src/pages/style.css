@@ -3,11 +3,12 @@
 form {
   background: white;
   margin: 330px auto;
+  margin-top: 100px;
   padding: 30px 40px;
   border-radius: 10px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   width: 100%;
-  max-width: 300px;
+  max-width: 380px;
   box-sizing: border-box;
 }
 

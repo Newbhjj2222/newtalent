@@ -85,6 +85,7 @@ form p a:hover {
 @media screen and (max-width: 500px) {
   form {
     padding: 25px 20px;
-    margin: 80px auto;
+    margin-top: 120px;
+    margin-left: 20px;
   }
 }

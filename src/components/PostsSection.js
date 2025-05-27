@@ -1,21 +1,22 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { useLocation } from 'react-router-dom';
 import { FaArrowRight } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import './Posts.css';
 
-import { db } from '../firebase'; // Ensure this path is correct based on your project
+import { db } from '../firebase';
 
 const stripHtml = (html) => {
   const doc = new DOMParser().parseFromString(html, 'text/html');
   return doc.body.textContent || '';
 };
 
-const PostsSection = () => {
+const PostsSection = ({ selectedTitle }) => {
   const [allPosts, setAllPosts] = useState([]);
   const [displayedPosts, setDisplayedPosts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const sectionRef = useRef(null); // Ref for scrolling
 
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
@@ -30,7 +31,9 @@ const PostsSection = () => {
 
         const postsData = snapshot.docs.map(doc => {
           const data = doc.data();
-          const summary = data.story ? stripHtml(data.story).split(' ').slice(0, 20).join(' ') + '...' : '';
+          const summary = data.story
+            ? stripHtml(data.story).split(' ').slice(0, 20).join(' ') + '...'
+            : '';
           return {
             id: doc.id,
             image: data.imageUrl || '',
@@ -51,30 +54,46 @@ const PostsSection = () => {
   }, []);
 
   useEffect(() => {
-    if (!selectedCategory) {
-      setDisplayedPosts(allPosts.slice(0, 50));
-    } else {
-      const filtered = allPosts.filter(post =>
+    let filtered = allPosts;
+
+    if (selectedCategory) {
+      filtered = filtered.filter(post =>
         post.category.toLowerCase() === selectedCategory.toLowerCase()
       );
-      setDisplayedPosts(filtered);
     }
-  }, [allPosts, selectedCategory]);
+
+    if (selectedTitle) {
+      filtered = filtered.filter(post =>
+        post.title.toLowerCase().includes(selectedTitle.toLowerCase())
+      );
+    }
+
+    setDisplayedPosts(filtered.slice(0, 50));
+
+    // Auto scroll to posts section when filters change
+    if (sectionRef.current) {
+      sectionRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [allPosts, selectedCategory, selectedTitle]);
 
   const handleSearch = (e) => {
     const value = e.target.value.toLowerCase();
     setSearchQuery(value);
 
-    const postsToFilter = selectedCategory
-      ? allPosts.filter(post =>
-          post.category.toLowerCase() === selectedCategory.toLowerCase()
-        )
-      : allPosts;
+    const baseFilter = allPosts.filter(post => {
+      const matchCategory = selectedCategory
+        ? post.category.toLowerCase() === selectedCategory.toLowerCase()
+        : true;
+      const matchTitle = selectedTitle
+        ? post.title.toLowerCase().includes(selectedTitle.toLowerCase())
+        : true;
+      return matchCategory && matchTitle;
+    });
 
     if (value.trim() === '') {
-      setDisplayedPosts(postsToFilter.slice(0, 50));
+      setDisplayedPosts(baseFilter.slice(0, 50));
     } else {
-      const filtered = postsToFilter.filter(post =>
+      const filtered = baseFilter.filter(post =>
         post.title.toLowerCase().includes(value) ||
         post.author.toLowerCase().includes(value)
       );
@@ -83,9 +102,15 @@ const PostsSection = () => {
   };
 
   return (
-    <div className="posts-section">
-      <h2>{selectedCategory ? selectedCategory + ' Stories' : 'All Posts'}</h2>
-      
+    <div className="posts-section" ref={sectionRef}>
+      <h2>
+        {selectedCategory
+          ? selectedCategory + ' Stories'
+          : selectedTitle
+          ? selectedTitle + ' Stories'
+          : 'All Posts'}
+      </h2>
+
       <input
         type="text"
         placeholder="Search by title or author..."

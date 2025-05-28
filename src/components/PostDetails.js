@@ -74,7 +74,7 @@ const PostDetails = () => {
 
         if (!depositerSnap.exists()) {
           alert(
-            'Ntabwo tubona account yawe. Banza winjire cyangwa wiyandikishe. niba ibi tubikweretse winjiye, Gura nes point account yawe tubashe kuyibona. niba kandi ukeneye ubufasha twandikire kuri Whatsapp 0722319367 tugufashe.',
+            'Ntabwo tubona account yawe, mubaguze nes point. Banza ugure nes point kugira ngo usome iyi nkuru. niba ibi tubikweretse uzifite, reba balance yawe cyangwa Gura nes point account yawe tubashe kuyibona. niba kandi ukeneye ubufasha twandikire kuri Whatsapp 0722319367 tugufashe.',
           );
           navigate('/balance');
           return;

@@ -10,7 +10,8 @@ import PopBanner from '../components/PopBanner';
 
 const Home = () => {
   const [selectedTitle, setSelectedTitle] = useState(null);
-
+const [showPopBanner, setShowPopBanner] = useState(false);
+const [popularPost, setPopularPost] = useState(null);
   const handleSelectPost = (title) => {
     setSelectedTitle(title);
   };

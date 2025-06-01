@@ -4,11 +4,12 @@ import Slider from '../components/Slider';
 import SearchBar from '../components/SearchBar';
 import PostsSection from '../components/PostsSection';
 import Sidebar from '../components/Sidebar';
-import OtherStories from '../components/OtherStories';                                                                                       import PopBanner from '../components/PopBanner';
-import PopBanner from '../components/PopBanner';
+import OtherStories from '../components/OtherStories';
+import PopBanner from '../components/PopBanner'; // Iyi niyo imwe yonyine ikenewe
+
 const Home = () => {
   const [selectedTitle, setSelectedTitle] = useState(null);
-  const [showPopBanner, setShowPopBanner] = useState(true); // For visibility control
+  const [showPopBanner, setShowPopBanner] = useState(true); // Kugenzura niba PopBanner igaragara
 
   const handleSelectPost = (title) => {
     setSelectedTitle(title);
@@ -24,12 +25,13 @@ const Home = () => {
     <>
       <Banner />
 
-      {/* PopBanner only if showPopBanner is true */}
+      {/* PopBanner igaragare gusa niba showPopBanner ari true */}
       {showPopBanner && (
         <PopBanner post={popularPost} onClose={() => setShowPopBanner(false)} />
       )}
 
       <SearchBar />
+
       <div className="main-content flex">
         <div className="main-section w-3/4">
           <Slider />

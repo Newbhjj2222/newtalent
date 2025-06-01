@@ -1,0 +1,69 @@
+.popbanner-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+.popbanner-content {
+   background: white;
+   border-radius: 12px;
+   max-width: 700px;
+   width: 90%; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+   position: relative;
+   overflow: hidden;
+}
+.close-button {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  font-size: 28px;
+  background: none;
+  border: none;
+  color: red;
+  cursor: pointer;
+  font-weight: bold;
+}           
+.close-button:hover {
+  color: blue;
+}
+.popbanner-body {
+  display: flex;
+  flex-direction: column;
+}                                                 
+@media (min-width: 768px) {
+  .popbanner-body {
+    flex-direction: row;
+  }
+  .popbanner-image {
+  width: 80%;
+  margin: 20px;
+  max-height: auto;
+  border-radius: 8px;
+  object-fit: cover;
+}
+.popbanner-text {
+  padding: 20px;
+}
+.popbanner-title {
+  font-size: 24px;
+  margin-bottom: 10px;
+  color: green;
+}
+.popbanner-description {
+  color: #555;
+  font-weight: bold;
+  line-height: 1.5;
+}
+.nav-buttons {
+  margin-top: 10px;
+  display: flex;
+  color: red;
+  justify-content: space-between;
+}

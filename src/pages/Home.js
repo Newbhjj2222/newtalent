@@ -1,3 +1,5 @@
+// src/pages/Home.js
+
 import React, { useState } from 'react';
 import Banner from '../components/Banner';
 import Slider from '../components/Slider';
@@ -8,35 +10,44 @@ import OtherStories from '../components/OtherStories';
 import PopBanner from '../components/PopBanner';
 
 const Home = () => {
+  // State yo kubika post yahiswemo
   const [selectedTitle, setSelectedTitle] = useState(null);
-  const [showPopBanner, setShowPopBanner] = useState(true); // For visibility control
 
+  // State igenzura niba PopBanner igaragazwa
+  const [showPopBanner, setShowPopBanner] = useState(false);
+
+  // State ibika post ikunzwe cyane
+  const [popularPost, setPopularPost] = useState(null);
+
+  // Iyi function yakirwa na Sidebar kugira ngo uhitemo post
   const handleSelectPost = (title) => {
     setSelectedTitle(title);
   };
 
-  const popularPost = {
-    title: "Uko wakoresha amahirwe yawe neza",
-    description: "Menya uko wakwiteza imbere ukoresheje amahirwe aboneka muri sosiyete yacu...",
-    image: "https://source.unsplash.com/800x600/?opportunity,success"
+  // Urugero: igihe ushaka kwerekana PopBanner na post ikunzwe
+  const handleShowPopular = (post) => {
+    setPopularPost(post);
+    setShowPopBanner(true);
   };
 
   return (
     <>
       <Banner />
 
-      {/* PopBanner only if showPopBanner is true */}
-      {showPopBanner && (
+      {/* PopBanner igaragara gusa igihe showPopBanner ari true */}
+      {showPopBanner && popularPost && (
         <PopBanner post={popularPost} onClose={() => setShowPopBanner(false)} />
       )}
 
       <SearchBar />
+
       <div className="main-content flex">
         <div className="main-section w-3/4">
           <Slider />
           <PostsSection selectedTitle={selectedTitle} />
-          <OtherStories />
+          <OtherStories onShowPopular={handleShowPopular} />
         </div>
+        
         <Sidebar onSelectPost={handleSelectPost} />
       </div>
     </>

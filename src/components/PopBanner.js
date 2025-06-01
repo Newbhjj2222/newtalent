@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import './PopBanner.css';
 import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../firebase'; // Aha ni aho uba washyize config ya Firebase
+import { db } from '../firebase';
 
 const PopBanner = ({ onClose }) => {
   const [posts, setPosts] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [loading, setLoading] = useState(true); // added
+  const [error, setError] = useState(null);     // added
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -16,15 +18,19 @@ const PopBanner = ({ onClose }) => {
           ...doc.data()
         }));
         setPosts(popData);
-      } catch (error) {
-        console.error('Error fetching posts:', error);
+      } catch (err) {
+        console.error('Error fetching posts:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchPosts();
   }, []);
 
-  if (!posts.length) return null;
+  if (loading) return null; // or a spinner
+  if (error || !posts.length) return null;
 
   const post = posts[currentIndex];
 
@@ -34,10 +40,9 @@ const PopBanner = ({ onClose }) => {
         <button className="close-button" onClick={onClose}>
           &times;
         </button>
-
         <div className="popbanner-body">
           <img
-            src={post.imageBase64 || post.image} // niba harimo imageBase64 cyangwa image
+            src={post.imageBase64 || post.image}
             alt={post.title}
             className="popbanner-image"
           />
@@ -46,18 +51,12 @@ const PopBanner = ({ onClose }) => {
             <p className="popbanner-description">{post.description}</p>
           </div>
         </div>
-
-        {/* Navigation buttons niba ushaka kwereka indi post */}
         {posts.length > 1 && (
           <div className="nav-buttons">
-            <button
-              onClick={() => setCurrentIndex((currentIndex - 1 + posts.length) % posts.length)}
-            >
+            <button onClick={() => setCurrentIndex((currentIndex - 1 + posts.length) % posts.length)}>
               ‹ Prev
             </button>
-            <button
-              onClick={() => setCurrentIndex((currentIndex + 1) % posts.length)}
-            >
+            <button onClick={() => setCurrentIndex((currentIndex + 1) % posts.length)}>
               Next ›
             </button>
           </div>

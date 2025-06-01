@@ -5,7 +5,7 @@ import SearchBar from '../components/SearchBar';
 import PostsSection from '../components/PostsSection';
 import Sidebar from '../components/Sidebar';
 import OtherStories from '../components/OtherStories';                                                                                       import PopBanner from '../components/PopBanner';
-
+import PopBanner from '../components/PopBanner';
 const Home = () => {
   const [selectedTitle, setSelectedTitle] = useState(null);
   const [showPopBanner, setShowPopBanner] = useState(true); // For visibility control

@@ -50,7 +50,8 @@
   .popbanner-image {
     width: 80%;
     margin: 20px;
-    max-height: 400px; /* Cyangwa uhindure uko ushaka */
+    height: auto; 
+    margin: 20px;/* Cyangwa uhindure uko ushaka */
     border-radius: 8px;
     object-fit: cover;
   }

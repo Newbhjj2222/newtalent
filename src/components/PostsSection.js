@@ -1,10 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { collection, getDocs, query, orderBy } from 'firebase/firestore';
-import { useLocation } from 'react-router-dom';
+import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { useLocation, Link } from 'react-router-dom';
 import { FaArrowRight } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
 import './Posts.css';
-
 import { db } from '../firebase';
 
 const stripHtml = (html) => {
@@ -16,41 +14,60 @@ const PostsSection = ({ selectedTitle }) => {
   const [allPosts, setAllPosts] = useState([]);
   const [displayedPosts, setDisplayedPosts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const sectionRef = useRef(null); // Ref for scrolling
-
+  const [loading, setLoading] = useState(true);
+  const sectionRef = useRef(null);
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const selectedCategory = queryParams.get('category');
 
+  // Save to localStorage
+  const saveToLocal = (posts) => {
+    localStorage.setItem('cachedPosts', JSON.stringify(posts));
+  };
+
+  // Load from localStorage
+  const loadFromLocal = () => {
+    const data = localStorage.getItem('cachedPosts');
+    return data ? JSON.parse(data) : [];
+  };
+
   useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const postsRef = collection(db, 'posts');
-        const q = query(postsRef, orderBy('createdAt', 'desc'));
-        const snapshot = await getDocs(q);
+    // Tangira ushyira localStorage mu state
+    const cached = loadFromLocal();
+    if (cached.length > 0) {
+      setAllPosts(cached);
+      setLoading(false); // Show cached data immediately
+    }
 
-        const postsData = snapshot.docs.map(doc => {
-          const data = doc.data();
-          const summary = data.story
-            ? stripHtml(data.story).split(' ').slice(0, 20).join(' ') + '...'
-            : '';
-          return {
-            id: doc.id,
-            image: data.imageUrl || '',
-            title: data.head || 'Untitled',
-            summary: summary,
-            author: data.author || 'Unknown',
-            category: data.category || 'General'
-          };
-        });
+    // Hanyuma utegereje Firebase updates
+    const postsRef = collection(db, 'posts');
+    const q = query(postsRef, orderBy('createdAt', 'desc'));
 
-        setAllPosts(postsData);
-      } catch (error) {
-        console.error("Error fetching posts: ", error);
-      }
-    };
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const postsData = snapshot.docs.map(doc => {
+        const data = doc.data();
+        const summary = data.story
+          ? stripHtml(data.story).split(' ').slice(0, 20).join(' ') + '...'
+          : '';
+        return {
+          id: doc.id,
+          image: data.imageUrl || '',
+          title: data.head || 'Untitled',
+          summary: summary,
+          author: data.author || 'Unknown',
+          category: data.category || 'General'
+        };
+      });
 
-    fetchPosts();
+      setAllPosts(postsData);
+      saveToLocal(postsData); // Refresh cache
+      setLoading(false);
+    }, (error) => {
+      console.error("Error fetching live data: ", error);
+      setLoading(false); // Error fallback — ariko cache twarayerekanye hejuru
+    });
+
+    return () => unsubscribe();
   }, []);
 
   useEffect(() => {
@@ -70,7 +87,6 @@ const PostsSection = ({ selectedTitle }) => {
 
     setDisplayedPosts(filtered.slice(0, 50));
 
-    // Auto scroll to posts section when filters change
     if (sectionRef.current) {
       sectionRef.current.scrollIntoView({ behavior: 'smooth' });
     }
@@ -119,7 +135,9 @@ const PostsSection = ({ selectedTitle }) => {
         className="search-input"
       />
 
-      {displayedPosts.length > 0 ? (
+      {loading ? (
+        <div>Turategereza inkuru...</div>
+      ) : displayedPosts.length > 0 ? (
         displayedPosts.map((post) => (
           <div key={post.id} className="post-card">
             <img src={post.image} alt={post.title} className="post-img" />

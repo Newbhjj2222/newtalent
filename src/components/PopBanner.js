@@ -1,26 +1,52 @@
 import React, { useEffect, useState } from 'react';
 import './PopBanner.css';
 import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../firebase'; // Aha ni aho uba washyize config ya Firebase
+import { db } from '../firebase';
 
 const PopBanner = ({ onClose }) => {
-  const [posts, setPosts] = useState([]);                                                                                                      const [currentIndex, setCurrentIndex] = useState(0);
+  const [posts, setPosts] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  // Fungura localStorage backup niba internet yabaye nkeya
+  useEffect(() => {
+    const savedPosts = localStorage.getItem('popPosts');
+    if (savedPosts) {
+      setPosts(JSON.parse(savedPosts));
+    }
+  }, []);
+
+  // Fata amakuru ya Firebase no kubika muri localStorage
+  const fetchPosts = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, 'pop'));
+      const popData = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+
+      // Reba niba hari impinduka mbere yo kubika no gushyira mu state
+      const previous = localStorage.getItem('popPosts');
+      const prevData = previous ? JSON.parse(previous) : [];
+
+      const isDifferent = JSON.stringify(popData) !== JSON.stringify(prevData);
+      if (isDifferent) {
+        localStorage.setItem('popPosts', JSON.stringify(popData));
+        setPosts(popData);
+      }
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+    }
+  };
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, 'pop'));
-        const popData = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-        setPosts(popData);
-      } catch (error) {
-        console.error('Error fetching posts:', error);
-      }
-    };
+    fetchPosts(); // Hitamo amakuru bwa mbere
 
-    fetchPosts();
+    // Hanyuma ugenzure buri minota 1 niba hari ibishya
+    const interval = setInterval(() => {
+      fetchPosts();
+    }, 60000); // 60000ms = 1 minute
+
+    return () => clearInterval(interval);
   }, []);
 
   if (!posts.length) return null;
@@ -36,7 +62,7 @@ const PopBanner = ({ onClose }) => {
 
         <div className="popbanner-body">
           <img
-            src={post.imageBase64 || post.image} // niba harimo imageBase64 cyangwa image
+            src={post.imageBase64 || post.image}
             alt={post.title}
             className="popbanner-image"
           />
@@ -46,7 +72,6 @@ const PopBanner = ({ onClose }) => {
           </div>
         </div>
 
-        {/* Navigation buttons niba ushaka kwereka indi post */}
         {posts.length > 1 && (
           <div className="nav-buttons">
             <button

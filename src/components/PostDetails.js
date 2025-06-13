@@ -83,7 +83,7 @@ const PostDetails = () => {
         const currentNes = Number(depositerSnap.data().nes) || 0;
         if (currentNes < 1) {
           alert(
-            'Nta NeS point zihagije ngo wemererwe gusoma iyi nkuru. Tugiye kukujyana aho uzigurira.',
+            'Nta NeS point zihagije ngo wemererwe gusoma iyi nkuru. Tugiye kukujyana aho uzigurira. niba ibi ubibonye waziguze twandikire Whatsapp tugufashe. +250722319367',
           );
           navigate('/balance');
           return;

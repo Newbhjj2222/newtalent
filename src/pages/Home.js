@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Banner from '../components/Banner';
 import Slider from '../components/Slider';
@@ -6,11 +5,11 @@ import SearchBar from '../components/SearchBar';
 import PostsSection from '../components/PostsSection';
 import Sidebar from '../components/Sidebar';
 import OtherStories from '../components/OtherStories';
-import PopBanner from '../components/PopBanner'; // ✅ Gusa imwe
+import PopBanner from '../components/PopBanner';
 
 const Home = () => {
   const [selectedTitle, setSelectedTitle] = useState(null);
-  const [showPopBanner, setShowPopBanner] = useState(true); // For visibility control
+  const [showPopBanner, setShowPopBanner] = useState(true);
 
   const handleSelectPost = (title) => {
     setSelectedTitle(title);
@@ -23,24 +22,34 @@ const Home = () => {
   };
 
   return (
-    <>
+    <div className="bg-gray-50 min-h-screen text-gray-800">
       <Banner />
 
-      {/* PopBanner only if showPopBanner is true */}
+      {/* PopBanner igaragara gusa igihe showPopBanner ari true */}
       {showPopBanner && (
-        <PopBanner post={popularPost} onClose={() => setShowPopBanner(false)} />
+        <div className="px-4">
+          <PopBanner post={popularPost} onClose={() => setShowPopBanner(false)} />
+        </div>
       )}
 
-      <SearchBar />
-      <div className="main-content flex">
-        <div className="main-section w-3/4">
+      <div className="px-4 mt-4">
+        <SearchBar />
+      </div>
+
+      <div className="main-content flex flex-col lg:flex-row gap-4 px-4 py-6">
+        {/* MAIN SECTION */}
+        <div className="main-section w-full lg:w-3/4 space-y-6">
           <Slider />
           <PostsSection selectedTitle={selectedTitle} />
           <OtherStories />
         </div>
-        <Sidebar onSelectPost={handleSelectPost} />
+
+        {/* SIDEBAR */}
+        <div className="sidebar w-full lg:w-1/4 mt-6 lg:mt-0">
+          <Sidebar onSelectPost={handleSelectPost} />
+        </div>
       </div>
-    </>
+    </div>
   );
 };
 

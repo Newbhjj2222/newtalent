@@ -12,6 +12,34 @@ import {
 import { FaShareAlt } from 'react-icons/fa';
 import './PostDetails.css';
 
+const extractSeriesAndEpisode = (head) => {
+  if (!head) return { title: null, season: null, episode: null };
+
+  const cleanedHead = head
+    .replace(/[\/\\\-_:]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toUpperCase();
+
+  const seasonMatch = cleanedHead.match(/SEASON\s*(\d+)|S\s*(\d+)/i);
+  const season = seasonMatch ? parseInt(seasonMatch[1] || seasonMatch[2], 10) : 1;
+
+  const episodeMatch = cleanedHead.match(/EPISODE\s*(\d+)|EP\s*(\d+)|E\s*(\d+)/i);
+  const episode = episodeMatch
+    ? parseInt(episodeMatch[1] || episodeMatch[2] || episodeMatch[3], 10)
+    : null;
+
+  const title = cleanedHead
+    .replace(/SEASON\s*\d+/i, '')
+    .replace(/S\s*\d+/i, '')
+    .replace(/EPISODE\s*\d+/i, '')
+    .replace(/EP\s*\d+/i, '')
+    .replace(/E\s*\d+/i, '')
+    .trim();
+
+  return { title, season, episode };
+};
+
 const PostDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -23,31 +51,6 @@ const PostDetails = () => {
   const [currentUser, setCurrentUser] = useState('');
   const [nextPostId, setNextPostId] = useState(null);
   const [prevPostId, setPrevPostId] = useState(null);
-
-  const extractSeriesAndEpisode = (head) => {
-  if (!head) return { title: null, episode: null };
-
-  // Kura ibimenyetso bidakenewe
-  const cleanedHead = head.replace(/[\/\\\-_:]+/g, ' ').replace(/\s+/g, ' ').trim().toUpperCase();
-
-  // Shaka episode number (EPISODE 1, EP01, E1, EP 001, etc.)
-  const episodeMatch = cleanedHead.match(/EPISODE\s*(\d+)|EP\s*(\d+)|E\s*(\d+)/i);
-  const episode = episodeMatch
-    ? parseInt(episodeMatch[1] || episodeMatch[2] || episodeMatch[3], 10)
-    : null;
-
-  // Kura season niba ibayeho ariko ntituyikoreshe mu title
-  const title = cleanedHead
-    .replace(/SEASON\s*\d+/i, '')
-    .replace(/S\s*\d+/i, '')
-    .replace(/EPISODE\s*\d+/i, '')
-    .replace(/EP\s*\d+/i, '')
-    .replace(/E\s*\d+/i, '')
-    .trim();
-
-  return { title, episode };
-};
-
 
   useEffect(() => {
     const fetchPostAndComments = async () => {
@@ -66,6 +69,7 @@ const PostDetails = () => {
           navigate('/');
           return;
         }
+
         const postData = { id: postSnap.id, ...postSnap.data() };
         setPost(postData);
 
@@ -99,14 +103,17 @@ const PostDetails = () => {
             ...p,
             ...extractSeriesAndEpisode(p.head)
           }))
-          .filter((p) => p.title === current.title && p.episode !== null)
+          .filter((p) =>
+            p.title === current.title &&
+            p.season === current.season &&
+            p.episode !== null
+          )
           .sort((a, b) => a.episode - b.episode);
 
         const currentIndex = sameSeriesPosts.findIndex((p) => p.id === currentPost.id);
 
         setPrevPostId(currentIndex > 0 ? sameSeriesPosts[currentIndex - 1].id : null);
         setNextPostId(currentIndex < sameSeriesPosts.length - 1 ? sameSeriesPosts[currentIndex + 1].id : null);
-
       } catch (error) {
         console.error("Error finding adjacent posts:", error);
       }
@@ -126,14 +133,14 @@ const PostDetails = () => {
         const depositerRef = doc(db, 'depositers', username);
         const depositerSnap = await getDoc(depositerRef);
         if (!depositerSnap.exists()) {
-          alert('Account yawe ntabwo tuyibona mubaguze NeS zo gukoresha usoma. tugiye kukujyana aho uzigurira kugirango usome. mugihe ukeneye ubufasha twandikire whatsapp tugufashe 0722319367');
+          alert('Account yawe ntabwo tuyibona mubaguze NeS. Tugiye kukujyana aho uzigurira.');
           navigate('/balance');
           return;
         }
 
         const currentNes = Number(depositerSnap.data().nes) || 0;
         if (currentNes < 1) {
-          alert('Nta NeS point zihagije ufite zikwemerera gusoma iyi nkuru. Tugiye kukujyana aho uzigurira. niba ibi ubibonye waziguze twandikire whatsapp tugufashe 0722319376');
+          alert('Nta NeS uhagije. Tugiye kukujyana aho uzigurira.');
           navigate('/balance');
           return;
         }
@@ -188,14 +195,13 @@ const PostDetails = () => {
         .slice(0, 650);
 
       const shareText = `${post.head}\n\n${cleanText}...\n\nRead more: ${postUrl}`;
-      const canShareBasic =
-        navigator.canShare && navigator.canShare({ title: '', text: '', url: '' });
+      const canShareBasic = navigator.canShare && navigator.canShare({ title: '', text: '', url: '' });
 
       if (canShareBasic) {
         await navigator.share({ title: post.head, text: shareText, url: postUrl });
       } else {
         await navigator.clipboard.writeText(shareText);
-        alert('Browser yawe ntishyigikira Web Share; text yashyizwe kuri clipboard.');
+        alert('Browser yawe ntishyigikira Web Share; yashyizwe kuri clipboard.');
       }
 
       alert('Post yoherejwe neza!');

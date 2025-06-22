@@ -6,7 +6,7 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import About from './pages/About';
 import Home from './pages/Home';
-import PostDetails from './components/PostDetails';
+import PostDetails from './components/PostDetails'; // Route igana kuri PostDetails
 import Contact from './pages/Contact';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -28,7 +28,7 @@ const App = () => {
       <Router>
         <div className="app-container">
           <Header />
-           <Banner />
+          <Banner />
           <ScrollToTop />
 
           <Routes>
@@ -36,8 +36,14 @@ const App = () => {
             <Route path="/home" element={<Home />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
-            <Route path="/post/:id" element={<PostDetails />} /> {/* ✅ Route imwe gusa ya PostDetails */}
-    <Route path="/posts/:id" element={<PostDetails />} />
+
+            {/* ✅ Uyu niwo ukoresha kugira ngo next episode ikore */}
+            <Route path="/post/:id" element={<PostDetails />} />
+
+            { 
+            <Route path="/posts/:id" element={<PostDetails />} />
+            }
+
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/profile" element={<Profile />} />

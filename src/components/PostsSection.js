@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { collection, query, orderBy, getDocs } from 'firebase/firestore';
 import { useLocation, Link } from 'react-router-dom';
 import { FaArrowRight } from 'react-icons/fa';
 import './Posts.css';
@@ -31,56 +31,60 @@ const PostsSection = ({ selectedTitle }) => {
     return data ? JSON.parse(data) : [];
   };
 
+  // Fetch posts from Firestore once
   useEffect(() => {
-    // Tangira ushyira localStorage mu state
-    const cached = loadFromLocal();
-    if (cached.length > 0) {
-      setAllPosts(cached);
-      setLoading(false); // Show cached data immediately
-    }
+    const fetchPosts = async () => {
+      const cached = loadFromLocal();
+      if (cached.length > 0) {
+        setAllPosts(cached);
+        setLoading(false); // Show cache first
+      }
 
-    // Hanyuma utegereje Firebase updates
-    const postsRef = collection(db, 'posts');
-    const q = query(postsRef, orderBy('createdAt', 'desc'));
+      try {
+        const postsRef = collection(db, 'posts');
+        const q = query(postsRef, orderBy('createdAt', 'desc'));
+        const snapshot = await getDocs(q);
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const postsData = snapshot.docs.map(doc => {
-        const data = doc.data();
-        const summary = data.story
-          ? stripHtml(data.story).split(' ').slice(0, 20).join(' ') + '...'
-          : '';
-        return {
-          id: doc.id,
-          image: data.imageUrl || '',
-          title: data.head || 'Untitled',
-          summary: summary,
-          author: data.author || 'Unknown',
-          category: data.category || 'General'
-        };
-      });
+        const postsData = snapshot.docs.map((doc) => {
+          const data = doc.data();
+          const summary = data.story
+            ? stripHtml(data.story).split(' ').slice(0, 20).join(' ') + '...'
+            : '';
+          return {
+            id: doc.id,
+            image: data.imageUrl || '',
+            title: data.head || 'Untitled',
+            summary: summary,
+            author: data.author || 'Unknown',
+            category: data.category || 'General',
+          };
+        });
 
-      setAllPosts(postsData);
-      saveToLocal(postsData); // Refresh cache
-      setLoading(false);
-    }, (error) => {
-      console.error("Error fetching live data: ", error);
-      setLoading(false); // Error fallback — ariko cache twarayerekanye hejuru
-    });
+        setAllPosts(postsData);
+        saveToLocal(postsData);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching posts:', error);
+        setLoading(false);
+      }
+    };
 
-    return () => unsubscribe();
+    fetchPosts();
   }, []);
 
+  // Filtering based on category and title
   useEffect(() => {
     let filtered = allPosts;
 
     if (selectedCategory) {
-      filtered = filtered.filter(post =>
-        post.category.toLowerCase() === selectedCategory.toLowerCase()
+      filtered = filtered.filter(
+        (post) =>
+          post.category.toLowerCase() === selectedCategory.toLowerCase()
       );
     }
 
     if (selectedTitle) {
-      filtered = filtered.filter(post =>
+      filtered = filtered.filter((post) =>
         post.title.toLowerCase().includes(selectedTitle.toLowerCase())
       );
     }
@@ -96,7 +100,7 @@ const PostsSection = ({ selectedTitle }) => {
     const value = e.target.value.toLowerCase();
     setSearchQuery(value);
 
-    const baseFilter = allPosts.filter(post => {
+    const baseFilter = allPosts.filter((post) => {
       const matchCategory = selectedCategory
         ? post.category.toLowerCase() === selectedCategory.toLowerCase()
         : true;
@@ -109,9 +113,10 @@ const PostsSection = ({ selectedTitle }) => {
     if (value.trim() === '') {
       setDisplayedPosts(baseFilter.slice(0, 50));
     } else {
-      const filtered = baseFilter.filter(post =>
-        post.title.toLowerCase().includes(value) ||
-        post.author.toLowerCase().includes(value)
+      const filtered = baseFilter.filter(
+        (post) =>
+          post.title.toLowerCase().includes(value) ||
+          post.author.toLowerCase().includes(value)
       );
       setDisplayedPosts(filtered);
     }
@@ -140,7 +145,12 @@ const PostsSection = ({ selectedTitle }) => {
       ) : displayedPosts.length > 0 ? (
         displayedPosts.map((post) => (
           <div key={post.id} className="post-card">
-            <img src={post.image} alt={post.title} className="post-img" />
+            <img
+              src={post.image}
+              alt={post.title}
+              className="post-img"
+              loading="lazy"
+            />
             <div className="post-content">
               <h3>{post.title}</h3>
               <p>{post.summary}</p>

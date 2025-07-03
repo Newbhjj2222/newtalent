@@ -34,8 +34,8 @@
 }
 
 .post {
-  min-width: 280px;
-  width: 100%;
+  min-width: 288px;
+  max-width: 328px;
   background-color: white;
   border-radius: 12px;
   overflow: hidden;

@@ -1,7 +1,6 @@
 .slider {
   padding: 20px;
-  margin-top: 40px;
-  width: auto;
+  margin-top: 10px;
   background-color: #f9f9f9;
 }
 
@@ -34,7 +33,7 @@
 }
 
 .post {
-  min-width: 288px;
+  min-width: 280px;
   max-width: 328px;
   background-color: white;
   border-radius: 12px;

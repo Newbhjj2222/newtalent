@@ -16,10 +16,11 @@ const NewtalentsGTv = ({ userId }) => {
   const [videos, setVideos] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [timeLeft, setTimeLeft] = useState(null);
+  const [videoDuration, setVideoDuration] = useState(0); // total duration
+  const [timeLeft, setTimeLeft] = useState(0); // seconds left
   const countdownRef = useRef(null);
+  const playerRef = useRef(null); // ref to ReactPlayer
 
-  // Fungura amashusho ava muri Firestore
   useEffect(() => {
     const fetchVideos = async () => {
       const querySnapshot = await getDocs(collection(db, 'shows'));
@@ -41,13 +42,11 @@ const NewtalentsGTv = ({ userId }) => {
     fetchVideos();
   }, []);
 
-  // Iyo video irangiye
   const handleVideoEnd = () => {
     const nextIndex = (currentIndex + 1) % videos.length;
     setCurrentIndex(nextIndex);
   };
 
-  // Gukora "Follow"
   const handleFollow = async () => {
     const video = videos[currentIndex];
     const docRef = doc(db, 'Newtalentsg', `${actualUserId}_${video.id}`);
@@ -59,7 +58,6 @@ const NewtalentsGTv = ({ userId }) => {
     alert('Wakurikiranwe!');
   };
 
-  // Kwiyandikisha kuri views
   const recordView = async () => {
     const video = videos[currentIndex];
     const viewRef = doc(db, 'views', `${actualUserId}_${video.id}`);
@@ -76,37 +74,37 @@ const NewtalentsGTv = ({ userId }) => {
     });
   };
 
-  // Igihe video ihindutse, andika "view" nshya & utangire countdown
   useEffect(() => {
     if (videos.length > 0) {
       recordView();
-
-      // Countdown logic
-      const duration = 15;
-      let time = duration;
-      setTimeLeft(time);
-
-      if (countdownRef.current) clearInterval(countdownRef.current);
-
-      countdownRef.current = setInterval(() => {
-        time -= 1;
-        setTimeLeft(time);
-        if (time <= 0) {
-          clearInterval(countdownRef.current);
-          handleVideoEnd();
-        }
-      }, 1000);
     }
+  }, [currentIndex]);
+
+  // Timer countdown updater
+  useEffect(() => {
+    if (!playerRef.current) return;
+
+    countdownRef.current = setInterval(() => {
+      const played = playerRef.current.getCurrentTime?.() || 0;
+      const duration = playerRef.current.getDuration?.() || 0;
+      const remaining = Math.max(duration - played, 0);
+      setTimeLeft(Math.floor(remaining));
+    }, 1000);
 
     return () => {
       clearInterval(countdownRef.current);
     };
-  }, [currentIndex]);
+  }, [videoDuration, currentIndex]);
+
+  const formatTime = (seconds) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  };
 
   if (loading) return <div className="video-player">Loading videos...</div>;
 
   const currentVideo = videos[currentIndex];
-  const nextVideo = videos[(currentIndex + 1) % videos.length];
 
   return (
     <div className="video-player">
@@ -114,20 +112,22 @@ const NewtalentsGTv = ({ userId }) => {
 
       <div className="player-wrapper">
         <ReactPlayer
+          ref={playerRef}
           url={currentVideo.videoUrl}
           playing={true}
           controls={true}
           width="100%"
           height="100%"
           className="react-player"
-          onEnded={handleVideoEnd} // ← ibi nibyo byatumaga autoplay idakora
+          onEnded={handleVideoEnd}
+          onDuration={(duration) => setVideoDuration(duration)}
         />
       </div>
 
       <div className="controls">
         <button onClick={handleFollow}>Follow</button>
         <p>
-          Next video in: <strong>{timeLeft}s</strong> – <em>{nextVideo.title}</em>
+          Time left on this video: <strong>{formatTime(timeLeft)}</strong>
         </p>
       </div>
     </div>

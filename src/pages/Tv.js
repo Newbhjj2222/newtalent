@@ -12,13 +12,14 @@ import ReactPlayer from 'react-player';
 import './NewtalentsG.css';
 
 const NewtalentsGTv = ({ userId }) => {
-  const actualUserId = userId || "NewtalentsG";
+  const actualUserId = userId || 'NewtalentsG';
   const [videos, setVideos] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [timeLeft, setTimeLeft] = useState(null);
   const countdownRef = useRef(null);
 
+  // Fungura amashusho ava muri Firestore
   useEffect(() => {
     const fetchVideos = async () => {
       const querySnapshot = await getDocs(collection(db, 'shows'));
@@ -40,11 +41,13 @@ const NewtalentsGTv = ({ userId }) => {
     fetchVideos();
   }, []);
 
+  // Iyo video irangiye
   const handleVideoEnd = () => {
     const nextIndex = (currentIndex + 1) % videos.length;
     setCurrentIndex(nextIndex);
   };
 
+  // Gukora "Follow"
   const handleFollow = async () => {
     const video = videos[currentIndex];
     const docRef = doc(db, 'Newtalentsg', `${actualUserId}_${video.id}`);
@@ -56,6 +59,7 @@ const NewtalentsGTv = ({ userId }) => {
     alert('Wakurikiranwe!');
   };
 
+  // Kwiyandikisha kuri views
   const recordView = async () => {
     const video = videos[currentIndex];
     const viewRef = doc(db, 'views', `${actualUserId}_${video.id}`);
@@ -72,16 +76,17 @@ const NewtalentsGTv = ({ userId }) => {
     });
   };
 
+  // Igihe video ihindutse, andika "view" nshya & utangire countdown
   useEffect(() => {
     if (videos.length > 0) {
       recordView();
 
       // Countdown logic
-      const duration = 15; // seconds before playing next video automatically
+      const duration = 15;
       let time = duration;
       setTimeLeft(time);
 
-      countdownRef.current && clearInterval(countdownRef.current);
+      if (countdownRef.current) clearInterval(countdownRef.current);
 
       countdownRef.current = setInterval(() => {
         time -= 1;
@@ -110,11 +115,12 @@ const NewtalentsGTv = ({ userId }) => {
       <div className="player-wrapper">
         <ReactPlayer
           url={currentVideo.videoUrl}
-          playing
-          controls
+          playing={true}
+          controls={true}
           width="100%"
           height="100%"
           className="react-player"
+          onEnded={handleVideoEnd} // ← ibi nibyo byatumaga autoplay idakora
         />
       </div>
 

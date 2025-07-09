@@ -89,7 +89,7 @@ const PostsSection = ({ selectedTitle }) => {
       );
     }
 
-    setDisplayedPosts(filtered.slice(0, 50));
+    setDisplayedPosts(filtered.slice(0, 10));
 
     if (sectionRef.current) {
       sectionRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -111,7 +111,7 @@ const PostsSection = ({ selectedTitle }) => {
     });
 
     if (value.trim() === '') {
-      setDisplayedPosts(baseFilter.slice(0, 50));
+      setDisplayedPosts(baseFilter.slice(0, 10));
     } else {
       const filtered = baseFilter.filter(
         (post) =>

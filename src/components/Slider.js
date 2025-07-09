@@ -7,13 +7,13 @@ const Slider = () => {
   const [trendingPosts, setTrendingPosts] = useState([]);
   const [loadedImages, setLoadedImages] = useState({});
   const trackRef = useRef(null);
-  const scrollAmount = 20;
+  const scrollAmount = 70;
   const navigate = useNavigate();
 
   useEffect(() => {
     const db = getFirestore();
     const postsRef = collection(db, 'posts');
-    const q = query(postsRef, orderBy('createdAt', 'desc'), limit(100));
+    const q = query(postsRef, orderBy('createdAt', 'desc'), limit(10));
 
     // Soma amakuru abitswe muri localStorage niba ahari
     const localData = localStorage.getItem('trendingPosts');
@@ -32,7 +32,7 @@ const Slider = () => {
           return docParser.body.textContent || '';
         };
 
-        const storyWords = data.story ? stripHtml(data.story).split(' ').slice(0, 20).join(' ') + '...' : '';
+        const storyWords = data.story ? stripHtml(data.story).split(' ').slice(0, 70).join(' ') + '...' : '';
 
         return {
           id: doc.id,

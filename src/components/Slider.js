@@ -7,7 +7,7 @@ const Slider = () => {
   const [trendingPosts, setTrendingPosts] = useState([]);
   const [loadedImages, setLoadedImages] = useState({});
   const trackRef = useRef(null);
-  const scrollAmount = 320;
+  const scrollAmount = 20;
   const navigate = useNavigate();
 
   useEffect(() => {

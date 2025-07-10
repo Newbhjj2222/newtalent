@@ -31,13 +31,14 @@ const PostsSection = ({ selectedTitle }) => {
     return data ? JSON.parse(data) : [];
   };
 
-  // Fetch posts from Firestore once
+  // Fetch posts from Firestore
   useEffect(() => {
     const fetchPosts = async () => {
       const cached = loadFromLocal();
       if (cached.length > 0) {
         setAllPosts(cached);
-        setLoading(false); // Show cache first
+        setDisplayedPosts(cached.slice(0, 20)); // Show 20 first from cache
+        setLoading(false);
       }
 
       try {
@@ -61,8 +62,14 @@ const PostsSection = ({ selectedTitle }) => {
         });
 
         setAllPosts(postsData);
+        setDisplayedPosts(postsData.slice(0, 20)); // Show first 20 immediately
         saveToLocal(postsData);
         setLoading(false);
+
+        // After delay, load more
+        setTimeout(() => {
+          setDisplayedPosts(postsData.slice(0, 100)); // Show top 100
+        }, 2000);
       } catch (error) {
         console.error('Error fetching posts:', error);
         setLoading(false);
@@ -89,13 +96,19 @@ const PostsSection = ({ selectedTitle }) => {
       );
     }
 
-    setDisplayedPosts(filtered.slice(0, 100));
+    setDisplayedPosts(filtered.slice(0, 20)); // Show 20 filtered first
 
     if (sectionRef.current) {
       sectionRef.current.scrollIntoView({ behavior: 'smooth' });
     }
+
+    // Load more after 2 seconds
+    setTimeout(() => {
+      setDisplayedPosts(filtered.slice(0, 100)); // Show top 100 filtered
+    }, 2000);
   }, [allPosts, selectedCategory, selectedTitle]);
 
+  // Handle search
   const handleSearch = (e) => {
     const value = e.target.value.toLowerCase();
     setSearchQuery(value);
@@ -111,7 +124,7 @@ const PostsSection = ({ selectedTitle }) => {
     });
 
     if (value.trim() === '') {
-      setDisplayedPosts(baseFilter.slice(0, 10));
+      setDisplayedPosts(baseFilter.slice(0, 20));
     } else {
       const filtered = baseFilter.filter(
         (post) =>
@@ -126,9 +139,9 @@ const PostsSection = ({ selectedTitle }) => {
     <div className="posts-section" ref={sectionRef}>
       <h2>
         {selectedCategory
-          ? selectedCategory + ' Stories'
+          ? `${selectedCategory} Stories`
           : selectedTitle
-          ? selectedTitle + ' Stories'
+          ? `${selectedTitle} Stories`
           : 'All Posts'}
       </h2>
 

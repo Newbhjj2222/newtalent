@@ -32,7 +32,7 @@ const Slider = () => {
           return docParser.body.textContent || '';
         };
 
-        const storyWords = data.story ? stripHtml(data.story).split(' ').slice(0, 100).join(' ') + '...' : '';
+        const storyWords = data.story ? stripHtml(data.story).split(' ').slice(0, 20).join(' ') + '...' : '';
 
         return {
           id: doc.id,

@@ -7,7 +7,7 @@ const Slider = () => {
   const [trendingPosts, setTrendingPosts] = useState([]);
   const [loadedImages, setLoadedImages] = useState({});
   const trackRef = useRef(null);
-  const scrollAmount = 70;
+  const scrollAmount = 380;
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -32,7 +32,7 @@ const Slider = () => {
           return docParser.body.textContent || '';
         };
 
-        const storyWords = data.story ? stripHtml(data.story).split(' ').slice(0, 70).join(' ') + '...' : '';
+        const storyWords = data.story ? stripHtml(data.story).split(' ').slice(0, 380).join(' ') + '...' : '';
 
         return {
           id: doc.id,

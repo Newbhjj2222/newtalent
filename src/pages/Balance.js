@@ -57,7 +57,7 @@ const Balance = () => {
     await setDoc(docRef, {
       ...existingData,
       ...formData,
-      nes: existingData.nes || 10,
+      nes: existingData.nes || 0,
     });
 
     setMessage(

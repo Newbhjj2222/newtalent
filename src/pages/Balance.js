@@ -30,7 +30,7 @@ const Balance = () => {
     const unsub = onSnapshot(doc(db, "depositers", username), (docSnap) => {
       if (docSnap.exists()) {
         const data = docSnap.data();
-        setNes(data.nes || 10);
+        setNes(data.nes || 0);
       }
     });
 
@@ -57,7 +57,7 @@ const Balance = () => {
     await setDoc(docRef, {
       ...existingData,
       ...formData,
-      nes: existingData.nes || 0,
+      nes: existingData.nes || 10,
     });
 
     setMessage(

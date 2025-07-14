@@ -109,9 +109,11 @@ const Balance = () => {
         >
           <option value="">-- Hitamo Plan --</option>
           <option value="onestory">1 episode - 20 RWF</option>
-          <option value="Daily">Daily - 180 RWF</option>
-          <option value="Weekly">Weekly - 350 RWF</option>
-          <option value="Monthly">Monthly - 1000 RWF</option>
+          <option value="Local">local - 100 RWF</option>
+          <option value="limited">limited - 150 RWF</option>
+          <option value="unlimited">unlimited - 200 RWF</option>
+            <option value="VIP">VIP - 350 RWF</option>
+            <option value="bestleader">Monthly- 600 RWF</option>
         </select>
 
         <select

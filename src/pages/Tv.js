@@ -16,10 +16,10 @@ const NewtalentsGTv = ({ userId }) => {
   const [videos, setVideos] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [videoDuration, setVideoDuration] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(0);
+  const [videoDuration, setVideoDuration] = useState(0); // total duration
+  const [timeLeft, setTimeLeft] = useState(0); // seconds left
   const countdownRef = useRef(null);
-  const playerRef = useRef(null);
+  const playerRef = useRef(null); // ref to ReactPlayer
 
   useEffect(() => {
     const fetchVideos = async () => {
@@ -80,6 +80,7 @@ const NewtalentsGTv = ({ userId }) => {
     }
   }, [currentIndex]);
 
+  // Timer countdown updater
   useEffect(() => {
     if (!playerRef.current) return;
 
@@ -90,7 +91,9 @@ const NewtalentsGTv = ({ userId }) => {
       setTimeLeft(Math.floor(remaining));
     }, 1000);
 
-    return () => clearInterval(countdownRef.current);
+    return () => {
+      clearInterval(countdownRef.current);
+    };
   }, [videoDuration, currentIndex]);
 
   const formatTime = (seconds) => {

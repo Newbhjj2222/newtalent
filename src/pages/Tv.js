@@ -16,10 +16,10 @@ const NewtalentsGTv = ({ userId }) => {
   const [videos, setVideos] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [videoDuration, setVideoDuration] = useState(0); // total duration
-  const [timeLeft, setTimeLeft] = useState(0); // seconds left
+  const [videoDuration, setVideoDuration] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(0);
   const countdownRef = useRef(null);
-  const playerRef = useRef(null); // ref to ReactPlayer
+  const playerRef = useRef(null);
 
   useEffect(() => {
     const fetchVideos = async () => {
@@ -80,7 +80,6 @@ const NewtalentsGTv = ({ userId }) => {
     }
   }, [currentIndex]);
 
-  // Timer countdown updater
   useEffect(() => {
     if (!playerRef.current) return;
 
@@ -102,9 +101,34 @@ const NewtalentsGTv = ({ userId }) => {
     return `${m}:${s.toString().padStart(2, '0')}`;
   };
 
+  const getCurrentTimeString = () => {
+    const now = new Date();
+    return now.toLocaleTimeString();
+  };
+
+  const getPlayerUrlAndConfig = (url) => {
+    if (url.includes('youtube.com/playlist') || url.includes('list=')) {
+      const listId = url.split('list=')[1]?.split('&')[0];
+      return {
+        url: `https://www.youtube.com/watch?v=dQw4w9WgXcQ`, // placeholder
+        config: {
+          youtube: {
+            playerVars: {
+              listType: 'playlist',
+              list: listId,
+            },
+          },
+        },
+      };
+    }
+    return { url, config: {} };
+  };
+
   if (loading) return <div className="video-player">Loading videos...</div>;
 
   const currentVideo = videos[currentIndex];
+  const nextVideo = videos[(currentIndex + 1) % videos.length];
+  const { url, config } = getPlayerUrlAndConfig(currentVideo.videoUrl);
 
   return (
     <div className="video-player">
@@ -113,7 +137,8 @@ const NewtalentsGTv = ({ userId }) => {
       <div className="player-wrapper">
         <ReactPlayer
           ref={playerRef}
-          url={currentVideo.videoUrl}
+          url={url}
+          config={config}
           playing={true}
           controls={true}
           width="100%"
@@ -127,7 +152,13 @@ const NewtalentsGTv = ({ userId }) => {
       <div className="controls">
         <button onClick={handleFollow}>Follow</button>
         <p>
-          Time left on this video: <strong>{formatTime(timeLeft)}</strong>
+          ⏳ Time left on this video: <strong>{formatTime(timeLeft)}</strong>
+        </p>
+        <p>
+          ⌚ Current time: <strong>{getCurrentTimeString()}</strong>
+        </p>
+        <p>
+          ▶️ Next video: <strong>{nextVideo?.title || 'None'}</strong>
         </p>
       </div>
     </div>

@@ -15,7 +15,7 @@ import Tv from './pages/Tv';
 import Balance from './pages/Balance';
 import Slider from './components/Slider';
 import Banner from './components/Banner';
-import AdComponent from './components/AdComponent'; // ✅ Yongeweho hano
+ // ✅ Yongeweho hano
 
 import { MdAccountBalance } from 'react-icons/md';
 import './App.css';

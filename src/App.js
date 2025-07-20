@@ -15,6 +15,7 @@ import Tv from './pages/Tv';
 import Balance from './pages/Balance';
 import Slider from './components/Slider';
 import Banner from './components/Banner';
+import AdComponent from './components/AdComponent'; // ✅ Yongeweho hano
 
 import { MdAccountBalance } from 'react-icons/md';
 import './App.css';
@@ -29,6 +30,10 @@ const App = () => {
         <div className="app-container">
           <Header />
           <Banner />
+
+          {/* ✅ Ads zigaragara munsi gato ya banner */}
+          <AdComponent />
+
           <ScrollToTop />
 
           <Routes>
@@ -40,8 +45,8 @@ const App = () => {
             {/* ✅ Uyu niwo ukoresha kugira ngo next episode ikore */}
             <Route path="/post/:id" element={<PostDetails />} />
 
-            { 
-            <Route path="/posts/:id" element={<PostDetails />} />
+            {
+              <Route path="/posts/:id" element={<PostDetails />} />
             }
 
             <Route path="/login" element={<Login />} />

@@ -55,7 +55,7 @@ const Balance = () => {
     const existingData = docSnap.exists() ? docSnap.data() : {};
 
     // If nes is 0 or doesn't exist, set it to 10
-    const nesValue = (!existingData.nes || existingData.nes === 0) ? 10 : existingData.nes;
+    const nesValue = (!existingData.nes || existingData.nes === 0) ? 3 : existingData.nes;
 
     await setDoc(docRef, {
       ...existingData,

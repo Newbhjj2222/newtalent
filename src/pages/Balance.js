@@ -55,7 +55,7 @@ const Balance = () => {
     const existingData = docSnap.exists() ? docSnap.data() : {};
 
     // If nes is 0 or doesn't exist, set it to bonus
-    const nesValue = (!existingData.nes || existingData.nes === 0) ? 0: existingData.nes;
+    const nesValue = (!existingData.nes || existingData.nes === 0) ? 0 : existingData.nes;
 
     await setDoc(docRef, {
       ...existingData,
@@ -109,11 +109,12 @@ const Balance = () => {
         >
           <option value="">-- Hitamo Plan --</option>
           <option value="onestory">1 episode - 20 RWF</option>
-          <option value="Local">local - 100 RWF</option>
-          <option value="limited">limited - 150 RWF</option>
-          <option value="unlimited">unlimited - 200 RWF</option>
-            <option value="VIP">VIP - 350 RWF</option>
-            <option value="bestleader">Monthly- 600 RWF</option>
+          <option value="Local"> 7 episode - 100 RWF</option>
+          <option value="Daily"> umunsi - 150 RWF</option>
+          <option value="weakly">icyumweru - 200 RWF</option>
+          <option value="limited"> limited - 300 RWF</option>
+          <option value="monthly"> ukwezi- 600 RWF</option>
+          <option value="yearly"> Umwaka - 7500 RWF</option>
         </select>
 
         <select

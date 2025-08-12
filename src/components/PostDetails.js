@@ -128,17 +128,25 @@ const PostDetails = () => {
       }
     };
 
+    // ✅ handlePaywall nshya
     const handlePaywall = async (postData, username) => {
       try {
         const isAuthor = username === postData.author;
         const isNewTalentsg = username.toLowerCase() === 'newtalentsg';
 
-        // Iyo ari author cyangwa Newtalentsg, ntitukore kuri NeS
-        if (isAuthor || isNewTalentsg) {
-          console.log("User ari author cyangwa ari Newtalentsg → nta gukuraho cyangwa kongeraho NeS.");
+        // Usomyi ari Newtalentsg → yemerewe gusoma byose nta gukuraho NeS
+        if (isNewTalentsg) {
+          console.log("Usomyi ni Newtalentsg → nta gukuraho NeS.");
           return;
         }
 
+        // Usomyi ari we mwanditsi → nta gukuraho NeS
+        if (isAuthor) {
+          console.log("Usomyi ari we mwanditsi → nta gukuraho NeS.");
+          return;
+        }
+
+        // Kugenzura niba usomyi afite NeS zihagije
         const depositerRef = doc(db, 'depositers', username);
         const depositerSnap = await getDoc(depositerRef);
         if (!depositerSnap.exists()) {
@@ -154,18 +162,22 @@ const PostDetails = () => {
           return;
         }
 
-        // Gukuraho kuri reader
+        // Gukuraho kuri usomyi
         await updateDoc(depositerRef, { nes: currentNes - 1 });
 
-        // Kwongera kuri author igihe usomyi atari we mwanditsi
-if (username !== postData.author) {
-  const authorRef = doc(db, 'authors', postData.author);
-  const authorSnap = await getDoc(authorRef);
-  if (authorSnap.exists()) {
-    const currentAuthorNes = Number(authorSnap.data().nes) || 0;
-    await updateDoc(authorRef, { nes: currentAuthorNes + 1 });
-  }
-}
+        // Kwongera kuri mwanditsi (harimo na Newtalentsg) igihe usomyi atari we mwanditsi
+        if (username !== postData.author) {
+          const authorRef = doc(db, 'authors', postData.author);
+          const authorSnap = await getDoc(authorRef);
+          if (authorSnap.exists()) {
+            const currentAuthorNes = Number(authorSnap.data().nes) || 0;
+            await updateDoc(authorRef, { nes: currentAuthorNes + 1 });
+          }
+        }
+      } catch (error) {
+        console.error('Error updating NES fields:', error);
+      }
+    };
 
     const runAll = async () => {
       await fetchPostAndComments();

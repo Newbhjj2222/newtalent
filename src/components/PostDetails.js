@@ -157,19 +157,15 @@ const PostDetails = () => {
         // Gukuraho kuri reader
         await updateDoc(depositerRef, { nes: currentNes - 1 });
 
-        // Kwongera kuri author niba atari Newtalentsg
-        if (postData.author.toLowerCase() !== 'newtalentsg') {
-          const authorRef = doc(db, 'authors', postData.author);
-          const authorSnap = await getDoc(authorRef);
-          if (authorSnap.exists()) {
-            const currentAuthorNes = Number(authorSnap.data().nes) || 0;
-            await updateDoc(authorRef, { nes: currentAuthorNes + 1 });
-          }
-        }
-      } catch (error) {
-        console.error('Error updating NES fields:', error);
-      }
-    };
+        // Kwongera kuri author igihe usomyi atari we mwanditsi
+if (username !== postData.author) {
+  const authorRef = doc(db, 'authors', postData.author);
+  const authorSnap = await getDoc(authorRef);
+  if (authorSnap.exists()) {
+    const currentAuthorNes = Number(authorSnap.data().nes) || 0;
+    await updateDoc(authorRef, { nes: currentAuthorNes + 1 });
+  }
+}
 
     const runAll = async () => {
       await fetchPostAndComments();

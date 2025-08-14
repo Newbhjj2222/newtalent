@@ -11,6 +11,7 @@ updateDoc,
 } from 'firebase/firestore';
 import { FaShareAlt } from 'react-icons/fa';
 import './PostDetails.css';
+import { useTheme } from './Theme';
 const extractSeriesAndEpisode = (head) => {
 if (!head) return { title: null, season: null, episode: null };
 
@@ -40,6 +41,7 @@ return { title, season, episode };
 };
 
 const PostDetails = () => {
+const { darkMode, setDarkMode, fontSize, setFontSize, fontStyle, setFontStyle } = useTheme();
 const { id } = useParams();
 const navigate = useNavigate();
 const db = getFirestore();

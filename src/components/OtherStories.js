@@ -3,6 +3,7 @@ import { FaArrowRight } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { collection, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
+import { useTheme } from './Theme'; // ✅ Import theme
 import './OtherStories.css';
 
 // Shuffle helper function
@@ -15,11 +16,11 @@ const shuffleArray = (array) => {
 
 const OtherStories = () => {
   const [posts, setPosts] = useState([]);
+  const { darkMode, fontSize, fontStyle } = useTheme(); // ✅ Theme values
 
   useEffect(() => {
     const postsRef = collection(db, 'posts');
 
-    // Subscribe to real-time updates
     const unsubscribe = onSnapshot(postsRef, (snapshot) => {
       if (!snapshot.empty) {
         const postsData = snapshot.docs.map(doc => ({
@@ -29,39 +30,64 @@ const OtherStories = () => {
           image: doc.data().imageUrl || 'https://source.unsplash.com/80x80/?story',
         }));
 
-        // Shuffle and take 5
         const shuffled = shuffleArray(postsData).slice(0, 5);
         setPosts(shuffled);
 
-        // Save to localStorage
         localStorage.setItem('cachedPosts', JSON.stringify(shuffled));
       }
     }, (error) => {
       console.error("Error fetching stories:", error);
 
-      // Fallback: load from localStorage if available
       const cached = localStorage.getItem('cachedPosts');
       if (cached) {
         setPosts(JSON.parse(cached));
       }
     });
 
-    return () => unsubscribe(); // Clean up on unmount
+    return () => unsubscribe();
   }, []);
 
   return (
-    <div className="other-stories">
+    <div
+      className="other-stories"
+      style={{
+        backgroundColor: darkMode ? "#1e1e1e" : "#f9f9f9", // ✅ Dark/Light mode
+        color: darkMode ? "#fff" : "#000",
+        fontSize: fontSize, // ✅ Font size
+        fontFamily: fontStyle, // ✅ Font style
+        transition: "all 0.3s ease",
+        padding: "20px",
+        borderRadius: "8px"
+      }}
+    >
       <h2>INKURU ZIKUNZWE</h2>
       {posts.length === 0 ? (
         <p>Loading stories...</p>
       ) : (
         posts.map((post) => (
-          <div key={post.id} className="story-card">
+          <div
+            key={post.id}
+            className="story-card"
+            style={{
+              backgroundColor: darkMode ? "#2a2a2a" : "#ffffff", // Card dark/light
+              color: darkMode ? "#fff" : "#000",
+              border: darkMode ? "1px solid #444" : "1px solid #ddd",
+              transition: "all 0.3s ease"
+            }}
+          >
             <img src={post.image} alt={post.title} className="story-image" />
             <div className="story-content">
               <h4>{post.title}</h4>
               <p>By: {post.author}</p>
-              <Link to={`/posts/${post.id}`} className="read-btn">
+              <Link
+                to={`/posts/${post.id}`}
+                className="read-btn"
+                style={{
+                  backgroundColor: darkMode ? "#555" : "#eee",
+                  color: darkMode ? "#fff" : "#000",
+                  transition: "all 0.3s ease"
+                }}
+              >
                 <FaArrowRight /> Read More
               </Link>
             </div>

@@ -19,13 +19,41 @@ export const ThemeProvider = ({ children }) => {
     }
   }, []);
 
-  // Save theme to localStorage & apply to body
+  // Save theme to localStorage & apply CSS variables
   useEffect(() => {
     localStorage.setItem(
       "themeSettings",
       JSON.stringify({ darkMode, fontSize, fontStyle })
     );
 
+    const root = document.documentElement;
+    // General colors
+    root.style.setProperty("--card-bg", darkMode ? "#1e1e1e" : "#ffffff");
+    root.style.setProperty(
+      "--card-shadow",
+      darkMode
+        ? "0 4px 10px rgba(0,0,0,0.5)"
+        : "0 4px 10px rgba(0,0,0,0.08)"
+    );
+    root.style.setProperty("--text-color", darkMode ? "#ffffff" : "#000000");
+    root.style.setProperty("--heading-color", darkMode ? "#ffffff" : "#333");
+    root.style.setProperty("--border-color", darkMode ? "#555" : "#eee");
+    root.style.setProperty("--muted-text", darkMode ? "#aaa" : "#666");
+
+    // Buttons
+    root.style.setProperty("--button-bg", darkMode ? "#444" : "#2196f3");
+    root.style.setProperty("--button-hover-bg", darkMode ? "#666" : "#1976d2");
+    root.style.setProperty("--button-text", "#ffffff");
+
+    // Inputs
+    root.style.setProperty("--input-bg", darkMode ? "#2c2c2c" : "#ffffff");
+    root.style.setProperty("--input-border", darkMode ? "#555" : "#ccc");
+
+    // Font settings
+    root.style.setProperty("--font-size", fontSize);
+    root.style.setProperty("--font-family", fontStyle);
+
+    // Apply to body
     document.body.style.backgroundColor = darkMode ? "#121212" : "#ffffff";
     document.body.style.color = darkMode ? "#ffffff" : "#000000";
     document.body.style.fontSize = fontSize;
@@ -33,7 +61,7 @@ export const ThemeProvider = ({ children }) => {
     document.body.style.transition = "all 0.3s ease";
   }, [darkMode, fontSize, fontStyle]);
 
-  const toggleDarkMode = () => setDarkMode(prev => !prev);
+  const toggleDarkMode = () => setDarkMode((prev) => !prev);
   const changeFontSize = (size) => setFontSize(size);
   const changeFontStyle = (style) => setFontStyle(style);
 
@@ -66,7 +94,14 @@ export const ThemeProvider = ({ children }) => {
 
   return (
     <ThemeContext.Provider
-      value={{ darkMode, toggleDarkMode, fontSize, changeFontSize, fontStyle, changeFontStyle }}
+      value={{
+        darkMode,
+        toggleDarkMode,
+        fontSize,
+        changeFontSize,
+        fontStyle,
+        changeFontStyle,
+      }}
     >
       {/* Floating Theme Button */}
       <button
@@ -81,12 +116,12 @@ export const ThemeProvider = ({ children }) => {
         <div style={settingsBoxStyle}>
           {/* Dark Mode */}
           <div style={{ marginBottom: "10px" }}>
-            <strong>Theme Mode:</strong><br />
+            <strong>Theme Mode:</strong>
+            <br />
             <button
               onClick={toggleDarkMode}
               style={{
                 marginTop: "5px",
-                right: "60px",
                 background: darkMode ? "#555" : "#ddd",
                 color: darkMode ? "#fff" : "#000",
                 border: "none",
@@ -101,7 +136,8 @@ export const ThemeProvider = ({ children }) => {
 
           {/* Font Size */}
           <div style={{ marginBottom: "10px" }}>
-            <strong>Font Size:</strong><br />
+            <strong>Font Size:</strong>
+            <br />
             <select
               value={fontSize}
               onChange={(e) => changeFontSize(e.target.value)}
@@ -121,7 +157,8 @@ export const ThemeProvider = ({ children }) => {
 
           {/* Font Style */}
           <div>
-            <strong>Font Style:</strong><br />
+            <strong>Font Style:</strong>
+            <br />
             <select
               value={fontStyle}
               onChange={(e) => changeFontStyle(e.target.value)}
@@ -133,9 +170,13 @@ export const ThemeProvider = ({ children }) => {
               }}
             >
               <option value="Arial">Arial</option>
-              <option value="'Times New Roman', serif">Times New Roman</option>
+              <option value="'Times New Roman', serif">
+                Times New Roman
+              </option>
               <option value="Verdana">Verdana</option>
-              <option value="'Courier New', monospace">Courier New</option>
+              <option value="'Courier New', monospace">
+                Courier New
+              </option>
             </select>
           </div>
         </div>

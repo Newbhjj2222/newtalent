@@ -2,20 +2,23 @@
   width: 100%;
   max-width: 300px;
   padding: 20px;
-  background-color: #f8f9fa;
-  border-right: 1px solid #ddd;
+  background-color: var(--sidebar-bg, #f8f9fa);
+  border-right: 1px solid var(--sidebar-border, #ddd);
   height: 100vh;
   overflow-y: auto;
   position: sticky;
   top: 0;
+  color: var(--sidebar-text, #333);
+  font-family: var(--font-style, Arial, sans-serif);
+  font-size: var(--font-size, 16px);
 }
 
 .sidebar h3 {
   margin-bottom: 16px;
-  font-size: 20px;
+  font-size: calc(var(--font-size, 16px) + 4px);
   font-weight: bold;
-  color: #2c3e50;
-  border-bottom: 2px solid #007bff;
+  color: var(--heading-color, #2c3e50);
+  border-bottom: 2px solid var(--accent-color, #007bff);
   padding-bottom: 8px;
 }
 
@@ -30,19 +33,19 @@
   margin-bottom: 8px;
   border-radius: 8px;
   cursor: pointer;
-  font-size: 16px;
-  background-color: #ffffff;
-  color: #333;
+  font-size: var(--font-size, 16px);
+  background-color: var(--sidebar-item-bg, #ffffff);
+  color: var(--sidebar-item-text, #333);
   transition: all 0.3s ease;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .sidebar-list li:hover {
-  background-color: #007bff;
-  color: white;
+  background-color: var(--accent-color, #007bff);
+  color: var(--hover-text-color, white);
   transform: translateX(5px);
 }
 
 .sidebar-list li:active {
-  background-color: #0056b3;
+  background-color: var(--accent-active-color, #0056b3);
 }

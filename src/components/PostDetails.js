@@ -11,9 +11,6 @@ updateDoc,
 } from 'firebase/firestore';
 import { FaShareAlt } from 'react-icons/fa';
 import './PostDetails.css';
-import { useTheme } from './Theme';
-
-const { darkMode, setDarkMode, fontSize, setFontSize, fontStyle, setFontStyle } = useTheme();
 const extractSeriesAndEpisode = (head) => {
 if (!head) return { title: null, season: null, episode: null };
 

@@ -1,21 +1,4 @@
-/* ================== Theme Variables ================== */
-:root {
-  --bg-color: #ffffff;
-  --text-color: #333333;
-  --card-bg: #e3f2fd;
-  --card-text: #0277bd;
-  --success-bg: #dcedc8;
-  --success-border: #8bc34a;
-  --success-text: #558b2f;
-  --input-bg: #ffffff;
-  --input-border: #ccc;
-  --input-focus-border: #0288d1;
-  --input-focus-shadow: #81d4fa;
-  --button-bg: #0288d1;
-  --button-hover-bg: #0277bd;
-  --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  --font-size: 1rem;
-}
+
 
 /* ================== Dark Mode Overrides ================== */
 body.dark-mode {

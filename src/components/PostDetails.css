@@ -9,7 +9,7 @@
   border-radius: 12px;
   box-shadow: var(--card-shadow);
   color: var(--text-color);
-  font-size: var(--font-size);
+  font-size: calc(var(--font-size) + 1px);
   font-family: var(--font-family);
 }
 

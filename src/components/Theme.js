@@ -148,10 +148,10 @@ export const ThemeProvider = ({ children }) => {
                 marginTop: "5px",
               }}
             >
-              <option value="14px">Small</option>
-              <option value="16px">Medium</option>
-              <option value="20px">Large</option>
-              <option value="24px">Extra Large</option>
+              <option value="13px">Very Small</option>
+              <option value="16px">Small</option>
+              <option value="20px">Median</option>
+              <option value="28px">Large</option>
             </select>
           </div>
 

@@ -4,7 +4,7 @@ const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
   const [darkMode, setDarkMode] = useState(false);
-  const [fontSize, setFontSize] = useState("16px");
+  const [fontSize, setFontSize] = useState("14px");
   const [fontStyle, setFontStyle] = useState("Arial");
   const [showSettings, setShowSettings] = useState(false);
 
@@ -148,10 +148,10 @@ export const ThemeProvider = ({ children }) => {
                 marginTop: "5px",
               }}
             >
-              <option value="13px">Very Small</option>
-              <option value="16px">Small</option>
-              <option value="20px">Median</option>
-              <option value="28px">Large</option>
+              <option value="13px">Draft</option>
+              <option value="15px">Small</option>
+              <option value="19px">Median</option>
+              <option value="23px">Large</option>
             </select>
           </div>
 

@@ -2,15 +2,18 @@
   max-width: 700px;
   margin: 30px auto;
   padding: 15px;
-  background-color: #f7f9fc;
+  background-color: var(--other-bg, #f7f9fc);
   border-radius: 10px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  font-family: var(--font-style, Arial, sans-serif);
+  font-size: var(--font-size, 16px);
+  color: var(--text-color, #333);
 }
 
 .other-stories h2 {
-  font-size: 24px;
+  font-size: calc(var(--font-size, 16px) + 8px);
   margin-bottom: 20px;
-  color: green;
+  color: var(--heading-color, green);
   text-align: center;
 }
 
@@ -18,7 +21,7 @@
   display: flex;
   align-items: flex-start;
   gap: 15px;
-  background: white;
+  background: var(--card-bg, white);
   padding: 15px;
   margin-bottom: 15px;
   border-radius: 8px;
@@ -38,23 +41,23 @@
 
 .story-content h4 {
   margin: 0 0 8px;
-  color: #222;
-  font-size: 18px;
+  color: var(--card-title-color, #222);
+  font-size: calc(var(--font-size, 16px) + 2px);
 }
 
 .story-content p {
-  color: #555;
-  font-size: 14px;
+  color: var(--card-text-color, #555);
+  font-size: calc(var(--font-size, 16px) - 2px);
   margin-bottom: 10px;
   line-height: 1.4;
 }
 
 .read-btn {
-  background-color: #28a745;
-  color: white;
+  background-color: var(--button-bg, #28a745);
+  color: var(--button-text, white);
   border: none;
   padding: 6px 12px;
-  font-size: 13px;
+  font-size: calc(var(--font-size, 16px) - 3px);
   border-radius: 4px;
   display: flex;
   align-items: center;
@@ -66,5 +69,5 @@
 }
 
 .read-btn:hover {
-  background-color: #1e7e34;
+  background-color: var(--button-hover-bg, #1e7e34);
 }

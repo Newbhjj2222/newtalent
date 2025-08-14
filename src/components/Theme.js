@@ -86,6 +86,7 @@ export const ThemeProvider = ({ children }) => {
               onClick={toggleDarkMode}
               style={{
                 marginTop: "5px",
+                right: "60px",
                 background: darkMode ? "#555" : "#ddd",
                 color: darkMode ? "#fff" : "#000",
                 border: "none",

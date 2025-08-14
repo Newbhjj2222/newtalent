@@ -6,6 +6,20 @@
   font-size: var(--font-size, 16px);
   color: var(--text-color, #1f2937);
 }
+.dark .slider {
+  background-color: #1f2937;
+  color: #f9fafb;
+}
+
+.dark .post {
+  background-color: #374151;
+  color: #f9fafb;
+}
+
+.dark .text-scroller {
+  background-color: #0f766e;
+  color: white;
+}
 
 .slider h2 {
   font-size: 24px;

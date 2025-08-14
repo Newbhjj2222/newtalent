@@ -13,7 +13,7 @@ import { FaShareAlt } from 'react-icons/fa';
 import './PostDetails.css';
 
 // ✅ Import theme
-import { useTheme } from '../Theme';
+import { useTheme } from './Theme';
 
 const extractSeriesAndEpisode = (head) => {
   if (!head) return { title: null, season: null, episode: null };

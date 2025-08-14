@@ -1,9 +1,10 @@
 /* App.css */
 
 .app-container {
-  font-family: Arial, sans-serif;  
-  background-color: #f9fafb;
-  color: #1f2937;
+  font-family: var(--font-family, Arial);
+  background-color: var(--card-bg, #f9fafb);
+  color: var(--text-color, #1f2937);
+  font-size: var(--font-size, 16px);
   min-height: 100vh;
   display: flex;
   width: 100%;
@@ -27,24 +28,25 @@
 /* Sidebar styling */
 .sidebar {
   width: 30%;
-  background-color: #fff;
-  border-left: 1px solid #e5e7eb;
+  background-color: var(--card-bg, #fff);
+  border-left: 1px solid var(--border-color, #e5e7eb);
 }
 
 /* Footer */
 footer {
-  background-color: #1f2937;
-  color: white;
+  background-color: var(--footer-bg, #1f2937);
+  color: var(--footer-text, white);
   padding: 1rem;
   text-align: center;
   margin-top: auto;
 }
+
 .floating-btn {
   position: fixed;
   bottom: 20px;
   right: 20px;
-  background-color: #1d4ed8;
-  color: white;
+  background-color: var(--button-bg, #1d4ed8);
+  color: var(--button-text, white);
   border: none;
   border-radius: 50%;
   width: 56px;
@@ -59,7 +61,7 @@ footer {
 }
 
 .floating-btn:hover {
-  background-color: #2563eb;
+  background-color: var(--button-hover-bg, #2563eb);
 }
 
 /* Responsive design */
@@ -67,13 +69,14 @@ footer {
   .main-content {
     flex-direction: column;
     width: 100%; 
- }
+  }
 
   .main-section,
   .sidebar {
     width: 100%;
   }
-.app-container{
+
+  .app-container {
     width: 100%;
-}
+  }
 }

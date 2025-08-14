@@ -51,8 +51,6 @@ const OtherStories = () => {
     <div
       className="other-stories"
       style={{
-        backgroundColor: darkMode ? "#1e1e1e" : "#f9f9f9", // ✅ Dark/Light mode
-        color: darkMode ? "#fff" : "#000",
         fontSize: fontSize, // ✅ Font size
         fontFamily: fontStyle, // ✅ Font style
         transition: "all 0.3s ease",
@@ -69,8 +67,6 @@ const OtherStories = () => {
             key={post.id}
             className="story-card"
             style={{
-              backgroundColor: darkMode ? "#2a2a2a" : "#ffffff", // Card dark/light
-              color: darkMode ? "#fff" : "#000",
               border: darkMode ? "1px solid #444" : "1px solid #ddd",
               transition: "all 0.3s ease"
             }}
@@ -83,8 +79,6 @@ const OtherStories = () => {
                 to={`/posts/${post.id}`}
                 className="read-btn"
                 style={{
-                  backgroundColor: darkMode ? "#555" : "#eee",
-                  color: darkMode ? "#fff" : "#000",
                   transition: "all 0.3s ease"
                 }}
               >

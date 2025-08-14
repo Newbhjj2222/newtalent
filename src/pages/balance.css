@@ -1,4 +1,4 @@
-/* Define CSS variables for theme */
+/* ================== Theme Variables ================== */
 :root {
   --bg-color: #ffffff;
   --text-color: #333333;
@@ -7,6 +7,7 @@
   --success-bg: #dcedc8;
   --success-border: #8bc34a;
   --success-text: #558b2f;
+  --input-bg: #ffffff;
   --input-border: #ccc;
   --input-focus-border: #0288d1;
   --input-focus-shadow: #81d4fa;
@@ -16,7 +17,7 @@
   --font-size: 1rem;
 }
 
-/* Dark theme overrides */
+/* ================== Dark Mode Overrides ================== */
 body.dark-mode {
   --bg-color: #1f2937;
   --text-color: #f9fafb;
@@ -25,7 +26,8 @@ body.dark-mode {
   --success-bg: #166534;
   --success-border: #4ade80;
   --success-text: #bbf7d0;
-  --input-border: #374151;
+  --input-bg: #374151;
+  --input-border: #4b5563;
   --input-focus-border: #38bdf8;
   --input-focus-shadow: #7dd3fc;
   --button-bg: #38bdf8;
@@ -34,14 +36,14 @@ body.dark-mode {
   --font-size: 1rem;
 }
 
-/* Container nyamukuru */
+/* ================== Form Container ================== */
 .form-container {
   max-width: 400px;
   margin: 110px auto;
   padding: 25px 30px;
   background-color: var(--bg-color);
   border-radius: 12px;
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.1);
   font-family: var(--font-family);
   color: var(--text-color);
   font-size: var(--font-size);
@@ -54,7 +56,7 @@ body.dark-mode {
   margin-bottom: 25px;
   background-color: var(--card-bg);
   border-radius: 10px;
-  box-shadow: 0 3px 7px rgba(3, 169, 244, 0.3);
+  box-shadow: 0 3px 7px rgba(0,0,0,0.3);
   text-align: center;
   font-size: 1.25rem;
   font-weight: 600;
@@ -127,10 +129,10 @@ select {
   font-size: 1rem;
   border: 2px solid var(--input-border);
   border-radius: 8px;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
   box-sizing: border-box;
-  background-color: var(--bg-color);
+  background-color: var(--input-bg);
   color: var(--text-color);
+  transition: all 0.3s ease;
 }
 
 input[type="text"]:focus,

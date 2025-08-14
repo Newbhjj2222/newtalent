@@ -21,38 +21,41 @@ import './App.css';
 
 import { UserProvider } from './contexts/UserContext';
 import ScrollToTop from './components/ScrollToTop';
+import { ThemeProvider } from './components/Theme'; // ✅ Kongeraho ThemeProvider
 
 const App = () => {
   return (
     <UserProvider>
-      <Router>
-        <div className="app-container">
-          <Header />
-          <Banner />
+      <ThemeProvider> {/* ✅ Gufunika App yose muri ThemeProvider */}
+        <Router>
+          <div className="app-container">
+            <Header />
+            <Banner />
 
-          <ScrollToTop />
+            <ScrollToTop />
 
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/home" element={<Home />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/post/:id" element={<PostDetails />} />
-            <Route path="/posts/:id" element={<PostDetails />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/tv" element={<Tv />} />
-            <Route path="/slider" element={<Slider />} />
-            <Route path="/balance" element={<Balance />} />
-          </Routes>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/home" element={<Home />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/post/:id" element={<PostDetails />} />
+              <Route path="/posts/:id" element={<PostDetails />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/tv" element={<Tv />} />
+              <Route path="/slider" element={<Slider />} />
+              <Route path="/balance" element={<Balance />} />
+            </Routes>
 
-          <Footer />
-          <Link to="/balance" className="floating-btn">
-            <MdAccountBalance size={24} />
-          </Link>
-        </div>
-      </Router>
+            <Footer />
+            <Link to="/balance" className="floating-btn">
+              <MdAccountBalance size={24} />
+            </Link>
+          </div>
+        </Router>
+      </ThemeProvider>
     </UserProvider>
   );
 };

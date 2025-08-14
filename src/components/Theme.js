@@ -40,7 +40,7 @@ export const ThemeProvider = ({ children }) => {
   const settingsButtonStyle = {
     position: "fixed",
     top: "15px",
-    right: "20px",
+    right: "80px",
     background: darkMode ? "#444" : "#eee",
     color: darkMode ? "#fff" : "#000",
     border: "none",

@@ -1,14 +1,17 @@
 .slider {
   padding: 20px;
   margin-top: 30px;
-  background-color: #f9f9f9;
+  background-color: var(--section-bg, #f9f9f9);
+  font-family: var(--font-family, Arial);
+  font-size: var(--font-size, 16px);
+  color: var(--text-color, #1f2937);
 }
 
 .slider h2 {
   font-size: 24px;
   font-weight: bold;
   margin-bottom: 16px;
-  color: green;
+  color: var(--accent-color, green);
   text-align: center;
 }
 
@@ -34,13 +37,14 @@
 .post {
   min-width: 290px;
   max-width: 328px;
-  background-color: white;
+  background-color: var(--card-bg, white);
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   transition: transform 0.3s ease;
   flex-shrink: 0;
   height: 400px;
+  color: var(--text-color, #1f2937);
 }
 
 .post:hover {
@@ -57,19 +61,19 @@
 .post h4 {
   margin: 12px 16px 4px;
   font-size: 18px;
-  color: #222;
+  color: var(--heading-color, #222);
 }
 
 .post p {
   margin: 0 16px 8px;
   font-size: 14px;
-  color: #666;
+  color: var(--text-muted, #666);
 }
 
 .post small {
   display: block;
   margin: 0 16px 12px;
-  color: #999;
+  color: var(--text-light, #999);
   font-size: 12px;
 }
 
@@ -77,11 +81,11 @@
   position: absolute;
   top: 40%;
   transform: translateY(-50%);
-  background-color: #ffffffdd;
+  background-color: var(--button-bg-light, #ffffffdd);
   border: none;
   font-size: 28px;
   font-weight: bold;
-  color: #333;
+  color: var(--button-text-dark, #333);
   cursor: pointer;
   z-index: 2;
   border-radius: 50%;
@@ -91,7 +95,7 @@
 }
 
 .nav-button:hover {
-  background-color: #f0f0f0;
+  background-color: var(--button-hover-bg-light, #f0f0f0);
 }
 
 .nav-button.prev {
@@ -105,13 +109,13 @@
 .image-placeholder {
   width: 100%;
   height: 200px;
-  background: linear-gradient(90deg, #eee 25%, #ddd 50%, #eee 75%);
+  background: var(--skeleton-bg, linear-gradient(90deg, #eee 25%, #ddd 50%, #eee 75%));
   background-size: 400% 100%;
   animation: shimmer 1.2s infinite linear;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #aaa;
+  color: var(--text-light, #aaa);
   font-size: 14px;
 }
 
@@ -128,11 +132,11 @@
 .text-scroller {
   width: 100%;
   overflow: hidden;
-  background-color: #008489;
-  color: white;
+  background-color: var(--accent-bg, #008489);
+  color: var(--accent-text, white);
   padding: 10px 0;
   white-space: nowrap;
-  font-family: Arial, sans-serif;
+  font-family: var(--font-family, Arial);
   border-radius: 12px;
 }
 

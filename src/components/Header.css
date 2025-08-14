@@ -1,7 +1,7 @@
 /* HEADER BASE */
 header {
   width: 100%;
-  background: #008489;
+  background: var(--header-bg, #008489);
   height: 66px;
   position: fixed;
   top: 0;

@@ -253,7 +253,7 @@ style={{ maxWidth: '100%', borderRadius: 12, marginBottom: 20 }}
   <div  
     className="post-story"  
     dangerouslySetInnerHTML={{ __html: post.story }}  
-    style={{ lineHeight: 1.7, fontSize: '1.05rem', marginTop: 10 }}  
+    style={{ lineHeight: 1.7, marginTop: 10 }}  
   />  
 
   <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 15 }}>  

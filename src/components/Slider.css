@@ -32,12 +32,14 @@
 .slider-container {
   position: relative;
   display: flex;
+  background-color: var(--section-bg, #f9f9f9);
   align-items: center;
   overflow: hidden;
 }
 
 .slider-wrapper {
   overflow-x: auto;
+  background-color: var(--section-bg, #f9f9f9);
   scroll-behavior: smooth;
   width: 100%;
 }
@@ -204,6 +206,7 @@
 
 @media (max-width: 480px) {
   .slider {
+    background-color: var(--section-bg, #f9f9f9);
     padding: 12px;
   }
 

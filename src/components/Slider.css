@@ -1,0 +1,166 @@
+/* =======================
+   THEME VARIABLES
+   ======================= */
+:root {
+  --slider-bg: #ffffff; /* Light mode background */
+  --slider-text: #333333;
+}
+
+body.dark-mode {
+  --slider-bg: #1f2937; /* Dark mode background */
+  --slider-text: #f9fafb;
+}
+
+/* =======================
+   SLIDER STYLES
+   ======================= */
+.slider {
+  padding: 1rem;
+  background-color: var(--slider-bg);
+  color: var(--slider-text);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.slider h2 {
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+/* Slider container */
+.slider-container {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+/* Navigation buttons */
+.nav-button {
+  background-color: rgba(0, 0, 0, 0.3);
+  color: #fff;
+  border: none;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  font-size: 1.5rem;
+  z-index: 10;
+  border-radius: 50%;
+  transition: background-color 0.3s ease;
+}
+
+.nav-button:hover {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.nav-button.prev {
+  position: absolute;
+  left: 0;
+}
+
+.nav-button.next {
+  position: absolute;
+  right: 0;
+}
+
+/* Wrapper and track */
+.slider-wrapper {
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  display: flex;
+  flex: 1;
+}
+
+.slider-track {
+  display: flex;
+  gap: 1rem;
+  padding: 0.5rem;
+}
+
+/* Post card */
+.post {
+  min-width: 200px;
+  max-width: 200px;
+  flex: 0 0 auto;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: var(--slider-bg);
+  color: var(--slider-text);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+}
+
+.post:hover {
+  transform: translateY(-3px);
+}
+
+.post img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  display: block;
+}
+
+.post div {
+  padding: 0.5rem;
+}
+
+.post h4 {
+  margin: 0.25rem 0;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.post p {
+  font-size: 0.85rem;
+  margin-bottom: 0.25rem;
+}
+
+.post small {
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+/* Image placeholder */
+.image-placeholder {
+  width: 100%;
+  height: 120px;
+  background-color: #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+/* Text scroller */
+.text-scroller {
+  margin-top: 1rem;
+  overflow: hidden;
+  white-space: nowrap;
+  background-color: var(--slider-bg);
+  color: var(--slider-text);
+  padding: 0.5rem;
+  border-radius: 6px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.scrolling-text {
+  display: inline-block;
+  animation: scroll-left 20s linear infinite;
+}
+
+.scroll-item {
+  cursor: pointer;
+}
+
+.scroll-item:hover {
+  text-decoration: underline;
+}
+
+@keyframes scroll-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}

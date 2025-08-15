@@ -27,13 +27,14 @@ export const ThemeProvider = ({ children }) => {
     );
 
     const root = document.documentElement;
-    // General colors
+
+    /** 🌙 Core Theme Variables **/
+
+    // General
     root.style.setProperty("--card-bg", darkMode ? "#1e1e1e" : "#ffffff");
     root.style.setProperty(
       "--card-shadow",
-      darkMode
-        ? "0 4px 10px rgba(0,0,0,0.5)"
-        : "0 4px 10px rgba(0,0,0,0.08)"
+      darkMode ? "0 4px 10px rgba(0,0,0,0.5)" : "0 4px 10px rgba(0,0,0,0.08)"
     );
     root.style.setProperty("--text-color", darkMode ? "#ffffff" : "#000000");
     root.style.setProperty("--heading-color", darkMode ? "#ffffff" : "#333");
@@ -49,7 +50,26 @@ export const ThemeProvider = ({ children }) => {
     root.style.setProperty("--input-bg", darkMode ? "#2c2c2c" : "#ffffff");
     root.style.setProperty("--input-border", darkMode ? "#555" : "#ccc");
 
-    // Font settings
+    /** 🎨 Extra Components Colors **/
+
+    // Header
+    root.style.setProperty("--header-bg", darkMode ? "#222" : "#008489");
+    root.style.setProperty("--header-text", "#ffffff");
+
+    // Slider
+    root.style.setProperty("--slider-bg", darkMode ? "#1f2937" : "#ffffff");
+    root.style.setProperty("--slider-text", darkMode ? "#f9fafb" : "#333333");
+
+    // About
+    root.style.setProperty("--about-bg", darkMode ? "#2d2d2d" : "#f8f9fa");
+    root.style.setProperty("--about-text", darkMode ? "#f0f0f0" : "#333");
+    root.style.setProperty("--about-heading", darkMode ? "#4dabf7" : "#0066cc");
+
+    // Contact
+    root.style.setProperty("--contact-bg", darkMode ? "#2c2c2c" : "#f7f7f7");
+    root.style.setProperty("--contact-text", darkMode ? "#ffffff" : "#333");
+
+    /** ✏️ Font Settings **/
     root.style.setProperty("--font-size", fontSize);
     root.style.setProperty("--font-family", fontStyle);
 
@@ -170,13 +190,9 @@ export const ThemeProvider = ({ children }) => {
               }}
             >
               <option value="Arial">Arial</option>
-              <option value="'Times New Roman', serif">
-                Times New Roman
-              </option>
+              <option value="'Times New Roman', serif">Times New Roman</option>
               <option value="Verdana">Verdana</option>
-              <option value="'Courier New', monospace">
-                Courier New
-              </option>
+              <option value="'Courier New', monospace">Courier New</option>
             </select>
           </div>
         </div>

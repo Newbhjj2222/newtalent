@@ -1,14 +1,16 @@
-.slider {
-  padding: 20px;
-  margin-top: 30px;
-  background: red;
-  font-family: var(--font-family, Arial);
-  font-size: var(--font-size, 16px);
-  color: var(--text-color, #1f2937);
+/* Slider Theme Colors */
+:root {
+  --slider-bg: #ffffff; /* Light mode background */
 }
-.dark .slider {
-  background-color: #1f2937;
-  color: #f9fafb;
+
+body.dark-mode {
+  --slider-bg: #1f2937; /* Dark mode background */
+}
+
+/* Apply background to Slider */
+.slider {
+  background-color: var(--slider-bg);
+  transition: background-color 0.3s ease;
 }
 
 .dark .post {

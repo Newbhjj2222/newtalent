@@ -15,6 +15,7 @@ import Tv from './pages/Tv';
 import Balance from './pages/Balance';
 import Slider from './components/Slider';
 import Banner from './components/Banner';
+import Bible from './components/Bible';
 
 import { MdAccountBalance } from 'react-icons/md';
 import './App.css';
@@ -47,6 +48,7 @@ const App = () => {
               <Route path="/tv" element={<Tv />} />
               <Route path="/slider" element={<Slider />} />
               <Route path="/balance" element={<Balance />} />
+              <Route path="/bible" element={<Bible />} />
             </Routes>
 
             <Footer />

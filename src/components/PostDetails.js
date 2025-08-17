@@ -12,6 +12,7 @@ updateDoc,
 import { FaShareAlt } from 'react-icons/fa';
 import './PostDetails.css';
 import { useTheme } from './Theme';
+import Bible from "./Bible";
 const extractSeriesAndEpisode = (head) => {
 if (!head) return { title: null, season: null, episode: null };
 
@@ -249,7 +250,7 @@ style={{ maxWidth: '100%', borderRadius: 12, marginBottom: 20 }}
 )}
 
 <h2>{post.head}</h2>  
-
+<Bible />
   <div  
     className="post-story"  
     dangerouslySetInnerHTML={{ __html: post.story }}  

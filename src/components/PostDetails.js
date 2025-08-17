@@ -12,7 +12,7 @@ import {
 import { FaShareAlt } from 'react-icons/fa';
 import './PostDetails.css';
 import { useTheme } from './Theme';
-import Bible from "./Bible";
+import Bible from './Bible';
 
 // Function yo gutoranya title, season, episode muri head
 const extractSeriesAndEpisode = (head) => {

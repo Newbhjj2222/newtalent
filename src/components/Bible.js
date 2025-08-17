@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getFirestore, collection, getDocs } from "firebase/firestore";
+import { getFirestore, collection, getDocs, db } from "./firebase";
 
 const Bible = () => {
   const [verse, setVerse] = useState(null);

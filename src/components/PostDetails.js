@@ -12,7 +12,6 @@ import {
 import { FaShareAlt } from 'react-icons/fa';
 import './PostDetails.css';
 import { useTheme } from './Theme';
-import Bible from './Bible';
 
 // Function yo gutoranya title, season, episode muri head
 const extractSeriesAndEpisode = (head) => {
@@ -244,7 +243,7 @@ const PostDetails = () => {
 
       <h2>{post.head}</h2>
       {/* Banner y'ijambo ry'Imana */}
-      <Bible />
+      
 
       <div
         className="post-story"

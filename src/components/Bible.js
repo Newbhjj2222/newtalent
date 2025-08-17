@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { getFirestore, collection, getDocs, db } from "./firebase";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../firebase";  // ✅ fata db iva muri firebase.js
 
 const Bible = () => {
   const [verse, setVerse] = useState(null);
@@ -8,30 +9,27 @@ const Bible = () => {
   useEffect(() => {
     const fetchVerse = async () => {
       try {
-        const db = getFirestore();
         const bibleRef = collection(db, "bible");
         const snapshot = await getDocs(bibleRef);
 
         if (!snapshot.empty) {
-          const verses = snapshot.docs.map(doc => doc.data());
+          const verses = snapshot.docs.map((doc) => doc.data());
 
           // Gutoranya verse ya buri munsi hashingiwe ku itariki
           const today = new Date();
           const index = today.getDate() % verses.length;
           setVerse(verses[index]);
         } else {
-          // Niba ntamurongo ubashije kuboneka
           setVerse({
             verse: "Zaburi 29:2",
-            text: "Mwubahe Uwiteka, kandi mumuhimbaze."
+            text: "Mwubahe Uwiteka, kandi mumuhimbaze.",
           });
         }
       } catch (error) {
         console.error("Error fetching verse:", error);
-        // Fallback niba error ibaye
         setVerse({
           verse: "Zaburi 29:2",
-          text: "Mwubahe Uwiteka, kandi mumuhimbaze."
+          text: "Mwubahe Uwiteka, kandi mumuhimbaze.",
         });
       } finally {
         setLoading(false);

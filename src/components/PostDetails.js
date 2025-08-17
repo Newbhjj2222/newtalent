@@ -12,7 +12,7 @@ updateDoc,
 import { FaShareAlt } from 'react-icons/fa';
 import './PostDetails.css';
 import { useTheme } from './Theme';
-import Bible from "./Bible";
+import Bible from './Bible';
 const extractSeriesAndEpisode = (head) => {
 if (!head) return { title: null, season: null, episode: null };
 

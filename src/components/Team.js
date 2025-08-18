@@ -59,7 +59,7 @@ const Team = () => {
                   <img
                     src={member.photo}
                     alt={member.name}
-                    className="w-12 h-12 rounded-full object-cover"
+                    className="w-4 h-4 rounded-full object-cover"
                   />
                 </td>
                 <td className="px-4 py-2">{member.name}</td>

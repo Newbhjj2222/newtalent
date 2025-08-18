@@ -5,7 +5,7 @@ import { collection, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useTheme } from './Theme'; // ✅ Import theme
 import './OtherStories.css';
-import Team from "./components/Team";
+import Team from "./Team";
 // Shuffle helper function
 const shuffleArray = (array) => {
   return array

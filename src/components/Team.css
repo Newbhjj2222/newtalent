@@ -1,42 +1,40 @@
 /* Container */
 .team-container {
-  padding: 1.5rem; /* p-6 */
+  padding: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 /* Heading */
 .team-container h2 {
-  font-size: 1.5rem; /* text-2xl */
+  font-size: 1.5rem;
   font-weight: bold;
   text-align: center;
-  margin-bottom: 1.5rem; /* mb-6 */
+  margin-bottom: 1.5rem;
   color: #111;
 }
 
-/* Table wrapper for horizontal scroll on mobile */
+/* Table wrapper */
 .team-table-wrapper {
-  overflow-x: auto;
+  width: 100%;
 }
 
 /* Table style */
 .team-table {
   width: 100%;
-  min-width: 600px; /* ensures table scrolls on small screens */
   border-collapse: collapse;
-  border: 1px solid #e5e7eb; /* gray-200 */
-  border-radius: 0.5rem; /* rounded-lg */
-  overflow: hidden;
 }
 
 /* Table head */
 .team-table thead {
-  background-color: #f3f4f6; /* gray-100 */
+  background-color: #f3f4f6;
 }
 
 .team-table th {
-  padding: 0.5rem 1rem; /* px-4 py-2 */
+  padding: 0.5rem 1rem;
   text-align: left;
   font-weight: 600;
-  color: #374151; /* gray-700 */
+  color: #374151;
   border-bottom: 1px solid #e5e7eb;
 }
 
@@ -49,15 +47,15 @@
 
 /* Row hover */
 .team-table tbody tr:hover {
-  background-color: #f9fafb; /* hover:bg-gray-50 */
+  background-color: #f9fafb;
 }
 
 /* Circular photo */
 .team-table img {
-  width: 32px; /* w-8 */
-  height: 32px; /* h-8 */
-  border-radius: 50%; /* rounded-full */
-  object-fit: cover; /* object-cover */
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
   display: block;
 }
 
@@ -65,24 +63,53 @@
 .team-table a {
   display: flex;
   align-items: center;
-  gap: 0.25rem; /* 1 unit gap */
-  color: #16a34a; /* green-600 */
+  gap: 0.25rem;
+  color: #16a34a;
   text-decoration: none;
-  font-size: 0.875rem; /* text-sm */
+  font-size: 0.875rem;
 }
 
-/* Responsive: smaller photos and font on mobile */
-@media (max-width: 640px) {
-  .team-table img {
-    width: 24px;
-    height: 24px;
+/* ===== MOBILE FIRST ===== */
+@media (max-width: 768px) {
+  .team-table thead {
+    display: none; /* hide table headers */
   }
-  .team-table th,
+
+  .team-table,
+  .team-table tbody,
+  .team-table tr,
   .team-table td {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.75rem; /* smaller font */
+    display: block;
+    width: 100%;
   }
-  .team-container h2 {
-    font-size: 1.25rem; /* smaller heading */
+
+  .team-table tr {
+    margin-bottom: 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+  }
+
+  .team-table td {
+    border: none;
+    padding: 0.25rem 0.5rem;
+    text-align: left;
+    position: relative;
+    padding-left: 50%;
+  }
+
+  .team-table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 0;
+    width: 45%;
+    padding-left: 0.5rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .team-table img {
+    width: 40px;
+    height: 40px;
   }
 }

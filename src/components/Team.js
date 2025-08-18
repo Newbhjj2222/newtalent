@@ -35,29 +35,50 @@ const Team = () => {
   }
 
   return (
-    <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-      {team.map((member) => (
-        <div
-          key={member.id}
-          className="bg-white rounded-2xl shadow-md p-4 flex flex-col items-center text-center"
-        >
-          <img
-            src={member.photo}
-            alt={member.name}
-            className="w-24 h-24 rounded-full object-cover mb-4"
-          />
-          <h2 className="text-lg font-semibold">{member.name}</h2>
-          <a
-            href={`https://wa.me/${member.whatsapp.replace(/\D/g, "")}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 text-green-600 mt-2"
-          >
-            <FaWhatsapp size={20} />
-            <span>{member.whatsapp}</span>
-          </a>
-        </div>
-      ))}
+    <div className="p-6">
+      <h2 className="text-2xl font-bold text-center mb-6">
+        OUR AUTHORS AND PARTNERS
+      </h2>
+
+      <div className="overflow-x-auto">
+        <table className="min-w-full border border-gray-200 rounded-lg">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="px-4 py-2 text-left">Photo</th>
+              <th className="px-4 py-2 text-left">Name</th>
+              <th className="px-4 py-2 text-left">Whatsapp</th>
+            </tr>
+          </thead>
+          <tbody>
+            {team.map((member) => (
+              <tr
+                key={member.id}
+                className="border-t border-gray-200 hover:bg-gray-50"
+              >
+                <td className="px-4 py-2">
+                  <img
+                    src={member.photo}
+                    alt={member.name}
+                    className="w-12 h-12 rounded-full object-cover"
+                  />
+                </td>
+                <td className="px-4 py-2">{member.name}</td>
+                <td className="px-4 py-2">
+                  <a
+                    href={`https://wa.me/${member.whatsapp.replace(/\D/g, "")}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 text-green-600"
+                  >
+                    <FaWhatsapp size={16} />
+                    <span>{member.whatsapp}</span>
+                  </a>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

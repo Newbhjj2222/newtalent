@@ -51,6 +51,7 @@ const OtherStories = () => {
 
   return (
     <div
+       <Team />
       className="other-stories"
       style={{
         fontSize,
@@ -118,7 +119,7 @@ const OtherStories = () => {
           </div>
         ))
       )}
-      <Team />
+      
     </div>
   );
 };

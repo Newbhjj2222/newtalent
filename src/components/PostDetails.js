@@ -19,43 +19,45 @@ import { Helmet } from 'react-helmet'; // ✅ Import Helmet
 const extractSeriesAndEpisode = (head) => {
   if (!head) return { title: null, season: null, episode: null };
 
-  let cleanedHead = head
+  const cleanedHead = head
     .replace(/[/\-_:]+/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
     .toUpperCase();
 
-  // Fata season
-  let season = 1;
+  // Reba niba hari season iri muri head
   const seasonMatch = cleanedHead.match(/SEASON\s*(\d+)|S\s*(\d+)/i);
-  if (seasonMatch) {
-    season = parseInt(seasonMatch[1] || seasonMatch[2], 10);
-  }
+  let season = seasonMatch ? parseInt(seasonMatch[1] || seasonMatch[2], 10) : 1;
 
-  // Fata episode
+  // Reba episode
   let episode = null;
   const episodeMatch = cleanedHead.match(/EPISODE\s*(\d+)|EP\s*(\d+)|E\s*(\d+)/i);
   if (episodeMatch) {
     episode = parseInt(episodeMatch[1] || episodeMatch[2] || episodeMatch[3], 10);
-  } else if (/FINAL|FINALLY|FINALE/i.test(cleanedHead)) {
-    episode = 999; // final episode
-
-    // Reba niba hari season ikurikira, urugero "S02" cyangwa "SEASON 2"
-    const nextSeasonMatch = cleanedHead.match(/S(?:EASON)?\s*(\d+)/i);
+  } else if (cleanedHead.includes("FINAL") || cleanedHead.includes("FINALLY")) {
+    // Niba FINAL cyangwa FINALLY ihari, turebe niba hari season ikurikira
+    const nextSeasonMatch = cleanedHead.match(/S\s*0?(\d+)|SEASON\s*0?(\d+)/i);
     if (nextSeasonMatch) {
-      season = parseInt(nextSeasonMatch[1], 10);
-      episode = 1; // utangira episode nshya kuri season nshya
+      const nextSeasonNumber = parseInt(nextSeasonMatch[1] || nextSeasonMatch[2], 10);
+      if (nextSeasonNumber > season) {
+        season = nextSeasonNumber; // shyira season nshya
+        episode = 1; // itangire Ep01
+      } else {
+        episode = 999; // final episode niba nta season nshya iri
+      }
+    } else {
+      episode = 999; // final episode niba nta season nshya iri
     }
   }
 
-  // Sukura title
-  let title = cleanedHead
+  const title = cleanedHead
     .replace(/SEASON\s*\d+/i, '')
     .replace(/S\s*\d+/i, '')
     .replace(/EPISODE\s*\d+/i, '')
     .replace(/EP\s*\d+/i, '')
     .replace(/E\s*\d+/i, '')
-    .replace(/FINAL|FINALLY|FINALE/i, '')
+    .replace(/FINAL/i, '')
+    .replace(/FINALLY/i, '')
     .trim();
 
   return { title, season, episode };

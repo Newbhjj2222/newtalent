@@ -230,18 +230,24 @@ const PostDetails = () => {
       
       {/* ✅ Helmet ihindura meta tags kuri buri post */}
       <Helmet>
-        <title>{post.head}</title>
-        <meta property="og:title" content={post.head} />
-        <meta property="og:description" content={postDescription} />
-        <meta property="og:image" content={post.imageUrl} />
-        <meta property="og:url" content={window.location.href} />
-        <meta property="og:type" content="article" />
+  <title>{post.head}</title>
+  
+  {/* Meta tags z’ingenzi kuri SEO na Social Sharing */}
+  <meta name="description" content={post.story.replace(/<[^>]+>/g, '').slice(0, 160)} />
 
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={post.head} />
-        <meta name="twitter:description" content={postDescription} />
-        <meta name="twitter:image" content={post.imageUrl} />
-      </Helmet>
+  {/* Open Graph */}
+  <meta property="og:title" content={post.head} />
+  <meta property="og:description" content={post.story.replace(/<[^>]+>/g, '').slice(0, 160)} />
+  {post.imageUrl && <meta property="og:image" content={post.imageUrl} />}
+  <meta property="og:url" content={window.location.href} />
+  <meta property="og:type" content="article" />
+
+  {/* Twitter */}
+  <meta name="twitter:card" content={post.imageUrl ? "summary_large_image" : "summary"} />
+  <meta name="twitter:title" content={post.head} />
+  <meta name="twitter:description" content={post.story.replace(/<[^>]+>/g, '').slice(0, 160)} />
+  {post.imageUrl && <meta name="twitter:image" content={post.imageUrl} />}
+</Helmet>
 
       {post.imageUrl && (
         <img

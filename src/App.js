@@ -1,5 +1,5 @@
 // App.js
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 
 import Header from './components/Header';
@@ -21,12 +21,21 @@ import './App.css';
 
 import { UserProvider } from './contexts/UserContext';
 import ScrollToTop from './components/ScrollToTop';
-import { ThemeProvider } from './components/Theme'; // ✅ Kongeraho ThemeProvider
+import { ThemeProvider } from './components/Theme';
+
+// ✅ Import FCM function
+import { requestNotificationPermission } from './firebase';
 
 const App = () => {
+
+  // ✅ Saba notification permission igihe App itangiye
+  useEffect(() => {
+    requestNotificationPermission();
+  }, []);
+
   return (
     <UserProvider>
-      <ThemeProvider> {/* ✅ Gufunika App yose muri ThemeProvider */}
+      <ThemeProvider>
         <Router>
           <div className="app-container">
             <Header />

@@ -11,7 +11,6 @@ import {
 } from 'firebase/firestore';
 import { FaShareAlt } from 'react-icons/fa';
 import './PostDetails.css';
-import { useTheme } from './Theme';
 import Bible from './Bible'; // ✅ Import Bible
 import { Helmet } from 'react-helmet'; // ✅ Import Helmet
 

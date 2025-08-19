@@ -2,6 +2,7 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
+import { getMessaging, getToken, onMessage } from "firebase/messaging";
 
 // Firebase configuration
 const firebaseConfig = {
@@ -21,3 +22,30 @@ const app = initializeApp(firebaseConfig);
 // Export auth and firestore
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+
+// Initialize Firebase Messaging
+export const messaging = getMessaging(app);
+
+// Function to request permission and get FCM token
+export const requestNotificationPermission = async () => {
+  try {
+    const permission = await Notification.requestPermission();
+    if (permission === "granted") {
+      const token = await getToken(messaging, {
+        vapidKey: 'BLAZpHH-ZaiyK7-qS1mkoTY63ZuZOXRxBAXq4a4ZWwamvKUHKu84ZG7UNFciCGz7tBfMBZvK994Ip5Y1rfkfOjg'
+      });
+      console.log("FCM Token:", token);
+      return token;
+    } else {
+      console.log("Notification permission not granted");
+    }
+  } catch (error) {
+    console.error("Error getting FCM token:", error);
+  }
+};
+
+// Handle messages when app is in foreground
+onMessage(messaging, (payload) => {
+  console.log("Message received: ", payload);
+  alert(`New Post: ${payload.notification.title}`);
+});

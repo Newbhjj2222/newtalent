@@ -37,8 +37,15 @@ const extractSeriesAndEpisode = (head) => {
   const episodeMatch = cleanedHead.match(/EPISODE\s*(\d+)|EP\s*(\d+)|E\s*(\d+)/i);
   if (episodeMatch) {
     episode = parseInt(episodeMatch[1] || episodeMatch[2] || episodeMatch[3], 10);
-  } else if (/FINAL|FINALLY|FINALE/.test(cleanedHead)) {
+  } else if (/FINAL|FINALLY|FINALE/i.test(cleanedHead)) {
     episode = 999; // final episode
+
+    // Reba niba hari season ikurikira, urugero "S02" cyangwa "SEASON 2"
+    const nextSeasonMatch = cleanedHead.match(/S(?:EASON)?\s*(\d+)/i);
+    if (nextSeasonMatch) {
+      season = parseInt(nextSeasonMatch[1], 10);
+      episode = 1; // utangira episode nshya kuri season nshya
+    }
   }
 
   // Sukura title
@@ -53,7 +60,6 @@ const extractSeriesAndEpisode = (head) => {
 
   return { title, season, episode };
 };
-
 const PostDetails = () => {
   const { darkMode, setDarkMode, fontSize, setFontSize, fontStyle, setFontStyle } = useTheme();
   const { id } = useParams();

@@ -28,10 +28,13 @@ const extractSeriesAndEpisode = (head) => {
   const seasonMatch = cleanedHead.match(/SEASON\s*(\d+)|S\s*(\d+)/i);
   const season = seasonMatch ? parseInt(seasonMatch[1] || seasonMatch[2], 10) : 1;
 
+  let episode = null;
   const episodeMatch = cleanedHead.match(/EPISODE\s*(\d+)|EP\s*(\d+)|E\s*(\d+)/i);
-  const episode = episodeMatch
-    ? parseInt(episodeMatch[1] || episodeMatch[2] || episodeMatch[3], 10)
-    : null;
+  if (episodeMatch) {
+    episode = parseInt(episodeMatch[1] || episodeMatch[2] || episodeMatch[3], 10);
+  } else if (cleanedHead.includes("FINAL") || cleanedHead.includes("FINALLY")) {
+    episode = 999; // final episode izajya iza ku musozo
+  }
 
   const title = cleanedHead
     .replace(/SEASON\s*\d+/i, '')
@@ -39,6 +42,8 @@ const extractSeriesAndEpisode = (head) => {
     .replace(/EPISODE\s*\d+/i, '')
     .replace(/EP\s*\d+/i, '')
     .replace(/E\s*\d+/i, '')
+    .replace(/FINAL/i, '')
+    .replace(/FINALLY/i, '')
     .trim();
 
   return { title, season, episode };

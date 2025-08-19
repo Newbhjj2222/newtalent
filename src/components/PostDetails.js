@@ -19,31 +19,36 @@ import { Helmet } from 'react-helmet'; // ✅ Import Helmet
 const extractSeriesAndEpisode = (head) => {
   if (!head) return { title: null, season: null, episode: null };
 
-  const cleanedHead = head
+  let cleanedHead = head
     .replace(/[/\-_:]+/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
     .toUpperCase();
 
+  // Fata season
+  let season = 1;
   const seasonMatch = cleanedHead.match(/SEASON\s*(\d+)|S\s*(\d+)/i);
-  const season = seasonMatch ? parseInt(seasonMatch[1] || seasonMatch[2], 10) : 1;
+  if (seasonMatch) {
+    season = parseInt(seasonMatch[1] || seasonMatch[2], 10);
+  }
 
+  // Fata episode
   let episode = null;
   const episodeMatch = cleanedHead.match(/EPISODE\s*(\d+)|EP\s*(\d+)|E\s*(\d+)/i);
   if (episodeMatch) {
     episode = parseInt(episodeMatch[1] || episodeMatch[2] || episodeMatch[3], 10);
-  } else if (cleanedHead.includes("FINAL") || cleanedHead.includes("FINALLY")) {
-    episode = 999; // final episode izajya iza ku musozo
+  } else if (/FINAL|FINALLY|FINALE/.test(cleanedHead)) {
+    episode = 999; // final episode
   }
 
-  const title = cleanedHead
+  // Sukura title
+  let title = cleanedHead
     .replace(/SEASON\s*\d+/i, '')
     .replace(/S\s*\d+/i, '')
     .replace(/EPISODE\s*\d+/i, '')
     .replace(/EP\s*\d+/i, '')
     .replace(/E\s*\d+/i, '')
-    .replace(/FINAL/i, '')
-    .replace(/FINALLY/i, '')
+    .replace(/FINAL|FINALLY|FINALE/i, '')
     .trim();
 
   return { title, season, episode };

@@ -195,33 +195,41 @@ const PostDetails = () => {
     }  
   };  
 
-  const handleShare = async () => {  
-    try {  
-      const postUrl = window.location.href;  
-      const cleanText = post.story  
-        .replace(/<[^>]+>/g, '')  
-        .replace(/ /g, ' ')  
-        .replace(/\u00A0/g, ' ')  
-        .trim()  
-        .slice(0, 650);  
+  const handleShare = async () => {
+  try {
+    const postUrl = window.location.href;
+    const cleanText = post.story
+      .replace(/<[^>]+>/g, '')
+      .replace(/ /g, ' ')
+      .replace(/\u00A0/g, ' ')
+      .trim()
+      .slice(0, 650);
 
-      const shareText = `${post.head}\n\n${cleanText}...\n\nRead more: ${postUrl}`;  
-      const canShareBasic = navigator.canShare && navigator.canShare({ title: '', text: '', url: '' });  
+    const shareText = `${post.head}\n\n${cleanText}...\n\nRead more: ${postUrl}`;
 
-      if (canShareBasic) {  
-        await navigator.share({ title: post.head, text: shareText, url: postUrl });  
-      } else {  
-        await navigator.clipboard.writeText(shareText);  
-        alert('Browser yawe ntishyigikira Web Share; yashyizwe kuri clipboard.');  
-      }  
+    // Check ko browser ishyigikira share with files
+    if (navigator.canShare && navigator.canShare({ files: [] })) {
+      const response = await fetch(post.imageUrl);
+      const blob = await response.blob();
+      const file = new File([blob], 'post-image.jpg', { type: blob.type });
 
-      alert('Post yoherejwe neza!');  
-    } catch (err) {  
-      console.error(err);  
-      alert(`Sharing yanze: ${err.message}`);  
-    }  
-  };  
-
+      await navigator.share({
+        title: post.head,
+        text: shareText,
+        url: postUrl,
+        files: [file],
+      });
+    } else if (navigator.share) {
+      await navigator.share({ title: post.head, text: shareText, url: postUrl });
+    } else {
+      await navigator.clipboard.writeText(shareText);
+      alert('Browser yawe ntishyigikira Web Share API; yashyizwe kuri clipboard.');
+    }
+  } catch (err) {
+    console.error(err);
+    alert(`Sharing yanze: ${err.message}`);
+  }
+};
   if (!post) return <div>Loading...</div>;  
 
   return (  

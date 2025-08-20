@@ -19,34 +19,38 @@ import { Helmet } from 'react-helmet'; // ✅ Import Helmet
 const extractSeriesAndEpisode = (head) => {
   if (!head) return { title: null, season: null, episode: null };
 
-  // 1. Sukura text
+  // Sukura text
   const cleanedHead = head
     .replace(/[/\-_:\.]+/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
     .toUpperCase();
 
-  // 2. Fata seasons zose zivugwa
+  // =====================
+  // 1. Fata seasons zose zivugwa
+  // =====================
   const allSeasons = [...cleanedHead.matchAll(/SEASON\s*0?(\d+)|S\s*0?(\d+)/ig)]
     .map(m => parseInt(m[1] || m[2], 10))
     .filter(Boolean);
 
-  // Default season = first one found
   let season = allSeasons.length ? Math.min(...allSeasons) : null;
 
-  // 3. Fata episode niba ihari
+  // =====================
+  // 2. Fata Episode
+  // =====================
   let episode = null;
   const episodeMatch = cleanedHead.match(/EPISODE\s*0?(\d+)|EP\s*0?(\d+)|E\s*0?(\d+)/i);
   if (episodeMatch) {
     episode = parseInt(episodeMatch[1] || episodeMatch[2] || episodeMatch[3], 10);
   }
 
-  // 4. Reba niba ari FINAL / FINALLY
+  // =====================
+  // 3. Reba niba ari FINAL / FINALLY
+  // =====================
   const isFinal = /FINAL(LY)?/.test(cleanedHead);
-
   if (isFinal) {
     episode = 999; // final ya season iriho
-    if (!season) season = 1; // default season niba itabonetse
+    if (!season) season = 1; // niba nta season iriho, default = 1
   } else if (!episode && allSeasons.length > 1) {
     // Niba hari season nyinshi ariko nta final, episode = 1 kuri season ikurikiraho
     const maxSeason = Math.max(...allSeasons);
@@ -59,7 +63,9 @@ const extractSeriesAndEpisode = (head) => {
     episode = 1;
   }
 
-  // 5. Sukura title (ukuramo S01, EP, FINAL, etc.)
+  // =====================
+  // 4. Sukura Title
+  // =====================
   const title = cleanedHead
     .replace(/SEASON\s*0?\d+/ig, '')
     .replace(/S\s*0?\d+/ig, '')

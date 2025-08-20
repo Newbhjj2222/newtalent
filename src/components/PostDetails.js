@@ -19,24 +19,36 @@ import { Helmet } from 'react-helmet'; // ✅ Import Helmet
 const extractSeriesAndEpisode = (head) => {
   if (!head) return { title: null, season: null, episode: null };
 
+  // Sukura text
   const cleanedHead = head
     .replace(/[/\-_:\.]+/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
     .toUpperCase();
 
+  // =====================
+  // 1. Fata Season
+  // =====================
   const seasonMatch = cleanedHead.match(/SEASON\s*0?(\d+)|S\s*0?(\d+)/i);
   let season = seasonMatch ? parseInt(seasonMatch[1] || seasonMatch[2], 10) : null;
 
+  // =====================
+  // 2. Fata Episode
+  // =====================
   let episode = null;
   const episodeMatch = cleanedHead.match(/EPISODE\s*0?(\d+)|EP\s*0?(\d+)|E\s*0?(\d+)/i);
   if (episodeMatch) {
     episode = parseInt(episodeMatch[1] || episodeMatch[2] || episodeMatch[3], 10);
   }
 
+  // =====================
+  // 3. Reba niba ari FINAL / FINALLY
+  // =====================
   if (cleanedHead.includes("FINAL")) {
+    // Reba niba hari season nshya explicitly yanditse mu head
     const nextSeasonMatch = cleanedHead.match(/SEASON\s*0?(\d+)|S\s*0?(\d+)/ig);
     if (nextSeasonMatch && nextSeasonMatch.length > 1) {
+      // Fata season ya 2 yanditse (urugero: "S01 ... FINALLY S02")
       const lastMatch = nextSeasonMatch[nextSeasonMatch.length - 1].match(/\d+/);
       const nextSeasonNumber = parseInt(lastMatch[0], 10);
       if (!season || nextSeasonNumber > season) {
@@ -44,8 +56,9 @@ const extractSeriesAndEpisode = (head) => {
         episode = 1;
       }
     } else {
+      // Nta season nshya yanditse: uzamure season irimo
       if (season) {
-        season += 1;
+        season = season + 1;
         episode = 1;
       } else {
         season = 1;
@@ -54,8 +67,12 @@ const extractSeriesAndEpisode = (head) => {
     }
   }
 
+  // Default season niba ntayabonetse
   if (!season) season = 1;
 
+  // =====================
+  // 4. Sukura Title
+  // =====================
   const title = cleanedHead
     .replace(/SEASON\s*0?\d+/ig, '')
     .replace(/S\s*0?\d+/ig, '')

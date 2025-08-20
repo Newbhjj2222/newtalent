@@ -45,24 +45,27 @@ const extractSeriesAndEpisode = (head) => {
   // 3. Reba niba ari FINAL / FINALLY
   // =====================
   if (cleanedHead.includes("FINAL")) {
-    // Reba niba hari season nshya explicitly yanditse mu head
-    const nextSeasonMatch = cleanedHead.match(/SEASON\s*0?(\d+)|S\s*0?(\d+)/ig);
-    if (nextSeasonMatch && nextSeasonMatch.length > 1) {
-      // Fata season ya 2 yanditse (urugero: "S01 ... FINALLY S02")
-      const lastMatch = nextSeasonMatch[nextSeasonMatch.length - 1].match(/\d+/);
-      const nextSeasonNumber = parseInt(lastMatch[0], 10);
-      if (!season || nextSeasonNumber > season) {
+    const nextSeasonMatch = cleanedHead.match(/SEASON\s*0?(\d+)|S\s*0?(\d+)/i);
+    if (nextSeasonMatch) {
+      const nextSeasonNumber = parseInt(nextSeasonMatch[1] || nextSeasonMatch[2], 10);
+
+      if (!season) {
         season = nextSeasonNumber;
         episode = 1;
+      } else if (nextSeasonNumber > season) {
+        season = nextSeasonNumber;
+        episode = 1;
+      } else {
+        episode = 999;
       }
     } else {
-      // Nta season nshya yanditse: uzamure season irimo
+      // Nta season nshya yanditse, ariko ni FINAL → uzamura season
       if (season) {
         season = season + 1;
         episode = 1;
       } else {
         season = 1;
-        episode = 999; // fallback
+        episode = 999;
       }
     }
   }

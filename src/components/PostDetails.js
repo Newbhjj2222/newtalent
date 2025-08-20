@@ -27,19 +27,19 @@ const extractSeriesAndEpisode = (head) => {
     .toUpperCase();
 
   // =====================
-  // 1. Fata Season
+  // 1. Fata seasons zose zivugwa
   // =====================
-  // Ifata ibintu byose: SEASON 1, SEASON01, S1, S01, Season2, etc.
-  const seasonMatch = cleanedHead.match(/SEASON\s*0?(\d+)|S\s*0?(\d+)/i);
-  let season = seasonMatch ? parseInt(seasonMatch[1] || seasonMatch[2], 10) : null;
+  const allSeasons = [...cleanedHead.matchAll(/SEASON\s*0?(\d+)|S\s*0?(\d+)/ig)]
+    .map(m => parseInt(m[1] || m[2], 10))
+    .filter(Boolean);
+
+  let season = allSeasons.length ? Math.min(...allSeasons) : null; // season ya mbere ivugwa
+  let episode = null;
 
   // =====================
   // 2. Fata Episode
   // =====================
-  // Ifata: EPISODE 5, EP5, E5, EP05, S01E01, S01EP01, SEASON1EP3
-  let episode = null;
   const episodeMatch = cleanedHead.match(/EPISODE\s*0?(\d+)|EP\s*0?(\d+)|E\s*0?(\d+)/i);
-
   if (episodeMatch) {
     episode = parseInt(episodeMatch[1] || episodeMatch[2] || episodeMatch[3], 10);
   }
@@ -47,27 +47,24 @@ const extractSeriesAndEpisode = (head) => {
   // =====================
   // 3. Reba niba ari FINAL / FINALLY
   // =====================
-  if (cleanedHead.includes("FINAL")) {
-    // Reba niba head ivuga indi season ikurikiraho
-    const nextSeasonMatch = cleanedHead.match(/S\s*0?(\d+)|SEASON\s*0?(\d+)/i);
-    if (nextSeasonMatch) {
-      const nextSeasonNumber = parseInt(nextSeasonMatch[1] || nextSeasonMatch[2], 10);
-      if (!season || nextSeasonNumber > season) {
-        season = nextSeasonNumber;
-        episode = 1; // itangire Ep01 kuri season nshya
-      } else {
-        episode = 999; // final ya season iriho
-      }
-    } else {
-      episode = 999; // final niba nta season nshya yanditse
+  if (/FINAL(LY)?/.test(cleanedHead)) {
+    // Iyo harimo FINAL bivuze iherezo rya season iriho
+    episode = 999;
+  } else if (allSeasons.length > 1) {
+    // Niba harimo season nyinshi (urugero S01 ... S02)
+    // bivuze ko season ikurikiraho ariho itangiye Ep01
+    const maxSeason = Math.max(...allSeasons);
+    if (!season || maxSeason > season) {
+      season = maxSeason;
+      episode = 1;
     }
   }
 
-  // Niba season itabonetse na episode ntayabonetse, default season = 1
+  // Niba season ntabonetse, default = 1
   if (!season) season = 1;
 
   // =====================
-  // 4. Sukura Title (ukuramo season/episode/final)
+  // 4. Sukura Title
   // =====================
   const title = cleanedHead
     .replace(/SEASON\s*0?\d+/ig, '')

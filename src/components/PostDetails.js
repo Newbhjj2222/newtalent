@@ -19,44 +19,34 @@ import { Helmet } from 'react-helmet';
 const extractSeriesAndEpisode = (head) => {
     if (!head) return { title: null, season: null, episode: null };
 
+    // Clean head: remove special chars, normalize spaces, uppercase
     const cleanedHead = head
-        .replace(/[/-_:.]+/g, ' ')
+        .replace(/[\/\-_:.]+/g, ' ')
         .replace(/\s+/g, ' ')
         .trim()
         .toUpperCase();
 
-    const allSeasons = [...cleanedHead.matchAll(/SEASON\s0?(\d+)|S\s0?(\d+)/ig)]
-        .map(m => parseInt(m[1] || m[2], 10))
-        .filter(Boolean);
-
-    let season = allSeasons.length ? Math.min(...allSeasons) : null;
-
-    let episode = null;
-    const episodeMatch = cleanedHead.match(/EPISODE\s0?(\d+)|EP\s0?(\d+)|E\s*0?(\d+)/i);
-    if (episodeMatch) {
-        episode = parseInt(episodeMatch[1] || episodeMatch[2] || episodeMatch[3], 10);
-    }
-
+    // Check for FINAL / FINALLY
     const isFinal = /FINAL(LY)?/.test(cleanedHead);
-    if (isFinal) {
-        episode = 999;
-        if (!season) season = 1;
-    } else if (!episode && allSeasons.length > 1) {
-        const maxSeason = Math.max(...allSeasons);
-        if (!season || maxSeason > season) {
-            season = maxSeason;
-            episode = 1;
-        }
-    } else if (!episode) {
-        episode = 1;
-    }
 
+    // Extract season: SEASON 2, S2, S02
+    const seasonMatch = cleanedHead.match(/SEASON\s*0*(\d+)|S\s*0*(\d+)/i);
+    let season = seasonMatch ? parseInt(seasonMatch[1] || seasonMatch[2], 10) : 1;
+
+    // Extract episode: EPISODE 5, EP5, E5
+    const episodeMatch = cleanedHead.match(/EPISODE\s*0*(\d+)|EP\s*0*(\d+)|E\s*0*(\d+)/i);
+    let episode = episodeMatch ? parseInt(episodeMatch[1] || episodeMatch[2] || episodeMatch[3], 10) : 1;
+
+    // Handle FINAL case
+    if (isFinal) episode = 999;
+
+    // Extract title: remove season, episode, final keywords
     const title = cleanedHead
-        .replace(/SEASON\s0?\d+/ig, '')
-        .replace(/S\s0?\d+/ig, '')
-        .replace(/EPISODE\s0?\d+/ig, '')
-        .replace(/EP\s0?\d+/ig, '')
-        .replace(/E\s*0?\d+/ig, '')
+        .replace(/SEASON\s*0*\d+/ig, '')
+        .replace(/S\s*0*\d+/ig, '')
+        .replace(/EPISODE\s*0*\d+/ig, '')
+        .replace(/EP\s*0*\d+/ig, '')
+        .replace(/E\s*0*\d+/ig, '')
         .replace(/FINAL(LY)?/ig, '')
         .trim();
 

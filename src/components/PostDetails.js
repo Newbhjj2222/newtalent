@@ -140,78 +140,31 @@ const PostDetails = () => {
         };
 
         const findAdjacentPosts = async (currentPost) => {
-    try {
-        const allPostsSnap = await getDocs(collection(db, 'posts'));
-        const allPosts = allPostsSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+try {
+const allPostsSnap = await getDocs(collection(db, 'posts'));
+const allPosts = allPostsSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
-        // Extract info for current post
-        const current = extractSeriesAndEpisode(currentPost.head);
-        if (!current.title || current.episode === null) {
-            console.warn("Could not extract title/episode from head:", currentPost.head);
-            return;
-        }
+const current = extractSeriesAndEpisode(currentPost.head);  
+    if (!current.title || current.episode === null) {  
+      console.warn("Could not extract title/episode from head:", currentPost.head);  
+      return;  
+    }  
 
-        // Extract info for all posts and filter by title match
-        const postsWithInfo = allPosts
-            .map((p) => ({ ...p, ...extractSeriesAndEpisode(p.head) }))
-            .filter((p) => p.title.toUpperCase() === current.title.toUpperCase() && p.episode !== null);
+    const sameSeriesPosts = allPosts  
+      .map((p) => ({ ...p, ...extractSeriesAndEpisode(p.head) }))  
+      .filter(  
+        (p) => p.title === current.title && p.season === current.season && p.episode !== null  
+      )  
+      .sort((a, b) => a.episode - b.episode);  
 
-        // Group posts by season
-        const seasonsMap = {};
-        postsWithInfo.forEach((p) => {
-            if (!seasonsMap[p.season]) seasonsMap[p.season] = [];
-            seasonsMap[p.season].push(p);
-        });
+    const currentIndex = sameSeriesPosts.findIndex((p) => p.id === currentPost.id);  
 
-        // Sort episodes within each season
-        Object.values(seasonsMap).forEach((seasonPosts) => {
-            seasonPosts.sort((a, b) => {
-                if (a.episode === 999 && b.episode !== 999) return 1;
-                if (b.episode === 999 && a.episode !== 999) return -1;
-                return a.episode - b.episode;
-            });
-        });
-
-        // Sort seasons and flatten into a single array
-        const sortedSeasons = Object.keys(seasonsMap)
-            .map(Number)
-            .sort((a, b) => a - b);
-        let sortedPosts = [];
-        sortedSeasons.forEach((seasonNum) => {
-            sortedPosts = sortedPosts.concat(seasonsMap[seasonNum]);
-        });
-
-        // Find index of current post
-        const currentIndex = sortedPosts.findIndex((p) => p.id === currentPost.id);
-
-        // Previous post
-        const prevPostId = currentIndex > 0 ? sortedPosts[currentIndex - 1].id : null;
-
-        // Next post logic
-        let nextPostId = null;
-        if (currentIndex < sortedPosts.length - 1) {
-            const currentEpisode = sortedPosts[currentIndex].episode;
-
-            if (currentEpisode === 999) {
-                // Currently at Finally, search for season+1 episode 1
-                const nextSeason = current.season + 1;
-                const nextSeasonPost = sortedPosts.find(
-                    (p) => p.season === nextSeason && p.episode === 1
-                );
-                nextPostId = nextSeasonPost ? nextSeasonPost.id : null;
-            } else {
-                nextPostId = sortedPosts[currentIndex + 1].id;
-            }
-        }
-
-        setPrevPostId(prevPostId);
-        setNextPostId(nextPostId);
-
-    } catch (error) {
-        console.error("Error finding adjacent posts:", error);
-    }
+    setPrevPostId(currentIndex > 0 ? sameSeriesPosts[currentIndex - 1].id : null);  
+    setNextPostId(currentIndex < sameSeriesPosts.length - 1 ? sameSeriesPosts[currentIndex + 1].id : null);  
+  } catch (error) {  
+    console.error("Error finding adjacent posts:", error);  
+  }  
 };
-
         const recordView = async () => {
             try {
                 const readerRef = collection(db, 'readers', id, 'views');

@@ -19,53 +19,47 @@ import { Helmet } from 'react-helmet'; // ✅ Import Helmet
 const extractSeriesAndEpisode = (head) => {
   if (!head) return { title: null, season: null, episode: null };
 
-  // Sukura text
+  // 1. Sukura text
   const cleanedHead = head
     .replace(/[/\-_:\.]+/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
     .toUpperCase();
 
-  // =====================
-  // 1. Fata seasons zose zivugwa
-  // =====================
+  // 2. Fata seasons zose zivugwa
   const allSeasons = [...cleanedHead.matchAll(/SEASON\s*0?(\d+)|S\s*0?(\d+)/ig)]
     .map(m => parseInt(m[1] || m[2], 10))
     .filter(Boolean);
 
-  let season = allSeasons.length ? Math.min(...allSeasons) : null; // season ya mbere ivugwa
-  let episode = null;
+  // Default season = first one found
+  let season = allSeasons.length ? Math.min(...allSeasons) : null;
 
-  // =====================
-  // 2. Fata Episode
-  // =====================
+  // 3. Fata episode niba ihari
+  let episode = null;
   const episodeMatch = cleanedHead.match(/EPISODE\s*0?(\d+)|EP\s*0?(\d+)|E\s*0?(\d+)/i);
   if (episodeMatch) {
     episode = parseInt(episodeMatch[1] || episodeMatch[2] || episodeMatch[3], 10);
   }
 
-  // =====================
-  // 3. Reba niba ari FINAL / FINALLY
-  // =====================
-  if (/FINAL(LY)?/.test(cleanedHead)) {
-    // Iyo harimo FINAL bivuze iherezo rya season iriho
-    episode = 999;
-  } else if (allSeasons.length > 1) {
-    // Niba harimo season nyinshi (urugero S01 ... S02)
-    // bivuze ko season ikurikiraho ariho itangiye Ep01
+  // 4. Reba niba ari FINAL / FINALLY
+  const isFinal = /FINAL(LY)?/.test(cleanedHead);
+
+  if (isFinal) {
+    episode = 999; // final ya season iriho
+    if (!season) season = 1; // default season niba itabonetse
+  } else if (!episode && allSeasons.length > 1) {
+    // Niba hari season nyinshi ariko nta final, episode = 1 kuri season ikurikiraho
     const maxSeason = Math.max(...allSeasons);
     if (!season || maxSeason > season) {
       season = maxSeason;
       episode = 1;
     }
+  } else if (!episode) {
+    // Nta episode na final, default = 1
+    episode = 1;
   }
 
-  // Niba season ntabonetse, default = 1
-  if (!season) season = 1;
-
-  // =====================
-  // 4. Sukura Title
-  // =====================
+  // 5. Sukura title (ukuramo S01, EP, FINAL, etc.)
   const title = cleanedHead
     .replace(/SEASON\s*0?\d+/ig, '')
     .replace(/S\s*0?\d+/ig, '')

@@ -14,6 +14,7 @@ import './PostDetails.css';
 import { useTheme } from './Theme';
 import Bible from './Bible';
 import { Helmet } from 'react-helmet';
+import NesMine from './NesMine';
 
 // Function yo gutoranya title, season, episode muri head
 const extractSeriesAndEpisode = (head) => {
@@ -328,6 +329,7 @@ const PostDetails = () => {
             ) : (
                 <p>No comments yet.</p>
             )}
+                {post && <NesMine username={currentUser} />}
         </div>
     );
 };

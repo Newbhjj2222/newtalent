@@ -19,45 +19,63 @@ import { Helmet } from 'react-helmet'; // ✅ Import Helmet
 const extractSeriesAndEpisode = (head) => {
   if (!head) return { title: null, season: null, episode: null };
 
+  // Sukura text
   const cleanedHead = head
-    .replace(/[/\-_:]+/g, ' ')
+    .replace(/[/\-_:\.]+/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
     .toUpperCase();
 
-  // Reba niba hari season iri muri head
-  const seasonMatch = cleanedHead.match(/SEASON\s*(\d+)|S\s*(\d+)/i);
-  let season = seasonMatch ? parseInt(seasonMatch[1] || seasonMatch[2], 10) : 1;
+  // =====================
+  // 1. Fata Season
+  // =====================
+  // Ifata ibintu byose: SEASON 1, SEASON01, S1, S01, Season2, etc.
+  const seasonMatch = cleanedHead.match(/SEASON\s*0?(\d+)|S\s*0?(\d+)/i);
+  let season = seasonMatch ? parseInt(seasonMatch[1] || seasonMatch[2], 10) : null;
 
-  // Reba episode
+  // =====================
+  // 2. Fata Episode
+  // =====================
+  // Ifata: EPISODE 5, EP5, E5, EP05, S01E01, S01EP01, SEASON1EP3
   let episode = null;
-  const episodeMatch = cleanedHead.match(/EPISODE\s*(\d+)|EP\s*(\d+)|E\s*(\d+)/i);
+  const episodeMatch = cleanedHead.match(/EPISODE\s*0?(\d+)|EP\s*0?(\d+)|E\s*0?(\d+)/i);
+
   if (episodeMatch) {
     episode = parseInt(episodeMatch[1] || episodeMatch[2] || episodeMatch[3], 10);
-  } else if (cleanedHead.includes("FINAL") || cleanedHead.includes("FINALLY")) {
-    // Niba FINAL cyangwa FINALLY ihari, turebe niba hari season ikurikira
+  }
+
+  // =====================
+  // 3. Reba niba ari FINAL / FINALLY
+  // =====================
+  if (cleanedHead.includes("FINAL")) {
+    // Reba niba head ivuga indi season ikurikiraho
     const nextSeasonMatch = cleanedHead.match(/S\s*0?(\d+)|SEASON\s*0?(\d+)/i);
     if (nextSeasonMatch) {
       const nextSeasonNumber = parseInt(nextSeasonMatch[1] || nextSeasonMatch[2], 10);
-      if (nextSeasonNumber > season) {
-        season = nextSeasonNumber; // shyira season nshya
-        episode = 1; // itangire Ep01
+      if (!season || nextSeasonNumber > season) {
+        season = nextSeasonNumber;
+        episode = 1; // itangire Ep01 kuri season nshya
       } else {
-        episode = 999; // final episode niba nta season nshya iri
+        episode = 999; // final ya season iriho
       }
     } else {
-      episode = 999; // final episode niba nta season nshya iri
+      episode = 999; // final niba nta season nshya yanditse
     }
   }
 
+  // Niba season itabonetse na episode ntayabonetse, default season = 1
+  if (!season) season = 1;
+
+  // =====================
+  // 4. Sukura Title (ukuramo season/episode/final)
+  // =====================
   const title = cleanedHead
-    .replace(/SEASON\s*\d+/i, '')
-    .replace(/S\s*\d+/i, '')
-    .replace(/EPISODE\s*\d+/i, '')
-    .replace(/EP\s*\d+/i, '')
-    .replace(/E\s*\d+/i, '')
-    .replace(/FINAL/i, '')
-    .replace(/FINALLY/i, '')
+    .replace(/SEASON\s*0?\d+/ig, '')
+    .replace(/S\s*0?\d+/ig, '')
+    .replace(/EPISODE\s*0?\d+/ig, '')
+    .replace(/EP\s*0?\d+/ig, '')
+    .replace(/E\s*0?\d+/ig, '')
+    .replace(/FINAL(LY)?/ig, '')
     .trim();
 
   return { title, season, episode };

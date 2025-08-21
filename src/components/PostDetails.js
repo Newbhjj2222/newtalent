@@ -77,13 +77,13 @@ const PostDetails = () => {
                 const depositerRef = doc(db, 'depositers', username);
                 const depositerSnap = await getDoc(depositerRef);
                 if (!depositerSnap.exists()) {
-                    alert('Account yawe ntabwo tuyibona mubaguze NeS. Tugiye kukujyana aho uzigurira.');
+                    alert('Account yawe ntabwo tuyibona mubaguze NeS. Tugiye kukujyana aho uzigurira. niba ukeneye ubufasha cyangwa ubusobanuro burambuye, twandikire Whatsapp kuri +250722319367');
                     navigate('/balance');
                     return;
                 }
                 const currentNes = Number(depositerSnap.data().nes) || 0;
                 if (currentNes < 1) {
-                    alert('Nta NeS ufite zihagije zo gusoma iyi nkuru. Tugiye kukujyana aho uzigurira.');
+                    alert('Nta NeS ufite zihagije zikwemerera gusoma iyi nkuru. Tugiye kukujyana aho uzigurira. Niba kandi waziguze ukaba ntazo ubona, twandikire Whatsapp kuri +250722319367');
                     navigate('/balance');
                     return;
                 }

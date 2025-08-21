@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getFirestore, doc, getDoc, setDoc, collection, query, where, getDocs, updateDoc } from 'firebase/firestore';
-import { db } from '../firebase'; // shyiramo path ya firebase config yawe
+import { db } from '../firebase';
+import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
 
 // Function yo gukora referral code
 const generateReferralCode = (length = 6) => {
@@ -22,7 +22,6 @@ const Profile = () => {
   const [referredCount, setReferredCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  // Logout function
   const handleLogout = () => {
     setUsername('');
     localStorage.removeItem('username');
@@ -41,36 +40,34 @@ const Profile = () => {
       }
 
       try {
-        // Fata document ya user ukoresheje username nk'id
-        const userDocRef = doc(db, 'userdate', username);
-        let userSnapshot = await getDoc(userDocRef);
+        const dataDocRef = doc(db, 'userdate', 'data');
+        const dataSnap = await getDoc(dataDocRef);
+        let data = dataSnap.exists() ? dataSnap.data() : {};
 
-        // Niba document itabaho, rema nshya
-        if (!userSnapshot.exists()) {
-          const newCode = generateReferralCode();
-          await setDoc(userDocRef, { referralCode: newCode, referredBy: null });
-          userSnapshot = await getDoc(userDocRef);
-        }
+        // Shaka lay ya username
+        let userData = data[username] || {};
 
-        let userData = userSnapshot.data();
-
-        // Generate code niba itarimo
+        // Generate referral code niba itarimo
         if (!userData.referralCode) {
           const newCode = generateReferralCode();
-          await updateDoc(userDocRef, { referralCode: newCode });
           userData.referralCode = newCode;
+          userData.referredBy = userData.referredBy || null;
+          data[username] = userData;
+          await setDoc(dataDocRef, data);
         }
 
         setReferralCode(userData.referralCode);
         setReferralLink(`https://www.newtalentsg.co.rw/register?ref=${userData.referralCode}`);
 
         // Count referred users
-        const q = query(
-          collection(db, 'userdate'),
-          where('referredBy', '==', userData.referralCode)
-        );
-        const querySnapshot = await getDocs(q);
-        setReferredCount(querySnapshot.size);
+        const allUsers = data;
+        let count = 0;
+        for (const key in allUsers) {
+          if (allUsers[key].referredBy === userData.referralCode) {
+            count++;
+          }
+        }
+        setReferredCount(count);
 
         setLoading(false);
       } catch (error) {

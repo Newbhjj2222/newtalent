@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
-import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 
 // Function yo gukora referral code
 const generateReferralCode = (length = 6) => {
@@ -42,28 +42,47 @@ const Profile = () => {
       try {
         const dataDocRef = doc(db, 'userdate', 'data');
         const dataSnap = await getDoc(dataDocRef);
-        let data = dataSnap.exists() ? dataSnap.data() : {};
+        if (!dataSnap.exists()) {
+          setLoading(false);
+          return;
+        }
 
-        // Shaka lay ya username
-        let userData = data[username] || {};
+        const data = dataSnap.data();
+
+        // Shaka lay aho fName ihuye na username
+        let userKey = null;
+        for (const key in data) {
+          if (data[key].fName === username) {
+            userKey = key;
+            break;
+          }
+        }
+
+        if (!userKey) {
+          console.error("User not found in data document");
+          setLoading(false);
+          return;
+        }
+
+        let userData = data[userKey];
 
         // Generate referral code niba itarimo
         if (!userData.referralCode) {
           const newCode = generateReferralCode();
+          await updateDoc(dataDocRef, {
+            [`${userKey}.referralCode`]: newCode,
+            [`${userKey}.referredBy`]: userData.referredBy || null
+          });
           userData.referralCode = newCode;
-          userData.referredBy = userData.referredBy || null;
-          data[username] = userData;
-          await setDoc(dataDocRef, data);
         }
 
         setReferralCode(userData.referralCode);
         setReferralLink(`https://www.newtalentsg.co.rw/register?ref=${userData.referralCode}`);
 
         // Count referred users
-        const allUsers = data;
         let count = 0;
-        for (const key in allUsers) {
-          if (allUsers[key].referredBy === userData.referralCode) {
+        for (const key in data) {
+          if (data[key].referredBy === userData.referralCode) {
             count++;
           }
         }

@@ -13,43 +13,71 @@ function Register() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Check referral code from URL
+  // Fata referral code niba iri muri URL
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const code = params.get('ref');
     if (code) setRefCode(code);
   }, [location]);
 
+  // Function yo gukora referral code nshya
+  const generateReferralCode = (length = 6) => {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let code = "";
+    for (let i = 0; i < length; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return code;
+  };
+
   const handleRegister = async (e) => {
     e.preventDefault();
+    if (!username) return alert("Andika username");
+
     try {
-      // 1️⃣ Create user in Firebase Auth
+      // 1️⃣ Firebase Authentication
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const uid = userCredential.user.uid;
 
-      // 2️⃣ Save user in 'userdate'
-      const userDocRef = doc(db, "userdate", uid);
+      // 2️⃣ Fata document ya "data" muri userdate
+      const dataDocRef = doc(db, "userdate", "data");
+      const dataDocSnap = await getDoc(dataDocRef);
+      let existingData = {};
+      if (dataDocSnap.exists()) {
+        existingData = dataDocSnap.data();
+      }
+
+      // 3️⃣ Shyiramo user nshya muri document ya data
+      const referralCode = generateReferralCode();
       const newUserData = {
         fName: username,
         email: email,
-        referralCode: generateReferralCode(),
+        referralCode: referralCode,
         referredBy: refCode || null
       };
-      await setDoc(userDocRef, newUserData);
+      const updatedData = {
+        ...existingData,
+        [uid]: newUserData
+      };
+      await setDoc(dataDocRef, updatedData);
 
-      // 3️⃣ Save nes for the new user in 'depositers'
+      // 4️⃣ NES for new user
       const depositerRef = doc(db, 'depositers', username);
-      await setDoc(depositerRef, { nes: 5 }); // new user gets 5 nes
+      await setDoc(depositerRef, { nes: 5 }); // new user gets 5 NES
 
-      // 4️⃣ If referral code exists, give 10 nes to referrer
+      // 5️⃣ NES for referrer
       if (refCode) {
-        // Search for user with this referral code
         const usersSnapshot = await getDocs(collection(db, 'userdate'));
         let referrerUsername = null;
+
         usersSnapshot.forEach(docSnap => {
           const data = docSnap.data();
-          if (data.referralCode === refCode) {
-            referrerUsername = data.fName;
+          const allUsers = data?.data || data; // document data
+          for (const uid in allUsers) {
+            if (allUsers[uid].referralCode === refCode) {
+              referrerUsername = allUsers[uid].fName;
+              break;
+            }
           }
         });
 
@@ -69,16 +97,6 @@ function Register() {
     } catch (error) {
       alert(error.message);
     }
-  };
-
-  // Function to generate referral code
-  const generateReferralCode = (length = 6) => {
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    let code = "";
-    for (let i = 0; i < length; i++) {
-      code += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return code;
   };
 
   return (

@@ -108,13 +108,13 @@ const Balance = () => {
           required
         >
           <option value="">-- Hitamo Plan --</option>
-          <option value="onestory">1 episode - 20 RWF</option>
-          <option value="Local"> 7 episode - 100 RWF</option>
-          <option value="Daily"> umunsi - 150 RWF</option>
-          <option value="weakly">icyumweru - 200 RWF</option>
-          <option value="limited"> limited - 300 RWF</option>
-          <option value="monthly"> ukwezi- 600 RWF</option>
-          <option value="yearly"> Umwaka - 7500 RWF</option>
+          <option value="onestory"> NeS 1 - 20 RWF</option>
+          <option value="Local"> NeS 7 - 100 RWF</option>
+          <option value="Daily"> umunsi Nes 10 - 150 RWF</option>
+          <option value="weakly">icyumweru NeS 15 - 200 RWF</option>
+          <option value="limited"> Icyumweru NeS 25- 300 RWF</option>
+          <option value="monthly"> ukwezi NeS 60- 600 RWF</option>
+          <option value="bestreader"> Ukwezi kose - 1200 RWF</option>
         </select>
 
         <select

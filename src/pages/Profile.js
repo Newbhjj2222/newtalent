@@ -2,10 +2,20 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../contexts/UserContext';
 import { getAuth } from 'firebase/auth';
-import { getFirestore, doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { getFirestore, doc, getDoc, collection, query, where, getDocs, updateDoc } from 'firebase/firestore';
 
 const auth = getAuth();
 const db = getFirestore();
+
+// Function yo gukora referral code
+const generateReferralCode = (length = 6) => {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let code = "";
+  for (let i = 0; i < length; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+};
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -15,35 +25,41 @@ const Profile = () => {
   const [referredCount, setReferredCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  // Function yo logout
+  // Logout function
   const handleLogout = () => {
     setUsername('');
     localStorage.removeItem('username');
   };
 
-  // Function yo kuyobora login page
+  // Go to login page
   const goToLogin = () => {
     navigate('/login');
   };
 
-  // Fetch referral info
+  // Fetch referral info + generate if missing
   useEffect(() => {
     const fetchReferralData = async () => {
       try {
         const user = auth.currentUser;
         if (!user) return;
 
-        const userDocRef = doc(db, 'userdate', user.uid); // assuming uid is doc id
+        const userDocRef = doc(db, 'userdate', user.uid); // doc id = uid
         const userSnapshot = await getDoc(userDocRef);
 
         if (userSnapshot.exists()) {
-          const userData = userSnapshot.data();
-          setReferralCode(userData.referralCode);
+          let userData = userSnapshot.data();
 
-          // Referral link
+          // Generate referral code niba itarimo
+          if (!userData.referralCode) {
+            const newCode = generateReferralCode();
+            await updateDoc(userDocRef, { referralCode: newCode });
+            userData.referralCode = newCode;
+          }
+
+          setReferralCode(userData.referralCode);
           setReferralLink(`https://www.newtalentsg.co.rw/register?ref=${userData.referralCode}`);
 
-          // Count how many users registered via this referral
+          // Count referred users
           const q = query(
             collection(db, 'userdate'),
             where('referredBy', '==', userData.referralCode)
@@ -87,6 +103,9 @@ const Profile = () => {
             <a href={referralLink} target="_blank" rel="noopener noreferrer">{referralLink}</a>
           </p>
           <p><strong>People registered through you:</strong> {referredCount}</p>
+          <button style={styles.copyButton} onClick={() => navigator.clipboard.writeText(referralLink)}>
+            Copy Referral Link
+          </button>
         </div>
       )}
     </div>
@@ -129,6 +148,15 @@ const styles = {
     border: '1px solid #eee',
     borderRadius: '8px',
     backgroundColor: '#fafafa'
+  },
+  copyButton: {
+    marginTop: '10px',
+    padding: '8px 15px',
+    backgroundColor: '#2196F3',
+    color: 'white',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer'
   }
 };
 

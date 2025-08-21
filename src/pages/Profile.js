@@ -1,11 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUser } from '../contexts/UserContext';
-import { getAuth } from 'firebase/auth';
 import { getFirestore, doc, getDoc, collection, query, where, getDocs, updateDoc } from 'firebase/firestore';
-
-const auth = getAuth();
-const db = getFirestore();
+import { db } from '../firebase'; // shyira import yawe ya firebase
 
 // Function yo gukora referral code
 const generateReferralCode = (length = 6) => {
@@ -19,54 +15,60 @@ const generateReferralCode = (length = 6) => {
 
 const Profile = () => {
   const navigate = useNavigate();
-  const { username, setUsername } = useUser();
+  const storedUsername = localStorage.getItem("username") || "";
+  const [username, setUsername] = useState(storedUsername);
   const [referralCode, setReferralCode] = useState('');
   const [referralLink, setReferralLink] = useState('');
   const [referredCount, setReferredCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  // Logout function
   const handleLogout = () => {
     setUsername('');
     localStorage.removeItem('username');
+    navigate('/login');
   };
 
-  // Go to login page
   const goToLogin = () => {
     navigate('/login');
   };
 
-  // Fetch referral info + generate if missing
   useEffect(() => {
     const fetchReferralData = async () => {
-      try {
-        const user = auth.currentUser;
-        if (!user) return;
+      if (!username) {
+        setLoading(false);
+        return;
+      }
 
-        const userDocRef = doc(db, 'userdate', user.uid); // doc id = uid
+      try {
+        // Fata document ya user ukoresheje username nk'id
+        const userDocRef = doc(db, 'userdate', username);
         const userSnapshot = await getDoc(userDocRef);
 
-        if (userSnapshot.exists()) {
-          let userData = userSnapshot.data();
-
-          // Generate referral code niba itarimo
-          if (!userData.referralCode) {
-            const newCode = generateReferralCode();
-            await updateDoc(userDocRef, { referralCode: newCode });
-            userData.referralCode = newCode;
-          }
-
-          setReferralCode(userData.referralCode);
-          setReferralLink(`https://www.newtalentsg.co.rw/register?ref=${userData.referralCode}`);
-
-          // Count referred users
-          const q = query(
-            collection(db, 'userdate'),
-            where('referredBy', '==', userData.referralCode)
-          );
-          const querySnapshot = await getDocs(q);
-          setReferredCount(querySnapshot.size);
+        if (!userSnapshot.exists()) {
+          console.log("User not found in Firestore");
+          setLoading(false);
+          return;
         }
+
+        let userData = userSnapshot.data();
+
+        // Generate referral code niba itarimo
+        if (!userData.referralCode) {
+          const newCode = generateReferralCode();
+          await updateDoc(userDocRef, { referralCode: newCode });
+          userData.referralCode = newCode;
+        }
+
+        setReferralCode(userData.referralCode);
+        setReferralLink(`https://www.newtalentsg.co.rw/register?ref=${userData.referralCode}`);
+
+        // Count referred users
+        const q = query(
+          collection(db, 'userdate'),
+          where('referredBy', '==', userData.referralCode)
+        );
+        const querySnapshot = await getDocs(q);
+        setReferredCount(querySnapshot.size);
 
         setLoading(false);
       } catch (error) {
@@ -75,7 +77,7 @@ const Profile = () => {
       }
     };
 
-    if (username) fetchReferralData();
+    fetchReferralData();
   }, [username]);
 
   if (!username) {

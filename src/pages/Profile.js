@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getFirestore, doc, getDoc, collection, query, where, getDocs, updateDoc } from 'firebase/firestore';
-import { db } from '../firebase'; // shyira import yawe ya firebase
+import { getFirestore, doc, getDoc, setDoc, collection, query, where, getDocs, updateDoc } from 'firebase/firestore';
+import { db } from '../firebase'; // shyiramo path ya firebase config yawe
 
 // Function yo gukora referral code
 const generateReferralCode = (length = 6) => {
@@ -22,6 +22,7 @@ const Profile = () => {
   const [referredCount, setReferredCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
+  // Logout function
   const handleLogout = () => {
     setUsername('');
     localStorage.removeItem('username');
@@ -42,17 +43,18 @@ const Profile = () => {
       try {
         // Fata document ya user ukoresheje username nk'id
         const userDocRef = doc(db, 'userdate', username);
-        const userSnapshot = await getDoc(userDocRef);
+        let userSnapshot = await getDoc(userDocRef);
 
+        // Niba document itabaho, rema nshya
         if (!userSnapshot.exists()) {
-          console.log("User not found in Firestore");
-          setLoading(false);
-          return;
+          const newCode = generateReferralCode();
+          await setDoc(userDocRef, { referralCode: newCode, referredBy: null });
+          userSnapshot = await getDoc(userDocRef);
         }
 
         let userData = userSnapshot.data();
 
-        // Generate referral code niba itarimo
+        // Generate code niba itarimo
         if (!userData.referralCode) {
           const newCode = generateReferralCode();
           await updateDoc(userDocRef, { referralCode: newCode });

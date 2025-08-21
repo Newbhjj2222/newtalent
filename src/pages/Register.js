@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { auth, db } from '../firebase';
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc, getDoc, updateDoc, collection, getDocs } from "firebase/firestore";
+import { doc, setDoc, getDoc, updateDoc, collection } from "firebase/firestore";
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import './style.css';
 
@@ -67,30 +67,25 @@ function Register() {
 
       // 5️⃣ NES for referrer
       if (refCode) {
-        const usersSnapshot = await getDocs(collection(db, 'userdate'));
-        let referrerUsername = null;
+        let referrerFound = false;
 
-        usersSnapshot.forEach(docSnap => {
-          const data = docSnap.data();
-          const allUsers = data?.data || data; // document data
-          for (const uid in allUsers) {
-            if (allUsers[uid].referralCode === refCode) {
-              referrerUsername = allUsers[uid].fName;
-              break;
+        for (const key in updatedData) {
+          if (updatedData[key].referralCode === refCode) {
+            const referrerUsername = updatedData[key].fName;
+            const referrerDepositRef = doc(db, 'depositers', referrerUsername);
+            const refSnap = await getDoc(referrerDepositRef);
+            if (refSnap.exists()) {
+              const currentNes = refSnap.data().nes || 0;
+              await updateDoc(referrerDepositRef, { nes: currentNes + 10 });
+            } else {
+              await setDoc(referrerDepositRef, { nes: 10 });
             }
-          }
-        });
-
-        if (referrerUsername) {
-          const referrerDepositRef = doc(db, 'depositers', referrerUsername);
-          const refSnap = await getDoc(referrerDepositRef);
-          if (refSnap.exists()) {
-            const currentNes = refSnap.data().nes || 0;
-            await updateDoc(referrerDepositRef, { nes: currentNes + 10 });
-          } else {
-            await setDoc(referrerDepositRef, { nes: 10 });
+            referrerFound = true;
+            break;
           }
         }
+
+        if (!referrerFound) console.warn("Referrer not found for code:", refCode);
       }
 
       navigate('/login');

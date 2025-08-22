@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { db } from "../firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { useTheme } from "../Theme"; // ✅ fata darkMode hano
+import { useTheme } from "../Theme"; 
+import "./NesMine.css"; // 👉 shyiramo CSS nshya
 
 // Function yo gukora referral code
 const generateReferralCode = (length = 6) => {
@@ -23,7 +24,7 @@ const Profile = () => {
   const [referredCount, setReferredCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  const { darkMode } = useTheme(); // ✅ ubu darkMode iza ivuye muri Theme.js
+  const { darkMode } = useTheme(); // ✅ ifite darkMode ivuye muri Theme.js
 
   const handleLogout = () => {
     setUsername("");
@@ -105,9 +106,9 @@ const Profile = () => {
 
   if (!username) {
     return (
-      <div style={getStyles(darkMode).card}>
+      <div className={`card ${darkMode ? "dark" : ""}`}>
         <h2>You are not logged in</h2>
-        <button onClick={goToLogin} style={getStyles(darkMode).loginButton}>
+        <button onClick={goToLogin} className="loginButton">
           Login
         </button>
       </div>
@@ -115,16 +116,16 @@ const Profile = () => {
   }
 
   return (
-    <div style={getStyles(darkMode).card}>
+    <div className={`card ${darkMode ? "dark" : ""}`}>
       <h2>Welcome, {username}</h2>
-      <button onClick={handleLogout} style={getStyles(darkMode).button}>
+      <button onClick={handleLogout} className="button">
         Logout
       </button>
 
       {loading ? (
         <p>Loading referral info...</p>
       ) : (
-        <div style={getStyles(darkMode).referralSection}>
+        <div className={`referralSection ${darkMode ? "dark" : ""}`}>
           <h3>Your Referral Info</h3>
           <p>
             <strong>Referral Code:</strong> {referralCode}
@@ -135,7 +136,7 @@ const Profile = () => {
               href={referralLink}
               target="_blank"
               rel="noopener noreferrer"
-              style={{ color: darkMode ? "#4dabf7" : "#0066cc" }}
+              className={`refLink ${darkMode ? "dark" : ""}`}
             >
               {referralLink}
             </a>
@@ -144,7 +145,7 @@ const Profile = () => {
             <strong>People registered through you:</strong> {referredCount}
           </p>
           <button
-            style={getStyles(darkMode).copyButton}
+            className="copyButton"
             onClick={() => navigator.clipboard.writeText(referralLink)}
           >
             Copy Referral Link
@@ -154,55 +155,5 @@ const Profile = () => {
     </div>
   );
 };
-
-const getStyles = (darkMode) => ({
-  card: {
-    margin: "80px auto",
-    padding: "30px",
-    width: "350px",
-    textAlign: "center",
-    border: "1px solid var(--border-color)",
-    borderRadius: "10px",
-    boxShadow: "var(--card-shadow)",
-    background: "var(--card-bg)",
-    color: "var(--text-color)",
-    transition: "all 0.3s ease",
-  },
-  button: {
-    marginTop: "20px",
-    padding: "10px 20px",
-    backgroundColor: "#f44336",
-    color: "white",
-    border: "none",
-    borderRadius: "5px",
-    cursor: "pointer",
-  },
-  loginButton: {
-    marginTop: "20px",
-    padding: "10px 20px",
-    backgroundColor: "#4CAF50",
-    color: "white",
-    border: "none",
-    borderRadius: "5px",
-    cursor: "pointer",
-  },
-  referralSection: {
-    marginTop: "30px",
-    textAlign: "left",
-    padding: "15px",
-    border: "1px solid var(--border-color)",
-    borderRadius: "8px",
-    background: darkMode ? "#2a2a2a" : "#fafafa",
-  },
-  copyButton: {
-    marginTop: "10px",
-    padding: "8px 15px",
-    backgroundColor: "var(--button-bg)",
-    color: "var(--button-text)",
-    border: "none",
-    borderRadius: "5px",
-    cursor: "pointer",
-  },
-});
 
 export default Profile;

@@ -63,7 +63,26 @@ footer {
 .floating-btn:hover {
   background-color: var(--button-hover-bg, #2563eb);
 }
+.enable-notif-btn {
+  position: fixed;       /* Floating kuri screen */
+  bottom: 20px;          /* Uburyo iri hasi */
+  right: 20px;           /* Uburyo iri ku ruhande rwa right */
+  padding: 12px 20px;    /* Ingano ya button */
+  background-color: #007bff; /* Ibara ry’inyuma */
+  color: #fff;           /* Ibara ry’inyuguti */
+  border: none;          /* Ntibigaragare */
+  border-radius: 50px;   /* Rounded full */
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2); /* Shadow */
+  cursor: pointer;
+  font-size: 16px;
+  z-index: 9999;         /* Kurusha izindi elements */
+  transition: transform 0.2s, background-color 0.2s;
+}
 
+.enable-notif-btn:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+  }
 /* Responsive design */
 @media screen and (max-width: 768px) {
   .main-content {

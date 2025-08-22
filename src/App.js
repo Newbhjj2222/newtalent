@@ -1,5 +1,5 @@
-// App.js
-import React, { useEffect } from 'react';
+// src/App.js
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 
 import Header from './components/Header';
@@ -23,15 +23,47 @@ import { UserProvider } from './contexts/UserContext';
 import ScrollToTop from './components/ScrollToTop';
 import { ThemeProvider } from './components/Theme';
 
-// ✅ Import FCM function
-import { requestNotificationPermission } from './firebase';
+import { auth, db, requestNotificationPermission } from './firebase';
+import { doc, setDoc } from "firebase/firestore";
 
 const App = () => {
+  const [token, setToken] = useState(null);
 
-  // ✅ Saba notification permission igihe App itangiye
   useEffect(() => {
-    requestNotificationPermission();
-  }, []);
+    const initNotifications = async () => {
+      const fcmToken = await requestNotificationPermission();
+      if (fcmToken) {
+        setToken(fcmToken);
+        console.log("✅ FCM Token siap:", fcmToken);
+
+        // ✅ Bika token muri Firestore niba user ari logged in
+        if (auth.currentUser) {
+          await setDoc(
+            doc(db, "Users", auth.currentUser.uid),
+            { fcmToken },
+            { merge: true } // ntibisiba ibindi bisanzwe muri document
+          );
+          console.log("📌 FCM token saved in Firestore for user:", auth.currentUser.uid);
+        }
+      }
+    };
+
+    initNotifications();
+
+    // Handle foreground notifications
+    const unsubscribe = auth.onAuthStateChanged(user => {
+      if (user && token) {
+        // If user login nyuma yo kubona token
+        setDoc(
+          doc(db, "Users", user.uid),
+          { fcmToken: token },
+          { merge: true }
+        ).then(() => console.log("📌 FCM token saved after login"));
+      }
+    });
+
+    return () => unsubscribe();
+  }, [token]);
 
   return (
     <UserProvider>
@@ -40,7 +72,6 @@ const App = () => {
           <div className="app-container">
             <Header />
             <Banner />
-
             <ScrollToTop />
 
             <Routes>

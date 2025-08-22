@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { db } from "../firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { useTheme } from "../Theme"; // ✅ fata darkMode na theme variables hano
+import { useTheme } from "../components/Theme"; // ✅ fata darkMode na theme variables hano
 import "./Profile.css"; // ✅ fata CSS
 
 // Function yo gukora referral code

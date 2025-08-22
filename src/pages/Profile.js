@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { db } from "../firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { useTheme } from "../Theme"; 
-import "./NesMine.css"; // 👉 shyiramo CSS nshya
+import { useTheme } from "../Theme"; // ✅ fata darkMode na theme variables hano
+import "./Profile.css"; // ✅ fata CSS
 
 // Function yo gukora referral code
 const generateReferralCode = (length = 6) => {
@@ -24,7 +24,7 @@ const Profile = () => {
   const [referredCount, setReferredCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  const { darkMode } = useTheme(); // ✅ ifite darkMode ivuye muri Theme.js
+  const { darkMode } = useTheme(); // ✅ darkMode ivuye muri Theme.js
 
   const handleLogout = () => {
     setUsername("");
@@ -106,7 +106,7 @@ const Profile = () => {
 
   if (!username) {
     return (
-      <div className={`card ${darkMode ? "dark" : ""}`}>
+      <div className="card">
         <h2>You are not logged in</h2>
         <button onClick={goToLogin} className="loginButton">
           Login
@@ -116,7 +116,7 @@ const Profile = () => {
   }
 
   return (
-    <div className={`card ${darkMode ? "dark" : ""}`}>
+    <div className="card">
       <h2>Welcome, {username}</h2>
       <button onClick={handleLogout} className="button">
         Logout
@@ -125,19 +125,14 @@ const Profile = () => {
       {loading ? (
         <p>Loading referral info...</p>
       ) : (
-        <div className={`referralSection ${darkMode ? "dark" : ""}`}>
+        <div className="referralSection">
           <h3>Your Referral Info</h3>
           <p>
             <strong>Referral Code:</strong> {referralCode}
           </p>
           <p>
-            <strong>Referral Link:</strong>
-            <a
-              href={referralLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`refLink ${darkMode ? "dark" : ""}`}
-            >
+            <strong>Referral Link:</strong>{" "}
+            <a href={referralLink} className="refLink" target="_blank" rel="noopener noreferrer">
               {referralLink}
             </a>
           </p>

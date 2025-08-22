@@ -26,7 +26,10 @@ export const db = getFirestore(app);
 // Initialize Firebase Messaging
 export const messaging = getMessaging(app);
 
-// Function to request permission and get FCM token
+/**
+ * Request notification permission and get FCM token
+ * Returns the token if permission granted
+ */
 export const requestNotificationPermission = async () => {
   try {
     const permission = await Notification.requestPermission();
@@ -34,18 +37,24 @@ export const requestNotificationPermission = async () => {
       const token = await getToken(messaging, {
         vapidKey: 'BLAZpHH-ZaiyK7-qS1mkoTY63ZuZOXRxBAXq4a4ZWwamvKUHKu84ZG7UNFciCGz7tBfMBZvK994Ip5Y1rfkfOjg'
       });
-      console.log("FCM Token:", token);
+      console.log("✅ FCM Token:", token);
+      // Hano ushobora kongeramo function yo kubika token muri Firestore
       return token;
     } else {
-      console.log("Notification permission not granted");
+      console.warn("⚠️ Notification permission not granted");
+      return null;
     }
   } catch (error) {
-    console.error("Error getting FCM token:", error);
+    console.error("❌ Error getting FCM token:", error);
+    return null;
   }
 };
 
 // Handle messages when app is in foreground
 onMessage(messaging, (payload) => {
-  console.log("Message received: ", payload);
-  alert(`New Post: ${payload.notification.title}`);
+  console.log("📩 Foreground message received: ", payload);
+  if (payload.notification) {
+    const { title, body } = payload.notification;
+    new Notification(title, { body });
+  }
 });

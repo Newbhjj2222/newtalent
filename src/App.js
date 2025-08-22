@@ -28,31 +28,32 @@ import { doc, setDoc } from "firebase/firestore";
 
 const App = () => {
   const [token, setToken] = useState(null);
-  const [permissionGranted, setPermissionGranted] = useState(false);
 
   useEffect(() => {
     const initNotifications = async () => {
-      if (permissionGranted) {
-        const fcmToken = await requestNotificationPermission();
-        if (fcmToken) {
-          setToken(fcmToken);
-          console.log("✅ FCM Token siap:", fcmToken);
+      const fcmToken = await requestNotificationPermission();
+      if (fcmToken) {
+        setToken(fcmToken);
+        console.log("✅ FCM Token siap:", fcmToken);
 
-          if (auth.currentUser) {
-            await setDoc(
-              doc(db, "Users", auth.currentUser.uid),
-              { fcmToken },
-              { merge: true }
-            );
-            console.log("📌 FCM token saved in Firestore for user:", auth.currentUser.uid);
-          }
+        // ✅ Bika token muri Firestore niba user ari logged in
+        if (auth.currentUser) {
+          await setDoc(
+            doc(db, "Users", auth.currentUser.uid),
+            { fcmToken },
+            { merge: true } // ntibisiba ibindi bisanzwe muri document
+          );
+          console.log("📌 FCM token saved in Firestore for user:", auth.currentUser.uid);
         }
       }
     };
+
     initNotifications();
 
+    // Handle foreground notifications
     const unsubscribe = auth.onAuthStateChanged(user => {
       if (user && token) {
+        // If user login nyuma yo kubona token
         setDoc(
           doc(db, "Users", user.uid),
           { fcmToken: token },
@@ -60,12 +61,9 @@ const App = () => {
         ).then(() => console.log("📌 FCM token saved after login"));
       }
     });
-    return () => unsubscribe();
-  }, [token, permissionGranted]);
 
-  const handleEnableNotifications = () => {
-    setPermissionGranted(true);
-  };
+    return () => unsubscribe();
+  }, [token]);
 
   return (
     <UserProvider>
@@ -73,6 +71,7 @@ const App = () => {
         <Router>
           <div className="app-container">
             <Header />
+            <Banner />
             <ScrollToTop />
 
             <Routes>
@@ -91,17 +90,6 @@ const App = () => {
             </Routes>
 
             <Footer />
-
-            {/* Floating button yo gusaba notification */}
-            {!permissionGranted && (
-              <button 
-                className="enable-notif-btn" 
-                onClick={handleEnableNotifications}
-              >
-                Enable Notifications
-              </button>
-            )}
-
             <Link to="/balance" className="floating-btn">
               <MdAccountBalance size={24} />
             </Link>

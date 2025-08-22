@@ -141,7 +141,8 @@ const styles = {
     border: '1px solid #ddd',
     borderRadius: '10px',
     boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-    backgroundColor: '#fff',
+    background: darkMode ? "#1e1e1e" : "#f9f9f9",
+    color: darkMode ? "#fff" : "#000",
   },
   button: {
     marginTop: '20px',
@@ -167,7 +168,8 @@ const styles = {
     padding: '15px',
     border: '1px solid #eee',
     borderRadius: '8px',
-    backgroundColor: '#fafafa'
+    background: darkMode ? "#1e1e1e" : "#fafafa",
+    
   },
   copyButton: {
     marginTop: '10px',

@@ -1,7 +1,7 @@
+// src/components/firebase.js
 import { initializeApp, getApps } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
-import { getMessaging, getToken, onMessage } from "firebase/messaging";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAvwNyhKiKFyI-r6MDDk7BH3iq7P61z594",
@@ -17,10 +17,6 @@ const firebaseConfig = {
 // Initialize Firebase only once
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
 
-export const auth = getAuth(app);
+// Export Firestore & Auth
 export const db = getFirestore(app);
-
-export let messaging = null;
-export let requestNotificationPermission = null;
-
-// Client-side only
+export const auth = getAuth(app);

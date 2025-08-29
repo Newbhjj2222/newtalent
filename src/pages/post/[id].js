@@ -1,6 +1,7 @@
 // pages/post/[id].js
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
+import Head from "next/head";
 import { db } from "../../components/firebase";
 import {
   doc,
@@ -57,7 +58,7 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
       }
       setCurrentUser(storedUsername);
 
-      // --- NES logic ---
+      // NES logic
       const handleNES = async () => {
         try {
           const username = storedUsername;
@@ -68,14 +69,14 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
             const depositerSnap = await getDoc(depositerRef);
 
             if (!depositerSnap.exists()) {
-              alert("Account yawe ntiboneka mubaguze NeS.");
+              alert("Account yawe ntiboneka mubaguze NeS. Kugira ngo wemererwe gusoma banza uzigura. tugiye kukujyana aho uzigurira. niba ukeneye ubufasha twandikire Whatsapp +250722319367.");
               router.push("/balance");
               return;
             }
 
             const currentNes = Number(depositerSnap.data().nes) || 0;
             if (currentNes < 1) {
-              alert("Nta NeS zihagije. Nyamuneka uzigurire.");
+              alert("Nta NeS zihagije ufite zikwemerera gusoma. Nyamuneka banza uzigure. tugiye kukujyana aho uzigurira, niba ubibonye waziguze, twandikire Whatsapp nonaha tugufashe. +25072319367.");
               router.push("/balance");
               return;
             }
@@ -117,19 +118,27 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
     }
   };
 
-  const handleShare = async () => {
-    try {
-      const postUrl = window.location.href;
-      const cleanText = postData.story.replace(/<[^>]+>/g, "").slice(0, 650);
-      const shareText = `${postData.head}\n\n${cleanText}...\n\nRead more: ${postUrl}`;
-      if (navigator.share) await navigator.share({ title: postData.head, text: shareText, url: postUrl });
-      else {
-        await navigator.clipboard.writeText(shareText);
+  const handleShare = (platform) => {
+    const postUrl = window.location.href;
+    const cleanText = postData.story.replace(/<[^>]+>/g, "").slice(0, 200);
+    const text = `${postData.head}\n\n${cleanText}...\nRead more: ${postUrl}`;
+
+    switch(platform) {
+      case "whatsapp":
+        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
+        break;
+      case "telegram":
+        window.open(`https://t.me/share/url?url=${encodeURIComponent(postUrl)}&text=${encodeURIComponent(text)}`, "_blank");
+        break;
+      case "messenger":
+        window.open(`fb-messenger://share?link=${encodeURIComponent(postUrl)}`, "_blank");
+        break;
+      case "facebook":
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}`, "_blank");
+        break;
+      default:
+        navigator.clipboard.writeText(text);
         alert("Text copied to clipboard");
-      }
-    } catch (err) {
-      console.error("Share failed:", err);
-      alert(err.message);
     }
   };
 
@@ -137,6 +146,15 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
 
   return (
     <>
+      <Head>
+        <title>{postData.head}</title>
+        <meta property="og:title" content={postData.head} />
+        <meta property="og:description" content={postData.story.replace(/<[^>]+>/g, "").slice(0, 200)} />
+        <meta property="og:image" content={postData.imageUrl} />
+        <meta property="og:url" content={typeof window !== "undefined" ? window.location.href : ""} />
+        <meta property="og:type" content="article" />
+      </Head>
+
       <Header />
       <div className={styles.postContainer}>
         {postData.imageUrl && <img className={styles.postImage} src={postData.imageUrl} alt={postData.head} />}
@@ -146,7 +164,13 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
 
         <div className={styles.postMeta}>
           <small>By: {postData.author || "Unknown"}</small>
-          <button className={styles.shareButton} onClick={handleShare}><FaShareAlt /> Share</button>
+          <div className={styles.shareButtons}>
+            <button className={styles.shareButton} onClick={() => handleShare("whatsapp")}><FaShareAlt /> WhatsApp</button>
+            <button className={styles.shareButton} onClick={() => handleShare("telegram")}><FaShareAlt /> Telegram</button>
+            <button className={styles.shareButton} onClick={() => handleShare("messenger")}><FaShareAlt /> Messenger</button>
+            <button className={styles.shareButton} onClick={() => handleShare("facebook")}><FaShareAlt /> Facebook</button>
+            <button className={styles.shareButton} onClick={() => handleShare("clipboard")}><FaShareAlt /> Copy Link</button>
+          </div>
         </div>
 
         <div className={styles.navigationButtons}>
@@ -195,6 +219,7 @@ export async function getServerSideProps(context) {
   const commentsSnap = await getDocs(commentsRef);
   const commentsData = commentsSnap.docs.map((d) => d.data());
 
+  // --- Navigation logic ---
   const allPostsSnap = await getDocs(collection(db, "posts"));
   const allPosts = allPostsSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
   const current = extractSeriesAndEpisode(postData.head);

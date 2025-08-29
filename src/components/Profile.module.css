@@ -78,7 +78,7 @@
 /* ====== Responsive ====== */
 @media screen and (max-width: 600px) {
   .card {
-    margin: 20px;
+    margin: 60px auto;
     padding: 20px;
   }
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { db } from "../components/firebase";
-import { doc, onSnapshot } from "firebase/firestore";
+import { doc, onSnapshot, setDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -25,7 +25,7 @@ export default function Balance() {
   useEffect(() => {
     const storedUsername = localStorage.getItem("username");
     if (!storedUsername) {
-      router.push("/login"); // niba nta username, ohereza login
+      router.push("/login");
       return;
     }
     setUsername(storedUsername);
@@ -47,6 +47,7 @@ export default function Balance() {
     return () => unsub();
   }, [username]);
 
+  // Update form data ku input change
   const handleChange = (e) => {
     setFormData((prev) => ({
       ...prev,
@@ -54,15 +55,37 @@ export default function Balance() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  // Submit form
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
-    setMessage(
-      "Wohereje ubusabe bwo guhabwa NeS points. Mwishyure kuri 0780786300 (MTN) cyangwa 0722319367 (Airtel)."
-    );
-    setTimeout(() => {
-      router.push("/home");
-    }, 30000);
+    setMessage("Kohereza ubusabe...");
+
+    try {
+      // Bika formData muri Firestore
+      await setDoc(
+        doc(db, "depositers", username), 
+        {
+          ...formData,
+          timestamp: new Date(),
+        },
+        { merge: true } // ntibisibanganye data isanzwe
+      );
+
+      setMessage(
+        "Ubusabe bwawe bwo guhabwa NeS points bwakirwa neza! Mwishyure kuri 0780786300 (MTN) cyangwa 0722319367 (Airtel)."
+      );
+
+      // Ohereza user kuri /home nyuma ya 30s
+      setTimeout(() => {
+        router.push("/");
+      }, 20000);
+
+    } catch (error) {
+      console.error("Error saving data:", error);
+      setMessage("Habaye ikibazo cyo kohereza ubusabe, ongera ugerageze.");
+      setSubmitting(false);
+    }
   };
 
   if (!username) {
@@ -108,7 +131,7 @@ export default function Balance() {
             <option value="onestory">NeS 1 - 20 RWF</option>
             <option value="Local">NeS 7 - 100 RWF</option>
             <option value="Daily">Umunsi NeS 10 - 150 RWF</option>
-            <option value="weakly">Icyumweru NeS 15 - 200 RWF</option>
+            <option value="weekly">Icyumweru NeS 15 - 200 RWF</option>
             <option value="limited">Icyumweru NeS 25 - 300 RWF</option>
             <option value="monthly">Ukwezi NeS 60 - 600 RWF</option>
             <option value="bestreader">Ukwezi kose - 1200 RWF</option>

@@ -1,0 +1,101 @@
+/* Profile.css */
+
+/* ====== Basic Card Layout ====== */
+.card {
+  max-width: 500px;
+  margin: 80px auto;
+  padding: 30px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+  transition: all 0.3s ease;
+}
+
+/* ====== Headings ====== */
+.card h2 {
+  margin-top: 0;
+  font-size: 1.8rem;
+  text-align: center;
+  margin-bottom: 20px;
+  color: #28a745;
+}
+
+.card h3 {
+  margin-bottom: 10px;
+  font-size: 1.3rem;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 5px;
+  color: #1e7e34;
+}
+
+/* ====== Buttons ====== */
+.button,
+.loginButton,
+.copyButton {
+  display: inline-block;
+  padding: 10px 20px;
+  margin-top: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+  background-color: #0066cc;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: center;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  text-decoration: none;
+}
+
+.button:hover,
+.loginButton:hover,
+.copyButton:hover {
+  background-color: #004999;
+  transform: translateY(-2px);
+}
+
+/* ====== Referral Section ====== */
+.referralSection {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f8f8f8;
+  border-radius: 10px;
+}
+
+.referralSection p {
+  margin: 10px 0;
+  line-height: 1.4;
+}
+
+.refLink {
+  color: #0066cc;
+  word-break: break-all;
+  text-decoration: underline;
+}
+
+/* ====== Responsive ====== */
+@media screen and (max-width: 600px) {
+  .card {
+    margin: 20px;
+    padding: 20px;
+  }
+
+  .button,
+  .loginButton,
+  .copyButton {
+    width: 100%;
+    padding: 12px;
+    font-size: 1rem;
+  }
+}
+
+/* ====== Misc ====== */
+.copyButton {
+  background-color: #28a745;
+}
+
+.copyButton:hover {
+  background-color: #1e7e34;
+}

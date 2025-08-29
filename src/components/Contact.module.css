@@ -1,0 +1,158 @@
+/* Contact.module.css */
+
+/* Container yose ya forms */
+.contactContainer {
+  width: 95%;
+  max-width: 900px;
+  margin: 60px auto;
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 50px;
+  font-family: 'Inter', sans-serif;
+  color: #333333;
+}
+
+/* Form isanzwe */
+.contactForm {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 25px 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  background-color: #f7f7f7;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.contactForm:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+
+/* Form headings */
+.contactForm h2 {
+  font-size: 1.8rem;
+  margin-bottom: 15px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Inputs na Textarea */
+.contactForm input,
+.contactForm textarea {
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #ffffff;
+  color: #333333;
+  resize: vertical;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.contactForm input:focus,
+.contactForm textarea:focus {
+  outline: none;
+  border-color: #0077cc;
+  box-shadow: 0 0 6px rgba(0, 119, 204, 0.4);
+}
+
+/* Buttons */
+.contactForm button {
+  color: #ffffff;
+  border: none;
+  padding: 0.85rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.contactForm button:hover {
+  transform: translateY(-2px);
+}
+
+/* Amabara atandukanye kuri forms */
+.contactForm:nth-child(1) {
+  border-top: 6px solid #0077cc; /* Blue */
+}
+
+.contactForm:nth-child(1) h2 {
+  color: #0077cc;
+}
+
+.contactForm:nth-child(1) button {
+  background-color: #0077cc;
+}
+
+.contactForm:nth-child(1) button:hover {
+  background-color: #005fa3;
+}
+
+/* Message form - Green */
+.contactForm:nth-child(2) {
+  border-top: 6px solid #28a745;
+}
+
+.contactForm:nth-child(2) h2 {
+  color: #28a745;
+}
+
+.contactForm:nth-child(2) button {
+  background-color: #28a745;
+}
+
+.contactForm:nth-child(2) button:hover {
+  background-color: #1e7e34;
+}
+
+/* Ad form - Orange */
+.contactForm:nth-child(3) {
+  border-top: 6px solid #ff8800;
+}
+
+.contactForm:nth-child(3) h2 {
+  color: #ff8800;
+}
+
+.contactForm:nth-child(3) button {
+  background-color: #ff8800;
+}
+
+.contactForm:nth-child(3) button:hover {
+  background-color: #cc6d00;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .contactContainer {
+    padding: 30px 15px;
+    gap: 35px;
+  }
+
+  .contactForm h2 {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .contactContainer {
+    padding: 20px 10px;
+    gap: 25px;
+  }
+
+  .contactForm h2 {
+    font-size: 1.3rem;
+  }
+
+  .contactForm input,
+  .contactForm textarea {
+    font-size: 0.95rem;
+  }
+
+  .contactForm button {
+    font-size: 0.95rem;
+  }
+}

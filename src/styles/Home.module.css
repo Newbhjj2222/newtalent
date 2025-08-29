@@ -126,6 +126,20 @@ a.secondary {
   }
 }
 
+/* ===== Sidebar position ===== */
+.sidebarWrapper {
+  flex: 0 0 300px; /* fixed width */
+  margin-left: auto; /* pushes it to the right */
+}
+
+/* Responsive sidebar */
+@media (max-width: 768px) {
+  .sidebarWrapper {
+    flex: 1 1 100%; /* full width on mobile */
+    margin-left: 0;
+  }
+}
+
 @media (max-width: 600px) {
   .page {
     padding: 32px;

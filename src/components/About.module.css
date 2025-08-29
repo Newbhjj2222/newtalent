@@ -1,0 +1,89 @@
+/* About.module.css */
+
+/* Page yose */
+.about {
+  width: 95%;
+  max-width: 1200px;
+  margin: 90px auto;
+  top: 90px;
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 60px;
+  font-family: 'Inter', sans-serif;
+  color: #333333;
+  background-color: #ffffff;
+}
+
+/* Section zose zifite umwanya hagati */
+.about section {
+  padding: 30px 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  background-color: #f9f9f9;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.about section:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+/* Headings zose muri section */
+.about section h2 {
+  font-size: 2rem;
+  color: #0066cc;
+  margin-bottom: 15px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Paragraphs zose muri section */
+.about section p {
+  font-size: 1.125rem;
+  line-height: 1.8;
+  color: #444444;
+}
+
+/* Sections zifite amabara atandukanye (optional styling) */
+.goal {
+  border-left: 5px solid #ff6f61;
+}
+
+.mission {
+  border-left: 5px solid #4caf50;
+}
+
+.vision {
+  border-left: 5px solid #fbc02d;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .about {
+    padding: 30px 15px;
+    gap: 40px;
+  }
+
+  .about section h2 {
+    font-size: 1.75rem;
+  }
+
+  .about section p {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .about section {
+    padding: 20px 15px;
+  }
+
+  .about section h2 {
+    font-size: 1.5rem;
+  }
+
+  .about section p {
+    font-size: 0.95rem;
+  }
+}

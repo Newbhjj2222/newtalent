@@ -1,0 +1,40 @@
+.banner {
+  width: 100%;
+  overflow: hidden;
+  background-color: #111;
+  padding: 0;
+  height: 40px;
+  color: white;
+  padding: 5px 0;
+  position: fixed;
+  top: 55px;
+  z-index: 100;
+}
+
+.scrollContainer {
+  display: flex;
+  white-space: nowrap;
+  overflow: hidden;
+  position: relative;
+}
+
+.scrollText {
+  display: flex;
+  animation: scrollLeft 60s linear infinite;
+  font-size: 12px;
+}
+
+.scrollText span {
+  display: inline-block;
+  margin-right: 50px; /* intera hagati ya spans */
+}
+
+/* Keyframes for scrolling animation */
+@keyframes scrollLeft {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}

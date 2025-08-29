@@ -1,0 +1,124 @@
+/* ================== FORM CONTAINER ================== */
+.formContainer {
+  max-width: 450px;
+  margin: 120px auto;
+  padding: 30px;
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  color: #333333;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+/* ================== NeS CARD ================== */
+.nesCard {
+  padding: 20px;
+  margin-bottom: 25px;
+  background-color: #0066cc;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #ffffff;
+  transition: transform 0.3s ease;
+}
+
+.nesCard:hover {
+  transform: scale(1.03);
+}
+
+/* ================== SUCCESS MESSAGE ================== */
+.successMessage {
+  padding: 20px;
+  background-color: #e8f5e9;
+  border-radius: 12px;
+  border: 2px solid #c8e6c9;
+  color: #2e7d32;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  margin-bottom: 20px;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ================== FORM ================== */
+.formContainer form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.formContainer label {
+  font-weight: 600;
+  margin-bottom: 6px;
+  display: block;
+  color: #333333;
+}
+
+/* Inputs and Selects */
+.formContainer input[type="text"],
+.formContainer input[type="tel"],
+.formContainer select {
+  width: 100%;
+  padding: 12px;
+  font-size: 1rem;
+  border: 2px solid #dcdcdc;
+  border-radius: 8px;
+  background-color: #ffffff;
+  color: #333333;
+  transition: border 0.3s ease, box-shadow 0.3s ease;
+}
+
+.formContainer input:focus,
+.formContainer select:focus {
+  outline: none;
+  border-color: #0066cc;
+  box-shadow: 0 0 6px rgba(0, 102, 204, 0.3);
+}
+
+/* ================== BUTTON ================== */
+.formContainer button[type="submit"] {
+  background-color: #0066cc;
+  color: #ffffff;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.formContainer button[type="submit"]:hover {
+  background-color: #005bb5;
+  transform: scale(1.02);
+}
+
+.formContainer button[disabled] {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+/* ================== RESPONSIVE ================== */
+@media screen and (max-width: 480px) {
+  .formContainer {
+    margin: 80px 15px;
+    padding: 20px 18px;
+  }
+
+  .nesCard {
+    font-size: 1.1rem;
+    padding: 16px;
+  }
+
+  .formContainer button[type="submit"] {
+    font-size: 1rem;
+    padding: 12px;
+  }
+}

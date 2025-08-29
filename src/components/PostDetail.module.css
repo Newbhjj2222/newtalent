@@ -1,0 +1,209 @@
+/* PostDetail.module.css */
+
+/* Container nyamukuru ya page */
+.postContainer {
+  padding: 20px;
+  top: 480px;
+  max-width: 800px;
+  margin: 90px auto;
+  font-family: 'Inter', sans-serif;
+  color: #333;
+  background-color: #fff;
+  box-sizing: border-box;
+}
+
+/* Image ya post */
+.postImage {
+  width: 100%;
+  margin-top: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  object-fit: cover;
+}
+
+/* Title ya post */
+.postTitle {
+  font-size: 2rem;
+  color: #388e3c;
+  font-weight: 700;
+  margin-bottom: 15px;
+  line-height: 1.3;
+  text-align: center;
+}
+
+/* Story ya post */
+.postStory {
+  line-height: 1.8;
+  margin-top: 10px;
+  font-size: 1rem;
+  word-wrap: break-word;
+}
+
+/* Author na Share button container */
+.postMeta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.shareButton {
+  background-color: #2196f3;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color 0.2s ease;
+}
+
+.shareButton:hover {
+  background-color: #1976d2;
+}
+
+/* Navigation buttons Previous / Next */
+.navigationButtons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.navButton {
+  flex: 1 1 48%;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+    background: #4caf50;
+  transition: background-color 0.2s ease;
+  text-align: center;
+}
+
+.navButton:hover:not(:disabled) {
+  background-color: #ddd;
+}
+
+.navButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Comments section */
+.commentsSection {
+  margin-top: 30px;
+}
+
+.commentForm {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.commentTextarea {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  resize: vertical;
+  background: white;
+  color: black;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+}
+
+.commentButton {
+  align-self: flex-end;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  background-color: #4caf50;
+  color: #fff;
+  transition: background-color 0.2s ease;
+}
+
+.commentButton:hover {
+  background-color: #388e3c;
+}
+
+/* Individual comment */
+.commentItem {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.commentAuthor {
+  font-size: 0.85rem;
+  color: #555;
+  margin-top: 4px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .postContainer {
+    padding: 15px;
+  }
+
+  .postTitle {
+    font-size: 1.75rem;
+  }
+
+  .postStory {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .postContainer {
+    padding: 10px;
+  }
+
+  .postTitle {
+    font-size: 1.5rem;
+  }
+
+  .postStory {
+    font-size: 0.9rem;
+  }
+
+  .shareButton,
+  .navButton,
+  .commentButton {
+    padding: 6px 12px;
+    font-size: 0.9rem;
+  }
+
+  .navigationButtons {
+    flex-direction: column;
+  }
+
+  .navButton {
+    flex: 1 1 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .postTitle {
+    font-size: 1.3rem;
+  }
+
+  .postStory {
+    font-size: 0.85rem;
+  }
+
+  .shareButton,
+  .navButton,
+  .commentButton {
+    padding: 5px 10px;
+    font-size: 0.85rem;
+  }
+}

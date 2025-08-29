@@ -1,0 +1,177 @@
+/* =======================
+   SLIDER STYLES
+   ======================= */
+.slider {
+  padding: 1rem;
+  margin-top: 60px;
+  margin-left: 0;
+  background-color: #ffffff; /* Light background */
+  color: #333333; /* Light text */
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.slider h2 {
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: green;
+}
+
+/* Slider container */
+.sliderContainer {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+/* Navigation buttons */
+.navButton {
+  background-color: rgba(0, 0, 0, 0.3);
+  color: #fff;
+  border: none;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  font-size: 1.5rem;
+  z-index: 10;
+  border-radius: 50%;
+  transition: background-color 0.3s ease;
+}
+
+.navButton:hover {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.prev {
+  position: absolute;
+  left: 0;
+}
+
+.next {
+  position: absolute;
+  right: 0;
+}
+
+/* Wrapper and track */
+.sliderWrapper {
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  display: flex;
+  flex: 1;
+}
+
+.sliderTrack {
+  display: flex;
+  gap: 1rem;
+  padding: 0.5rem;
+}
+
+/* Post card */
+.post {
+  min-width: 200px;
+  max-width: 200px;
+  flex: 0 0 auto;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #ffffff;
+  color: #333333;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+}
+
+.post:hover {
+  transform: translateY(-3px);
+}
+
+.postImage {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  display: block;
+}
+
+.postContent {
+  padding: 0.5rem;
+}
+
+.postContent h4 {
+  margin: 0.25rem 0;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.postContent p {
+  font-size: 0.85rem;
+  margin-bottom: 0.25rem;
+}
+
+.postContent small {
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+/* Image placeholder */
+.imagePlaceholder {
+  width: 100%;
+  height: 120px;
+  background-color: #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+/* Text scroller */
+.textScroller {
+  margin-top: 1rem;
+  overflow: hidden;
+  white-space: nowrap;
+  background-color: #ffffff;
+  color: #333333;
+  padding: 0.5rem;
+  border-radius: 6px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.scrollingText {
+  display: inline-block;
+  animation: scrollLeft 20s linear infinite;
+}
+
+.scrollItem {
+  cursor: pointer;
+}
+
+.scrollItem:hover {
+  text-decoration: underline;
+}
+.slider h2 {
+  text-align: center; /* Title iri hagati */
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+/* Scrolling text auto */
+.scrollingText {
+  display: inline-block;
+  white-space: nowrap;
+  animation: scrollText 15s linear infinite;
+}
+
+@keyframes scrollText {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+/* Global animation keyframes for scrolling text */
+:global {
+  @keyframes scrollLeft {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-100%);
+    }
+  }
+}

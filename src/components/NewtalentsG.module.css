@@ -1,0 +1,45 @@
+.videoPlayer {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  text-align: center;
+}
+
+.playerWrapper {
+  position: relative;
+  padding-top: 56.25%; /* 16:9 ratio */
+  margin-bottom: 20px;
+}
+
+.reactPlayer {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+.controls button {
+  background-color: #0077cc;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.controls button:hover {
+  background-color: #005fa3;
+}
+.controls button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}

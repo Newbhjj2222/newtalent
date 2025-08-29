@@ -1,8 +1,9 @@
 // src/pages/about.js
 import React from "react";
 import Header from "../components/Header";
-import styles from "../components/About.module.css"; // CSS module ikwiye kuba muri page imwe
+import styles from "../components/About.module.css"; 
 import Footer from "../components/Footer";
+
 const About = () => {
   return (
     <>
@@ -14,7 +15,7 @@ const About = () => {
           <p>
             New Talents Stories Group ifite intego yo guteza imbere impano nshya mu kwandika no gusoma, 
             kwigisha abantu uburyo inkuru zubaka zishobora guhindura ubuzima, ndetse no kwihangira imirimo 
-            binyuze mu gukoresha ikoranabuhanga rigezweho. Intego yacu ni ugushishikariza urubyiruko n'abakuze 
+            binyuze mu gukoresha ikoranabuhanga rigezweho. Intego yacu ni ugushishikariza urubyiruko n&apos;abakuze 
             kwandika no gusoma inkuru zifite ireme, kubaka umuco wo gusoma, no gusangiza ibitekerezo byubaka 
             amahoro, ubumwe, n’iterambere ry’imiryango.
           </p>
@@ -37,6 +38,7 @@ const About = () => {
           </p>
         </section>
       </div>
+
       <Footer />
     </>
   );

@@ -50,21 +50,38 @@
   gap: 10px;
 }
 
+
+/* === Share Button Styles === */
 .shareButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   background-color: #2196f3;
   color: #fff;
   border: none;
-  border-radius: 8px;
-  padding: 8px 16px;
+  padding: 10px 18px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 6px;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: background-color 0.2s ease;
+  transition: all 0.3s ease;
+  text-decoration: none;
 }
 
 .shareButton:hover {
-  background-color: #1976d2;
+  background-color: #0056b3; /* darker blue on hover */
+  transform: translateY(-2px);
+}
+
+.shareButton:active {
+  background-color: #004085; /* even darker when clicked */
+  transform: translateY(0);
+}
+
+.shareButton svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
 }
 
 /* Navigation buttons Previous / Next */

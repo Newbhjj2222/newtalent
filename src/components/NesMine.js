@@ -1,12 +1,12 @@
-// components/NesMineSSR.js
+'use client';
+
 import React, { useState, useEffect, useRef } from "react";
 import { getFirestore, doc, updateDoc, getDoc, onSnapshot, setDoc } from "firebase/firestore";
 import { FaCoins } from "react-icons/fa";
-import { db } from "./firebase";
+import { db } from "./firebase"; // import db yateguwe muri firebase.js
 
 const NesMineSSR = ({ username, initialNesTotal }) => {
-  const db = getFirestore(firebaseApp);
-  const [nesMined, setNesMined] = useState(0);       // Local mining counter
+  const [nesMined, setNesMined] = useState(0); // Local mining counter
   const [nesTotal, setNesTotal] = useState(initialNesTotal || 0); // Server-side fetched NES
   const miningInterval = useRef(null);
 
@@ -35,7 +35,7 @@ const NesMineSSR = ({ username, initialNesTotal }) => {
     });
 
     return () => unsubscribe();
-  }, [username, db]);
+  }, [username]);
 
   // Mining logic
   const startMining = () => {
@@ -101,7 +101,6 @@ export async function getServerSideProps(context) {
   let nesTotal = 0;
 
   if (username) {
-    const db = getFirestore(firebaseApp);
     const depositerRef = doc(db, "depositers", username);
     const snap = await getDoc(depositerRef);
     if (snap.exists()) nesTotal = Number(snap.data().nes || 0);

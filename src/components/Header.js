@@ -29,7 +29,7 @@ const Header = () => {
       {/* Navigation links */}
       <ul className={`${styles.navLinks} ${isOpen ? styles.open : ''}`}>
         <li><Link href="/">Homepage</Link></li>
-        <li><Link href="./About">About</Link></li>
+        <li><Link href="/About">About</Link></li>
         <li><Link href="/contact">Contact</Link></li>
         <li><Link href="/tv">NewtalentsG Tv</Link></li>
         <li><Link href="/login">Login</Link></li>

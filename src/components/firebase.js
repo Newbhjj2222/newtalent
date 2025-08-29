@@ -3,6 +3,7 @@ import { initializeApp, getApps } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
+// Your Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyAvwNyhKiKFyI-r6MDDk7BH3iq7P61z594",
   authDomain: "newtalents-a7c29.firebaseapp.com",
@@ -14,9 +15,9 @@ const firebaseConfig = {
   measurementId: "G-XZVMTFEQBE"
 };
 
-// Initialize Firebase only once
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
+// Initialize Firebase app only once
+export const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
 
-// Export Firestore & Auth
+// Export Firestore and Auth
 export const db = getFirestore(app);
 export const auth = getAuth(app);

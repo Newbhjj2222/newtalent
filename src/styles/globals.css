@@ -21,12 +21,12 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  /* ===== PREVENT TEXT SELECTION & RIGHT-CLICK ===== */
-  user-select: none;          /* Chrome, Edge, Opera */
-  -webkit-user-select: none;  /* Safari */
-  -moz-user-select: none;     /* Firefox */
-  -ms-user-select: none;      /* IE10+ */
-  -webkit-touch-callout: none; /* iOS Safari */
+  /* ===== PREVENT TEXT SELECTION EVERYWHERE ===== */
+  user-select: none;          
+  -webkit-user-select: none;  
+  -moz-user-select: none;     
+  -ms-user-select: none;      
+  -webkit-touch-callout: none;
 }
 
 /* ===== RESET & BOX-SIZING ===== */
@@ -48,7 +48,7 @@ a {
   }
 }
 
-/* ===== START: Layout for Home Page ===== */
+/* ===== Layout for Home Page ===== */
 .container {
   display: flex;
   align-items: flex-start;
@@ -58,13 +58,13 @@ a {
 }
 
 .sidebarWrapper {
-  flex: 0 0 300px; /* fixed width sidebar */
-  margin-left: auto; /* push sidebar to right */
+  flex: 0 0 300px; 
+  margin-left: auto; 
 }
 
 .mainContent {
   flex: 1;
-  min-width: 0; /* allows children to shrink */
+  min-width: 0;
 }
 
 /* Responsive adjustments */
@@ -76,7 +76,7 @@ a {
 
   .sidebarWrapper {
     flex: 1 1 100%;
-    margin-left: 0; /* full width on mobile */
+    margin-left: 0;
   }
 
   .mainContent {
@@ -84,7 +84,17 @@ a {
   }
 }
 
-/* ===== Optional: Disable drag on images/links ===== */
-img, a {
-  pointer-events: none; /* optional: disable click/drag */
+/* ===== Allow selection on header and buttons only ===== */
+header,
+button {
+  user-select: text !important;
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+}
+
+/* ===== Optional: disable drag on images only ===== */
+img {
+  user-drag: none;
+  -webkit-user-drag: none;
 }

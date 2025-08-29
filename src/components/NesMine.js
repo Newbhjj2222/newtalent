@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { getFirestore, doc, updateDoc, getDoc, onSnapshot, setDoc } from "firebase/firestore";
 import { FaCoins } from "react-icons/fa";
-import { firebaseApp } from "./firebase";
+import { db } from "./firebase";
 
 const NesMineSSR = ({ username, initialNesTotal }) => {
   const db = getFirestore(firebaseApp);

@@ -8,6 +8,8 @@ import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import styles from '../components/Register.module.css';
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import Link from "next/link"; // ✅ Ongereye Link
+
 const Register = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -88,39 +90,42 @@ const Register = () => {
 
   return (
     <>
-    <Header />
-    <div className={styles.container}>
-      <h2>Register</h2>
-      <form onSubmit={handleRegister} className={styles.form}>
-        <input 
-          type="text" 
-          placeholder="Username" 
-          value={username} 
-          onChange={(e) => setUsername(e.target.value)} 
-          required 
-        />
-        <input 
-          type="email" 
-          placeholder="Email" 
-          value={email} 
-          onChange={(e) => setEmail(e.target.value)} 
-          required 
-        />
-        <input 
-          type="password" 
-          placeholder="Password" 
-          value={password} 
-          onChange={(e) => setPassword(e.target.value)} 
-          required 
-        />
-        {refCode && <p className={styles.referralNotice}>Referral code applied: {refCode}</p>}
-        <button type="submit" className={styles.btn}>Register</button>
-        <p className={styles.loginLink}>
-          Already have an account? <a href="/login">Login here</a>
-        </p>
-      </form>
-    </div>
-    <Footer />
+      <Header />
+      <div className={styles.container}>
+        <h2>Register</h2>
+        <form onSubmit={handleRegister} className={styles.form}>
+          <input 
+            type="text" 
+            placeholder="Username" 
+            value={username} 
+            onChange={(e) => setUsername(e.target.value)} 
+            required 
+          />
+          <input 
+            type="email" 
+            placeholder="Email" 
+            value={email} 
+            onChange={(e) => setEmail(e.target.value)} 
+            required 
+          />
+          <input 
+            type="password" 
+            placeholder="Password" 
+            value={password} 
+            onChange={(e) => setPassword(e.target.value)} 
+            required 
+          />
+          {refCode && <p className={styles.referralNotice}>Referral code applied: {refCode}</p>}
+          <button type="submit" className={styles.btn}>Register</button>
+          <p className={styles.loginLink}>
+            Already have an account?{" "}
+            <Link href="/login" legacyBehavior>
+              <a>Login here</a>
+            </Link>
+          </p>
+        </form>
+      </div>
+      <Footer />
     </>
   );
 };

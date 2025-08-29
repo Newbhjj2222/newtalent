@@ -27,14 +27,15 @@ export async function getServerSideProps() {
         .replace(/\s{2,}/g, " ")
         .trim();
     });
+
     const uniqueTitles = [...new Set(cleanedTitles)];
-    const sidebarPosts = uniqueTitles.map((title, index) => ({ id: index, title }));
+    const sidebarPosts = uniqueTitles.slice(0, 30).map((title, index) => ({ id: index, title }));
 
     const trendingSnapshot = await getDocs(
       query(collection(db, "posts"), orderBy("createdAt", "desc"))
     );
 
-    const trendingPosts = trendingSnapshot.docs.map((doc) => {
+    const allTrendingPosts = trendingSnapshot.docs.map((doc) => {
       const data = doc.data();
       const summary = data.story
         ? data.story.replace(/<[^>]+>/g, "").split(" ").slice(0, 20).join(" ") + "..."
@@ -49,14 +50,16 @@ export async function getServerSideProps() {
       };
     });
 
-    const otherPosts = [...trendingPosts].sort(() => Math.random() - 0.5).slice(0, 5);
+    const trendingPostsSSR = allTrendingPosts.slice(0, 20); // ONLY 20 posts for SSR
+    const otherPosts = [...allTrendingPosts].sort(() => Math.random() - 0.5).slice(0, 5);
 
     const screensSnapshot = await getDocs(collection(db, "screens"));
     const screenTexts = screensSnapshot.docs.map((doc) => doc.data().content || "");
 
     return {
       props: {
-        trendingPosts,
+        trendingPostsSSR,
+        allTrendingPostsClient: allTrendingPosts, // for client-side "Load More"
         otherPosts,
         screenTexts,
         sidebarPosts
@@ -66,7 +69,8 @@ export async function getServerSideProps() {
     console.error(error);
     return {
       props: {
-        trendingPosts: [],
+        trendingPostsSSR: [],
+        allTrendingPostsClient: [],
         otherPosts: [],
         screenTexts: [],
         sidebarPosts: []
@@ -75,13 +79,13 @@ export async function getServerSideProps() {
   }
 }
 
-export default function Home({ trendingPosts, otherPosts, screenTexts, sidebarPosts }) {
+export default function Home({ trendingPostsSSR, allTrendingPostsClient, otherPosts, screenTexts, sidebarPosts }) {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const POSTS_PER_PAGE = 25;
   const [visibleCount, setVisibleCount] = useState(POSTS_PER_PAGE);
+  const [trendingPosts, setTrendingPosts] = useState(trendingPostsSSR);
 
-  // Ref kuri search input
   const searchRef = useRef(null);
 
   const handlePostClick = (id) => {
@@ -89,14 +93,10 @@ export default function Home({ trendingPosts, otherPosts, screenTexts, sidebarPo
   };
 
   const handleSelectPost = (title) => {
-    // Auto fill search input
     setSearchQuery(title);
     setVisibleCount(POSTS_PER_PAGE);
-
-    // Scroll ijya kuri search input
     if (searchRef.current) {
       searchRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
-      // Optional: focus input
       searchRef.current.focus();
     }
   };
@@ -106,6 +106,9 @@ export default function Home({ trendingPosts, otherPosts, screenTexts, sidebarPo
   );
 
   const handleLoadMore = () => {
+    const currentCount = trendingPosts.length;
+    const nextPosts = allTrendingPostsClient.slice(currentCount, currentCount + POSTS_PER_PAGE);
+    setTrendingPosts((prev) => [...prev, ...nextPosts]);
     setVisibleCount((prev) => prev + POSTS_PER_PAGE);
   };
 
@@ -147,7 +150,7 @@ export default function Home({ trendingPosts, otherPosts, screenTexts, sidebarPo
                 setSearchQuery(e.target.value);
                 setVisibleCount(POSTS_PER_PAGE);
               }}
-              ref={searchRef} // <-- ref kuri search input
+              ref={searchRef}
             />
 
             {filteredPosts.length > 0 ? (

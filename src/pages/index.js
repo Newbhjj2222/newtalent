@@ -15,9 +15,11 @@ import stylesHome from "../components/HomePage.module.css";
 import { db } from "../components/firebase";
 import { collection, query, orderBy, getDocs } from "firebase/firestore";
 
+// Server-side data fetching
 export async function getServerSideProps() {
   try {
     const foldersSnapshot = await getDocs(collection(db, "folders"));
+
     const cleanedTitles = foldersSnapshot.docs.map((doc) => {
       const rawTitle = doc.data().title || "Untitled";
       return rawTitle
@@ -29,13 +31,13 @@ export async function getServerSideProps() {
     });
 
     const uniqueTitles = [...new Set(cleanedTitles)];
-    const sidebarPosts = uniqueTitles.slice(0, 30).map((title, index) => ({ id: index, title }));
+    const sidebarPosts = uniqueTitles.map((title, index) => ({ id: index, title }));
 
     const trendingSnapshot = await getDocs(
       query(collection(db, "posts"), orderBy("createdAt", "desc"))
     );
 
-    const allTrendingPosts = trendingSnapshot.docs.map((doc) => {
+    const trendingPosts = trendingSnapshot.docs.map((doc) => {
       const data = doc.data();
       const summary = data.story
         ? data.story.replace(/<[^>]+>/g, "").split(" ").slice(0, 20).join(" ") + "..."
@@ -50,27 +52,25 @@ export async function getServerSideProps() {
       };
     });
 
-    const trendingPostsSSR = allTrendingPosts.slice(0, 20); // ONLY 20 posts for SSR
-    const otherPosts = [...allTrendingPosts].sort(() => Math.random() - 0.5).slice(0, 5);
+    const otherPosts = [...trendingPosts].sort(() => Math.random() - 0.5).slice(0, 5);
 
     const screensSnapshot = await getDocs(collection(db, "screens"));
     const screenTexts = screensSnapshot.docs.map((doc) => doc.data().content || "");
 
     return {
       props: {
-        trendingPostsSSR,
-        allTrendingPostsClient: allTrendingPosts, // for client-side "Load More"
+        trendingPosts,
         otherPosts,
         screenTexts,
         sidebarPosts
       }
     };
+
   } catch (error) {
     console.error(error);
     return {
       props: {
-        trendingPostsSSR: [],
-        allTrendingPostsClient: [],
+        trendingPosts: [],
         otherPosts: [],
         screenTexts: [],
         sidebarPosts: []
@@ -79,12 +79,12 @@ export async function getServerSideProps() {
   }
 }
 
-export default function Home({ trendingPostsSSR, allTrendingPostsClient, otherPosts, screenTexts, sidebarPosts }) {
+// React Component
+export default function Home({ trendingPosts, otherPosts, screenTexts, sidebarPosts }) {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const POSTS_PER_PAGE = 25;
   const [visibleCount, setVisibleCount] = useState(POSTS_PER_PAGE);
-  const [trendingPosts, setTrendingPosts] = useState(trendingPostsSSR);
 
   const searchRef = useRef(null);
 
@@ -95,6 +95,7 @@ export default function Home({ trendingPostsSSR, allTrendingPostsClient, otherPo
   const handleSelectPost = (title) => {
     setSearchQuery(title);
     setVisibleCount(POSTS_PER_PAGE);
+
     if (searchRef.current) {
       searchRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
       searchRef.current.focus();
@@ -106,9 +107,6 @@ export default function Home({ trendingPostsSSR, allTrendingPostsClient, otherPo
   );
 
   const handleLoadMore = () => {
-    const currentCount = trendingPosts.length;
-    const nextPosts = allTrendingPostsClient.slice(currentCount, currentCount + POSTS_PER_PAGE);
-    setTrendingPosts((prev) => [...prev, ...nextPosts]);
     setVisibleCount((prev) => prev + POSTS_PER_PAGE);
   };
 

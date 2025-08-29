@@ -1,8 +1,8 @@
 // pages/post/[id].js
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
+import { db } from "../../components/firebase";
 import {
-  getFirestore,
   doc,
   getDoc,
   collection,
@@ -10,12 +10,11 @@ import {
   addDoc,
   updateDoc,
 } from "firebase/firestore";
-import { db } from "../../components/firebase";
 import { FaShareAlt } from "react-icons/fa";
-import Bible from "../../components/Bible";
-import NesMine from "../../components/NesMine";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
+import Bible from "../../components/Bible";
+import NesMine from "../../components/NesMine";
 import styles from "../../components/PostDetail.module.css";
 
 const extractSeriesAndEpisode = (head) => {
@@ -64,28 +63,25 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
           const username = storedUsername;
           const author = postData.author || "Unknown";
 
-          // Only deduct NES if not author or newtalentsg
           if (username !== author && username.toLowerCase() !== "newtalentsg") {
             const depositerRef = doc(db, "depositers", username);
             const depositerSnap = await getDoc(depositerRef);
 
             if (!depositerSnap.exists()) {
-              alert("Account yawe ntiboneka mubaguze NeS. tukujyanye aho uzigurira.");
+              alert("Account yawe ntiboneka mubaguze NeS.");
               router.push("/balance");
               return;
             }
 
             const currentNes = Number(depositerSnap.data().nes) || 0;
             if (currentNes < 1) {
-              alert("Nta NeS zihagije ufite zikwemerera gusoma iyi nkuru tukujyanye aho uzigurira. niba waziguze ukaba utazihawe cyangwa ukeneye ubufasha twandikire kuri WhatsApp +250722319367. Murakoze.");
+              alert("Nta NeS zihagije. Nyamuneka uzigurire.");
               router.push("/balance");
               return;
             }
 
-            // Deduct 1 NES
             await updateDoc(depositerRef, { nes: currentNes - 1 });
 
-            // Add 1 NES to author if exists
             if (author !== username) {
               const authorRef = doc(db, "authors", author);
               const authorSnap = await getDoc(authorRef);
@@ -138,7 +134,6 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
   };
 
   if (!postData) return <div>Post not found.</div>;
-  const postAuthor = postData.author || "Unknown";
 
   return (
     <>
@@ -150,10 +145,8 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
         <div className={styles.postStory} dangerouslySetInnerHTML={{ __html: postData.story }} />
 
         <div className={styles.postMeta}>
-          <small>By: {postAuthor}</small>
-          <button className={styles.shareButton} onClick={handleShare}>
-            <FaShareAlt /> Share
-          </button>
+          <small>By: {postData.author || "Unknown"}</small>
+          <button className={styles.shareButton} onClick={handleShare}><FaShareAlt /> Share</button>
         </div>
 
         <div className={styles.navigationButtons}>
@@ -173,9 +166,7 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
               />
               <button className={styles.commentButton} onClick={handleCommentSubmit}>Post Comment</button>
             </div>
-          ) : (
-            <p>Login to comment.</p>
-          )}
+          ) : <p>Login to comment.</p>}
           {comments.length ? comments.map((c, i) => (
             <div key={i} className={styles.commentItem}>
               <p>{c.text}</p>
@@ -194,7 +185,6 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
 // --- SSR logic
 export async function getServerSideProps(context) {
   const { id } = context.params;
-  const db = getFirestore();
 
   const postRef = doc(db, "posts", id);
   const postSnap = await getDoc(postRef);
@@ -211,7 +201,7 @@ export async function getServerSideProps(context) {
 
   const postsWithInfo = allPosts
     .map((p) => ({ ...p, ...extractSeriesAndEpisode(p.head) }))
-    .filter((p) => p.title.toUpperCase() === current.title.toUpperCase() && p.episode !== null);
+    .filter((p) => p.title?.toUpperCase() === current.title.toUpperCase() && p.episode !== null);
 
   const seasonsMap = {};
   postsWithInfo.forEach((p) => {

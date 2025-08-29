@@ -48,7 +48,8 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
   const [comments, setComments] = useState(commentsData || []);
   const [newComment, setNewComment] = useState("");
   const [currentUser, setCurrentUser] = useState("");
-
+const domain = "https://newtalentsg.co.rw"; // ✅ Domain yawe
+  
   useEffect(() => {
     if (typeof window !== "undefined") {
       const storedUsername = localStorage.getItem("username");
@@ -150,8 +151,8 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
         <title>{postData.head}</title>
         <meta property="og:title" content={postData.head} />
         <meta property="og:description" content={postData.story.replace(/<[^>]+>/g, "").slice(0, 200)} />
-        <meta property="og:image" content={postData.imageUrl} />
-        <meta property="og:url" content={typeof window !== "undefined" ? window.location.href : ""} />
+        <meta property="og:image" content={`${domain}${postData.imageUrl}`} />
+        <meta property="og:url" content={`${domain}/post/${postData.id}`} />
         <meta property="og:type" content="article" />
       </Head>
 

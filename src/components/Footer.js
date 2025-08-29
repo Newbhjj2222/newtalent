@@ -1,5 +1,6 @@
 // components/Footer.js
 import React from 'react';
+import Link from 'next/link';
 import styles from './Footer.module.css';
 
 const Footer = () => {
@@ -8,10 +9,18 @@ const Footer = () => {
       <div className={styles.footerSection}>
         <h4>Quick Links</h4>
         <ul className={styles.linkList}>
-          <li><a href="/">Home</a></li>
-          <li><a href="/balance">Your Balance</a></li>
-          <li><a href="/About">About</a></li>
-          <li><a href="/contact">Contact</a></li>
+          <li>
+            <Link href="/">Home</Link>
+          </li>
+          <li>
+            <Link href="/balance">Your Balance</Link>
+          </li>
+          <li>
+            <Link href="/About">About</Link>
+          </li>
+          <li>
+            <Link href="/contact">Contact</Link>
+          </li>
         </ul>
       </div>
 

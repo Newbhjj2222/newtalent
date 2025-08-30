@@ -48,7 +48,7 @@ export async function getServerSideProps() {
         title: data.head || "Untitled",
         summary,
         author: data.author || "Unknown",
-        categories: data.categories || ["General"],
+        categories: data.categories || ["General"], // 👈 categories array
       };
     });
 
@@ -83,6 +83,7 @@ export async function getServerSideProps() {
 export default function Home({ trendingPosts, otherPosts, screenTexts, sidebarPosts }) {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
+  const [isSidebarSelected, setIsSidebarSelected] = useState(false); // 👈 check if sidebar filled search
   const POSTS_PER_PAGE = 25;
   const [visibleCount, setVisibleCount] = useState(POSTS_PER_PAGE);
 
@@ -94,6 +95,7 @@ export default function Home({ trendingPosts, otherPosts, screenTexts, sidebarPo
 
   const handleSelectPost = (title) => {
     setSearchQuery(title);
+    setIsSidebarSelected(true); // 👈 disable editing if from sidebar
     setVisibleCount(POSTS_PER_PAGE);
 
     if (searchRef.current) {
@@ -114,8 +116,8 @@ export default function Home({ trendingPosts, otherPosts, screenTexts, sidebarPo
     <div className={stylesHome.page}>
       <Header />
       <Banner screenTexts={screenTexts} />
+      <AdBanner />
 
-<AdBanner />
       <div className={stylesHome.container}>
         <main className={stylesHome.mainContent}>
           <Slider trendingPosts={trendingPosts} />
@@ -128,10 +130,13 @@ export default function Home({ trendingPosts, otherPosts, screenTexts, sidebarPo
               className={stylesHome.searchInput}
               value={searchQuery}
               onChange={(e) => {
-                setSearchQuery(e.target.value);
-                setVisibleCount(POSTS_PER_PAGE);
+                if (!isSidebarSelected) { // 👈 prevent typing after sidebar select
+                  setSearchQuery(e.target.value);
+                  setVisibleCount(POSTS_PER_PAGE);
+                }
               }}
               ref={searchRef}
+              readOnly={isSidebarSelected} // 👈 disable edit if sidebar selected
             />
 
             {filteredPosts.length > 0 ? (
@@ -152,9 +157,21 @@ export default function Home({ trendingPosts, otherPosts, screenTexts, sidebarPo
                     <div className={stylesHome.postContent}>
                       <h3>{post.title}</h3>
                       <p>{post.summary}</p>
-                      <span key={i} className={stylesHome.categoryTag}>
-        {cat}
-      </span>
+
+                      {/* Categories as links */}
+                      <div className={stylesHome.categories}>
+                        {post.categories.map((cat, i) => (
+                          <Link
+                            key={i}
+                            href={`/category/${encodeURIComponent(cat)}`}
+                            className={stylesHome.categoryTag}
+                            onClick={(e) => e.stopPropagation()} // prevent opening post when clicking category
+                          >
+                            {cat}
+                          </Link>
+                        ))}
+                      </div>
+
                       <small className={stylesHome.authorText}>By {post.author}</small>
                       <div className={stylesHome.postActions}>
                         <Link href={`/post/${post.id}`} className={stylesHome.actionBtn}>

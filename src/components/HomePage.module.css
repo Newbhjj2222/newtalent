@@ -15,7 +15,7 @@
 }
 /* Categories wrapper muri post card */
 .categoriesWrapper {
-  margin: 40px;
+  margin: 10px auto;
   display: flex;
   flex-wrap: wrap; /* kugira ngo tags zidapfundikira */
   gap: 8px;        /* intera hagati ya tags */
@@ -23,7 +23,7 @@
 
 /* Buri category tag */
 .categoryTag {
-  background-color: #f0f0f0; /* ibara ryoroheje ry'inyuma */
+  background-color: skybrue; /* ibara ryoroheje ry'inyuma */
   color: #333;                /* ibara ry'inyuguti */
   font-size: 12px;
   font-weight: 500;

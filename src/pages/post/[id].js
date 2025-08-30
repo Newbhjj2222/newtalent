@@ -148,13 +148,19 @@ const domain = "https://newtalentsg.co.rw"; // ✅ Domain yawe
   return (
     <>
       <Head>
-        <title>{postData.head}</title>
-        <meta property="og:title" content={postData.head} />
-        <meta property="og:description" content={postData.story.replace(/<[^>]+>/g, "").slice(0, 200)} />
-        <meta property="og:image" content={`${domain}${postData.imageUrl}`} />
-        <meta property="og:url" content={`${domain}/post/${postData.id}`} />
-        <meta property="og:type" content="article" />
-      </Head>
+  <title>{postData.head}</title>
+  <meta property="og:title" content={postData.head} />
+  <meta property="og:description" content={postData.story.replace(/<[^>]+>/g, "").slice(0, 200)} />
+  <meta property="og:image" content={postData.imageUrl} /> {/* full URL */}
+  <meta property="og:url" content={`${domain}/post/${postData.id}`} />
+  <meta property="og:type" content="article" />
+
+  {/* Twitter Card */}
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={postData.head} />
+  <meta name="twitter:description" content={postData.story.replace(/<[^>]+>/g, "").slice(0, 200)} />
+  <meta name="twitter:image" content={postData.imageUrl} />
+</Head>
 
       <Header />
       <div className={styles.postContainer}>

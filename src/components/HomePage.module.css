@@ -13,26 +13,27 @@
   padding: 0;
   margin: 0;
 }
-.categories {
-  margin: 55px;
+/* Categories wrapper muri post card */
+.categoriesWrapper {
+  margin: 40px;
+  display: flex;
+  flex-wrap: wrap; /* kugira ngo tags zidapfundikira */
+  gap: 8px;        /* intera hagati ya tags */
 }
 
+/* Buri category tag */
 .categoryTag {
-  display: inline-block;
-  background: #e0f2ff;
-  color: #0070f3;
-  padding: 3px 10px;
-  border-radius: 14px;
+  background-color: #f0f0f0; /* ibara ryoroheje ry'inyuma */
+  color: #333;                /* ibara ry'inyuguti */
   font-size: 12px;
-  margin-right: 6px;
-  text-decoration: none;
-  transition: background 0.2s, color 0.2s;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 12px;       /* igasimba kugira tag itondekanye */
+  cursor: default;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-.categoryTag:hover {
-  background: #0070f3;
-  color: blue;
-}
+
 /* Container ya main content na sidebar */
 .container {
   width: 95%;

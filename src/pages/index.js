@@ -48,7 +48,7 @@ export async function getServerSideProps() {
         title: data.head || "Untitled",
         summary,
         author: data.author || "Unknown",
-        category: data.category || "General",
+        categories: data.categories || ["General"],
       };
     });
 
@@ -152,6 +152,9 @@ export default function Home({ trendingPosts, otherPosts, screenTexts, sidebarPo
                     <div className={stylesHome.postContent}>
                       <h3>{post.title}</h3>
                       <p>{post.summary}</p>
+                      <span key={i} className={stylesHome.categoryTag}>
+        {cat}
+      </span>
                       <small className={stylesHome.authorText}>By {post.author}</small>
                       <div className={stylesHome.postActions}>
                         <Link href={`/post/${post.id}`} className={stylesHome.actionBtn}>

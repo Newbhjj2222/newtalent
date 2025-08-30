@@ -10,8 +10,8 @@ import Slider from "../components/Slider";
 import Sidebar from "../components/Sidebar";
 import Footer from "../components/Footer";
 import OtherStories from "../components/OtherStories";
-import stylesHome from "../components/HomePage.module.css";
 import AdBanner from "../components/AdBanner";
+import stylesHome from "../components/HomePage.module.css";
 import { db } from "../components/firebase";
 import { collection, query, orderBy, getDocs } from "firebase/firestore";
 
@@ -20,6 +20,7 @@ export async function getServerSideProps() {
   try {
     const foldersSnapshot = await getDocs(collection(db, "folders"));
 
+    // Fata titles zidasubirwamo
     const cleanedTitles = foldersSnapshot.docs.map((doc) => {
       const rawTitle = doc.data().title || "Untitled";
       return rawTitle
@@ -62,10 +63,9 @@ export async function getServerSideProps() {
         trendingPosts,
         otherPosts,
         screenTexts,
-        sidebarPosts
-      }
+        sidebarPosts,
+      },
     };
-
   } catch (error) {
     console.error(error);
     return {
@@ -73,8 +73,8 @@ export async function getServerSideProps() {
         trendingPosts: [],
         otherPosts: [],
         screenTexts: [],
-        sidebarPosts: []
-      }
+        sidebarPosts: [],
+      },
     };
   }
 }
@@ -158,14 +158,15 @@ export default function Home({ trendingPosts, otherPosts, screenTexts, sidebarPo
                       <h3>{post.title}</h3>
                       <p>{post.summary}</p>
 
-                      {/* Categories as tags (not links) */}
-div className={stylesHome.categoriesWrapper}>
-        {post.categories && post.categories.map((cat, i) => (
-          <span key={i} className={stylesHome.categoryTag}>
-            {cat}
-          </span>
-        ))}
-      </div>
+                      {/* Categories as tags */}
+                      <div className={stylesHome.categoriesWrapper}>
+                        {post.categories &&
+                          post.categories.map((cat, i) => (
+                            <span key={i} className={stylesHome.categoryTag}>
+                              {cat}
+                            </span>
+                          ))}
+                      </div>
 
                       <small className={stylesHome.authorText}>By {post.author}</small>
                       <div className={stylesHome.postActions}>
@@ -179,7 +180,10 @@ div className={stylesHome.categoriesWrapper}>
 
                 {visibleCount < filteredPosts.length && (
                   <div style={{ textAlign: "center", margin: "20px 0" }}>
-                    <button onClick={handleLoadMore} className={stylesHome.loadMoreBtn}>
+                    <button
+                      onClick={handleLoadMore}
+                      className={stylesHome.loadMoreBtn}
+                    >
                       Load More
                     </button>
                   </div>

@@ -2,7 +2,7 @@
 
 /* Container nyamukuru ya page */
 .postContainer {
-  padding: 20px;
+  padding: 20px auto;
   top: 480px;
   max-width: 800px;
   margin: 90px auto;

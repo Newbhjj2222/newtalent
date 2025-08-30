@@ -158,18 +158,14 @@ export default function Home({ trendingPosts, otherPosts, screenTexts, sidebarPo
                       <h3>{post.title}</h3>
                       <p>{post.summary}</p>
 
-                      {/* Categories as links */}
-                       <div className={stylesHome.categoriesWrapper}>
-        {post.categories.map((cat, i) => (
-          <Link
-            key={i}
-            href={`/category/${encodeURIComponent(cat)}`}
-            className={stylesHome.categoryTag}
-          >
-            {cat}
-          </Link>
-        ))}
-      </div>
+                      {/* Categories as tags (not links) */}
+<div className={stylesHome.categoriesWrapper}>
+  {post.categories.map((cat, i) => (
+    <span key={i} className={stylesHome.categoryTag}>
+      {cat}
+    </span>
+  ))}
+</div>
 
                       <small className={stylesHome.authorText}>By {post.author}</small>
                       <div className={stylesHome.postActions}>

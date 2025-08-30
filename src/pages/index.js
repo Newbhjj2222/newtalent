@@ -159,18 +159,17 @@ export default function Home({ trendingPosts, otherPosts, screenTexts, sidebarPo
                       <p>{post.summary}</p>
 
                       {/* Categories as links */}
-                      <div className={stylesHome.categories}>
-                        {post.categories.map((cat, i) => (
-                          <Link
-                            key={i}
-                            href={`/category/${encodeURIComponent(cat)}`}
-                            className={stylesHome.categoryTag}
-                            onClick={(e) => e.stopPropagation()} // prevent opening post when clicking category
-                          >
-                            {cat}
-                          </Link>
-                        ))}
-                      </div>
+                       <div className={stylesHome.categoriesWrapper}>
+        {post.categories.map((cat, i) => (
+          <Link
+            key={i}
+            href={`/category/${encodeURIComponent(cat)}`}
+            className={stylesHome.categoryTag}
+          >
+            {cat}
+          </Link>
+        ))}
+      </div>
 
                       <small className={stylesHome.authorText}>By {post.author}</small>
                       <div className={stylesHome.postActions}>

@@ -159,13 +159,13 @@ export default function Home({ trendingPosts, otherPosts, screenTexts, sidebarPo
                       <p>{post.summary}</p>
 
                       {/* Categories as tags (not links) */}
-<div className={stylesHome.categoriesWrapper}>
-  {post.categories.map((cat, i) => (
-    <span key={i} className={stylesHome.categoryTag}>
-      {cat}
-    </span>
-  ))}
-</div>
+div className={stylesHome.categoriesWrapper}>
+        {post.categories && post.categories.map((cat, i) => (
+          <span key={i} className={stylesHome.categoryTag}>
+            {cat}
+          </span>
+        ))}
+      </div>
 
                       <small className={stylesHome.authorText}>By {post.author}</small>
                       <div className={stylesHome.postActions}>

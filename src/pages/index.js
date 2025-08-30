@@ -11,7 +11,7 @@ import Sidebar from "../components/Sidebar";
 import Footer from "../components/Footer";
 import OtherStories from "../components/OtherStories";
 import stylesHome from "../components/HomePage.module.css";
-
+import AdBanner from "../components/AdBanner";
 import { db } from "../components/firebase";
 import { collection, query, orderBy, getDocs } from "firebase/firestore";
 
@@ -114,7 +114,7 @@ export default function Home({ trendingPosts, otherPosts, screenTexts, sidebarPo
     <div className={stylesHome.page}>
       <Header />
       <Banner screenTexts={screenTexts} />
-
+<AdBanner />
       <div style={{ textAlign: "center", margin: "20px 0" }}>
         <Link href="/about">
           <button

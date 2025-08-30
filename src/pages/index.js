@@ -114,25 +114,8 @@ export default function Home({ trendingPosts, otherPosts, screenTexts, sidebarPo
     <div className={stylesHome.page}>
       <Header />
       <Banner screenTexts={screenTexts} />
-<AdBanner />
-      <div style={{ textAlign: "center", margin: "20px 0" }}>
-        <Link href="/about">
-          <button
-            style={{
-              padding: "10px 20px",
-              backgroundColor: "#388e3c",
-              color: "#fff",
-              border: "none",
-              borderRadius: "8px",
-              cursor: "pointer",
-              fontSize: "1rem",
-            }}
-          >
-            Learn About Us
-          </button>
-        </Link>
-      </div>
 
+<AdBanner />
       <div className={stylesHome.container}>
         <main className={stylesHome.mainContent}>
           <Slider trendingPosts={trendingPosts} />

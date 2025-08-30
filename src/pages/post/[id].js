@@ -152,6 +152,8 @@ const domain = "https://newtalentsg.co.rw"; // ✅ Domain yawe
   <meta property="og:title" content={postData.head} />
   <meta property="og:description" content={postData.story.replace(/<[^>]+>/g, "").slice(0, 200)} />
   <meta property="og:image" content={postData.imageUrl} /> {/* full URL */}
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
   <meta property="og:url" content={`${domain}/post/${postData.id}`} />
   <meta property="og:type" content="article" />
 
@@ -160,6 +162,8 @@ const domain = "https://newtalentsg.co.rw"; // ✅ Domain yawe
   <meta name="twitter:title" content={postData.head} />
   <meta name="twitter:description" content={postData.story.replace(/<[^>]+>/g, "").slice(0, 200)} />
   <meta name="twitter:image" content={postData.imageUrl} />
+  <meta name="twitter:image:width" content="1200" />
+  <meta name="twitter:image:height" content="630" />
 </Head>
 
       <Header />

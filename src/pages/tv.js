@@ -1,14 +1,11 @@
-// pages/newtalentsgtv.js
 'use client';
 import React, { useEffect, useState } from 'react';
 import { db } from '../components/firebase';
-import { collection, addDoc, getDocs, query, orderBy } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import styles from '../components/NewtalentsG.module.css';
 import UniversalVideoPlayer from '../components/UniversalVideoPlayer';
 
 const NewTalentsGTV = () => {
-  const [url, setUrl] = useState('');
-  const [content, setContent] = useState('');
   const [videos, setVideos] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -33,28 +30,9 @@ const NewTalentsGTV = () => {
     fetchVideos();
   }, []);
 
-  // 🔹 Save new video URL and content to Firestore (hidden inputs)
-  const saveVideo = async () => {
-    if (!url || !content) return;
-    try {
-      await addDoc(collection(db, 'shows'), {
-        videoUrl: url,
-        content: content,
-        createdAt: new Date(),
-      });
-      setUrl('');
-      setContent('');
-      fetchVideos();
-    } catch (error) {
-      console.error('Error saving video:', error);
-    }
-  };
-
-  // 🔹 Move to next video (circular playlist)
+  // 🔹 Automatic next video (circular)
   const handleNextVideo = () => {
-    if (videos.length > 0) {
-      setCurrentIndex((prev) => (prev + 1) % videos.length);
-    }
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % videos.length);
   };
 
   if (loading) return <p className={styles.videoPlayer}>Loading videos...</p>;
@@ -64,31 +42,13 @@ const NewTalentsGTV = () => {
 
   return (
     <div className={styles.videoContainer}>
-      {/* 🔹 Hidden inputs for admin use */}
-      <div style={{ display: 'none' }}>
-        <input
-          type="text"
-          placeholder="Video URL"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-        />
-        <input
-          type="text"
-          placeholder="Content"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-        />
-        <button onClick={saveVideo}>Add Video</button>
-      </div>
-
-      {/* 🔹 Display current video and content */}
       {currentVideo && (
         <div className={styles.videoPlayer}>
-          <h1 className={styles.contentBox}>{currentVideo.content}</h1>
+          <div className={styles.contentBox}>{currentVideo.content}</div>
           <UniversalVideoPlayer
             videoUrl={currentVideo.videoUrl}
             key={currentVideo.id}
-            onEnded={handleNextVideo} // 🔹 Automatic next
+            onEnded={handleNextVideo} // 🔹 Automatic next document
           />
         </div>
       )}

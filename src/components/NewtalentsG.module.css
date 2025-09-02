@@ -1,45 +1,84 @@
-.videoPlayer {
-  width: 100%;
-  max-width: 800px;
-  margin: 0 auto;
+/* NewtalentsG.module.css */
+
+/* Container rusange */
+.videoContainer {
   padding: 20px;
-  text-align: center;
+  max-width: 900px;
+  margin: 0 auto;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.playerWrapper {
-  position: relative;
-  padding-top: 56.25%; /* 16:9 ratio */
+/* Input container - hidden */
+.videoInput {
+  display: none; /* 🔹 Input na textarea ntizigaragare */
   margin-bottom: 20px;
-}
-
-.reactPlayer {
-  position: absolute;
-  top: 0;
-  left: 0;
-}
-
-.controls {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  align-items: center;
 }
 
-.controls button {
-  background-color: #0077cc;
-  color: #fff;
-  border: none;
+/* Input fields style (hidden, ariko niba ushaka ushobora kwereka developer mode) */
+.inputField, .textareaField {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+/* Save button */
+.saveButton {
   padding: 10px 20px;
-  border-radius: 6px;
-  font-weight: bold;
+  background-color: #4caf50;
+  color: white;
+  font-size: 14px;
+  border: none;
+  border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
-.controls button:hover {
-  background-color: #005fa3;
+.saveButton:hover {
+  background-color: #45a049;
 }
-.controls button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
+
+/* Video player wrapper */
+.videoPlayer {
+  margin-top: 20px;
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%; /* 16:9 ratio */
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: #000;
 }
+
+/* ReactPlayer iframe/video absolute fill */
+.videoPlayer iframe,
+.videoPlayer video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Content box above video */
+.contentBox {
+  margin-bottom: 10px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+}
+
+/* Optional: Controls below video (if needed) */
+.controls {
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  }

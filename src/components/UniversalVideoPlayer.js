@@ -20,14 +20,14 @@ const UniversalVideoPlayer = ({ videoUrl, onVideoEnd }) => {
         const playlistMatch = url.match(/[?&]list=([^&]+)/);
         if (playlistMatch) {
           const listId = playlistMatch[1];
-          url = `https://www.youtube.com/embed/videoseries?list=${listId}&enablejsapi=1&autoplay=1&rel=0`;
+          url = `https://www.youtube.com/embed/videoseries?list=${listId}&enablejsapi=1&autoplay=1&mute=1&rel=0`;
         } else {
           if (url.includes('youtu.be')) {
             videoId = url.split('youtu.be/')[1].split('?')[0];
           } else {
             videoId = new URL(url).searchParams.get('v');
           }
-          url = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&autoplay=1&rel=0`;
+          url = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&autoplay=1&mute=1&rel=0`;
         }
         setPlayerType('youtube');
         setNormalizedUrl(url);
@@ -41,9 +41,9 @@ const UniversalVideoPlayer = ({ videoUrl, onVideoEnd }) => {
         return;
       }
 
-      // 🔹 Fallback
+      // 🔹 Fallback (iframe)
       setPlayerType('iframe');
-      setNormalizedUrl(url);
+      setNormalizedUrl(`${url}?autoplay=1&mute=1`);
     } catch (err) {
       console.error('Error parsing video URL:', err);
       setPlayerType('iframe');
@@ -74,6 +74,11 @@ const UniversalVideoPlayer = ({ videoUrl, onVideoEnd }) => {
         height: '450',
         width: '100%',
         videoId: extractVideoId(videoUrl),
+        playerVars: {
+          autoplay: 1,
+          mute: 1,
+          rel: 0,
+        },
         events: {
           onStateChange: (event) => {
             if (event.data === window.YT.PlayerState.ENDED) {
@@ -106,8 +111,8 @@ const UniversalVideoPlayer = ({ videoUrl, onVideoEnd }) => {
           src={normalizedUrl}
           controls
           autoPlay
-          preload="auto"
           muted
+          preload="auto"
           onEnded={handleVideoEnded}
           style={{ width: '100%', height: '450px', borderRadius: '8px' }}
         />

@@ -97,12 +97,12 @@ const UniversalVideoPlayer = ({ videoUrl, onVideoEnd }) => {
     <div style={{ width: '100%', maxWidth: '800px', margin: 'auto' }}>
       {playerType === 'video' ? (
         <video
-          src={normalizedUrl}
-          controls
-          autoPlay
-          onEnded={handleVideoEnded}
-          style={{ width: '100%', height: '100%' }}
-        />
+  src={normalizedUrl}
+  controls
+  autoPlay
+  preload="auto"
+  onEnded={handleVideoEnded}
+/>
       ) : playerType === 'youtube' ? (
         <div>
           <div

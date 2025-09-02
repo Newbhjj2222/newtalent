@@ -57,11 +57,11 @@ const NewTalentsGTV = () => {
           )}
 
           {/* 🔹 UniversalVideoPlayer ikina automatic auto-play */}
-          <UniversalVideoPlayer
-            videoUrl={currentVideo.videoUrl}
-            key={currentVideo.id + '-' + currentIndex} // guarantee re-render
-            onVideoEnd={handleNextVideo} // automatic next
-          />
+         <UniversalVideoPlayer
+  key={`${currentVideo.id}-${currentIndex}`}
+  videoUrl={currentVideo.videoUrl}
+  onVideoEnd={handleNextVideo}
+/>
 
           <p style={{ textAlign: 'center', marginTop: '10px' }}>
             Video {currentIndex + 1} of {videos.length}

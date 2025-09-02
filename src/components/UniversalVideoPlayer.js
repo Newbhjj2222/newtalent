@@ -1,57 +1,43 @@
-// components/UniversalVideoPlayer.js
 'use client';
-
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 
 const UniversalVideoPlayer = ({ videoUrl, onEnded }) => {
   const [playerType, setPlayerType] = useState(null);
   const [normalizedUrl, setNormalizedUrl] = useState('');
-  const videoRef = useRef(null);
 
-  // 🔹 Detect link type
   useEffect(() => {
     if (!videoUrl) return;
 
-    let url = videoUrl.trim();
+    let url = videoUrl;
 
-    // 🔹 YouTube detection
+    // 🔹 Detect YouTube links
     if (url.includes('youtube.com') || url.includes('youtu.be')) {
       if (url.includes('youtu.be')) {
         const videoId = url.split('youtu.be/')[1].split('?')[0];
-        url = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&enablejsapi=1`;
+        url = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
       } else if (url.includes('watch?v=')) {
         const videoId = new URL(url).searchParams.get('v');
-        url = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&enablejsapi=1`;
+        const listId = new URL(url).searchParams.get('list');
+        url = listId
+          ? `https://www.youtube.com/embed/videoseries?list=${listId}&autoplay=1&rel=0`
+          : `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
       }
       setPlayerType('iframe');
       setNormalizedUrl(url);
       return;
     }
 
-    // 🔹 Direct MP4 link (Mediafire / other)
+    // 🔹 Detect MP4 / Mediafire
     if (url.endsWith('.mp4')) {
       setPlayerType('video');
       setNormalizedUrl(url);
       return;
     }
 
-    // 🔹 Fallback: iframe
+    // 🔹 Fallback to iframe
     setPlayerType('iframe');
     setNormalizedUrl(url);
   }, [videoUrl]);
-
-  // 🔹 Handle MP4 ended
-  useEffect(() => {
-    const videoEl = videoRef.current;
-    if (!videoEl || playerType !== 'video') return;
-
-    const handleEnded = () => {
-      if (onEnded) onEnded();
-    };
-
-    videoEl.addEventListener('ended', handleEnded);
-    return () => videoEl.removeEventListener('ended', handleEnded);
-  }, [playerType, onEnded]);
 
   if (!videoUrl) return <p>No video URL provided</p>;
 
@@ -59,22 +45,26 @@ const UniversalVideoPlayer = ({ videoUrl, onEnded }) => {
     <div style={{ width: '100%', maxWidth: '800px', margin: 'auto' }}>
       {playerType === 'video' ? (
         <video
-          ref={videoRef}
           src={normalizedUrl}
           controls
           autoPlay
           style={{ width: '100%', height: '100%' }}
+          onEnded={onEnded}
         />
       ) : (
         <iframe
-          key={normalizedUrl} // 🔹 ensures re-render on URL change
           src={normalizedUrl}
           width="100%"
           height="450"
           frameBorder="0"
           allow="autoplay; encrypted-media"
           allowFullScreen
-          title="Video Player"
+          onLoad={() => {
+            // YouTube playlist autoplay handled internally
+            if (playerType === 'iframe' && normalizedUrl.includes('list=')) {
+              console.log('YouTube playlist, autoplay handled by YouTube.');
+            }
+          }}
         ></iframe>
       )}
     </div>

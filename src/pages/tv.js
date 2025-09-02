@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { db } from '../components/firebase';
-import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+import { collection, addDoc, getDocs, query, orderBy } from 'firebase/firestore';
 import styles from '../components/NewtalentsG.module.css';
 import UniversalVideoPlayer from '../components/UniversalVideoPlayer';
 
@@ -30,9 +30,9 @@ const NewTalentsGTV = () => {
     fetchVideos();
   }, []);
 
-  // 🔹 Automatic next video (circular)
+  // 🔹 Move to next video (circular playlist)
   const handleNextVideo = () => {
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % videos.length);
+    setCurrentIndex((prev) => (videos.length ? (prev + 1) % videos.length : 0));
   };
 
   if (loading) return <p className={styles.videoPlayer}>Loading videos...</p>;
@@ -48,7 +48,7 @@ const NewTalentsGTV = () => {
           <UniversalVideoPlayer
             videoUrl={currentVideo.videoUrl}
             key={currentVideo.id}
-            onEnded={handleNextVideo} // 🔹 Automatic next document
+            onVideoEnd={handleNextVideo} // automatic next
           />
         </div>
       )}

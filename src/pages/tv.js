@@ -54,7 +54,7 @@ const NewTalentsGTV = () => {
     }
   };
 
-  // 🔹 Next video logic (circular playlist)
+  // 🔹 Move to next video (circular playlist)
   const handleNextVideo = () => {
     setCurrentIndex((prev) => (prev + 1) % videos.length);
   };
@@ -63,7 +63,6 @@ const NewTalentsGTV = () => {
   if (!videos.length) return <p className={styles.videoPlayer}>No videos available. Add one!</p>;
 
   const currentVideo = videos[currentIndex];
-  const nextVideo = videos[(currentIndex + 1) % videos.length];
 
   return (
     <div className={styles.videoContainer}>
@@ -94,12 +93,8 @@ const NewTalentsGTV = () => {
           <UniversalVideoPlayer
             videoUrl={currentVideo.videoUrl}
             key={currentVideo.id} // ensures re-render on change
+            onEnded={handleNextVideo} // 🔹 Automatic next
           />
-          <div className={styles.controls}>
-            <button onClick={handleNextVideo} className={styles.nextButton}>
-              ▶️ Next Video: {nextVideo?.content || 'None'}
-            </button>
-          </div>
         </div>
       )}
     </div>

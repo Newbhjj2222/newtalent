@@ -33,49 +33,61 @@ const NewTalentsGTV = () => {
     fetchVideos();
   }, []);
 
-  // 🔹 Save new video URL and content to Firestore
+  // 🔹 Save new video URL and content to Firestore (hidden inputs)
   const saveVideo = async () => {
-    if (!url) return alert('Shyiramo URL ya video!');
-    if (!content) return alert('Shyiramo content ya video!');
-
+    if (!url || !content) return;
     try {
       await addDoc(collection(db, 'shows'), {
         videoUrl: url,
         content: content,
         createdAt: new Date(),
       });
-      alert('Video yashyizwe muri Firestore!');
       setUrl('');
       setContent('');
-      fetchVideos(); // refresh list
+      fetchVideos();
     } catch (error) {
       console.error('Error saving video:', error);
-      alert('Habaye ikosa mu kubika video!');
     }
   };
 
   // 🔹 Move to next video (circular playlist)
   const handleNextVideo = () => {
-    setCurrentIndex((prev) => (prev + 1) % videos.length);
+    if (videos.length > 0) {
+      setCurrentIndex((prev) => (prev + 1) % videos.length);
+    }
   };
 
   if (loading) return <p className={styles.videoPlayer}>Loading videos...</p>;
-  if (!videos.length) return <p className={styles.videoPlayer}>No videos available. Add one!</p>;
+  if (!videos.length) return <p className={styles.videoPlayer}>No videos available.</p>;
 
   const currentVideo = videos[currentIndex];
 
   return (
     <div className={styles.videoContainer}>
-      {/* 🔹 Input ya videoUrl na content */}
-      
+      {/* 🔹 Hidden inputs for admin use */}
+      <div style={{ display: 'none' }}>
+        <input
+          type="text"
+          placeholder="Video URL"
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="Content"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+        />
+        <button onClick={saveVideo}>Add Video</button>
+      </div>
 
-      {/* 🔹 Player ya current video */}
+      {/* 🔹 Display current video and content */}
       {currentVideo && (
         <div className={styles.videoPlayer}>
-          <div className={styles.contentBox}>{currentVideo.content}</div>
+          <h1 className={styles.contentBox}>{currentVideo.content}</h1>
           <UniversalVideoPlayer
             videoUrl={currentVideo.videoUrl}
-            key={currentVideo.id} // ensures re-render on change
+            key={currentVideo.id}
             onEnded={handleNextVideo} // 🔹 Automatic next
           />
         </div>

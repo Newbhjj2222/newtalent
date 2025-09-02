@@ -1,33 +1,36 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { db } from '../components/firebase';
-import { collection, addDoc, getDocs, query, orderBy } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import styles from '../components/NewtalentsG.module.css';
 import UniversalVideoPlayer from '../components/UniversalVideoPlayer';
 
 const NewTalentsGTV = () => {
-  const [videos, setVideos] = useState([]);
+  const [videos, setVideos] = useState([]); // array y'objects {id, videoUrl, content}
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
 
   // 🔹 Fetch videos from Firestore
   const fetchVideos = async () => {
-  try {
-    const q = query(collection(db, 'shows'), orderBy('createdAt', 'desc'));
-    const snapshot = await getDocs(q);
-    const fetchedVideos = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      videoUrl: doc.data().videoUrl, // Fata videoUrl gusa
-    }));
+    try {
+      const q = query(collection(db, 'shows'), orderBy('createdAt', 'desc'));
+      const snapshot = await getDocs(q);
 
-    // Fata videoUrls zose
-    const videoUrls = fetchedVideos.map(video => video.videoUrl).filter(Boolean); // Filter kugirango umenye ko videoUrl itari null cyangwa undefined
-    setVideos(videoUrls);
-    setLoading(false);
-  } catch (error) {
-    console.error('Error fetching videos:', error);
-  }
-};
+      const fetchedVideos = snapshot.docs
+        .map(doc => ({
+          id: doc.id,
+          videoUrl: doc.data().videoUrl,
+          content: doc.data().content || '',
+        }))
+        .filter(video => video.videoUrl); // ensure videoUrl exists
+
+      setVideos(fetchedVideos);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching videos:', error);
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchVideos();
@@ -35,7 +38,7 @@ const NewTalentsGTV = () => {
 
   // 🔹 Move to next video (circular playlist)
   const handleNextVideo = () => {
-    setCurrentIndex((prev) => (videos.length ? (prev + 1) % videos.length : 0));
+    setCurrentIndex(prev => (videos.length ? (prev + 1) % videos.length : 0));
   };
 
   if (loading) return <p className={styles.videoPlayer}>Loading videos...</p>;
@@ -47,10 +50,12 @@ const NewTalentsGTV = () => {
     <div className={styles.videoContainer}>
       {currentVideo && (
         <div className={styles.videoPlayer}>
-          <div className={styles.contentBox}>{currentVideo.content}</div>
+          {currentVideo.content && (
+            <div className={styles.contentBox}>{currentVideo.content}</div>
+          )}
           <UniversalVideoPlayer
             videoUrl={currentVideo.videoUrl}
-            key={currentVideo.id}
+            key={currentVideo.id} // key yihariye kuri buri video
             onVideoEnd={handleNextVideo} // automatic next
           />
         </div>

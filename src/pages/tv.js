@@ -24,6 +24,8 @@ const NewTalentsGTV = () => {
         }))
         .filter(video => video.videoUrl); // ensure videoUrl exists
 
+      console.log('Fetched videos:', fetchedVideos);
+
       setVideos(fetchedVideos);
       setLoading(false);
     } catch (error) {
@@ -36,7 +38,7 @@ const NewTalentsGTV = () => {
     fetchVideos();
   }, []);
 
-  // 🔹 Move to next video (circular playlist)
+  // 🔹 Automatic next video (circular)
   const handleNextVideo = () => {
     setCurrentIndex(prev => (videos.length ? (prev + 1) % videos.length : 0));
   };
@@ -53,11 +55,17 @@ const NewTalentsGTV = () => {
           {currentVideo.content && (
             <div className={styles.contentBox}>{currentVideo.content}</div>
           )}
+
+          {/* 🔹 UniversalVideoPlayer ikina automatic auto-play */}
           <UniversalVideoPlayer
             videoUrl={currentVideo.videoUrl}
-            key={currentVideo.id} // key yihariye kuri buri video
+            key={currentVideo.id + '-' + currentIndex} // guarantee re-render
             onVideoEnd={handleNextVideo} // automatic next
           />
+
+          <p style={{ textAlign: 'center', marginTop: '10px' }}>
+            Video {currentIndex + 1} of {videos.length}
+          </p>
         </div>
       )}
     </div>

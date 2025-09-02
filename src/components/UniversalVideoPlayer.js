@@ -1,5 +1,4 @@
 'use client';
-
 import React, { useEffect, useRef, useState } from 'react';
 
 const UniversalVideoPlayer = ({ videoUrl, onVideoEnd }) => {
@@ -15,34 +14,34 @@ const UniversalVideoPlayer = ({ videoUrl, onVideoEnd }) => {
     let url = videoUrl.trim();
 
     try {
-      // YouTube link
+      // 🔹 YouTube link
       if (url.includes('youtube.com') || url.includes('youtu.be')) {
         let videoId = '';
         const playlistMatch = url.match(/[?&]list=([^&]+)/);
         if (playlistMatch) {
           const listId = playlistMatch[1];
-          url = `https://www.youtube.com/embed/videoseries?list=${listId}&enablejsapi=1`;
+          url = `https://www.youtube.com/embed/videoseries?list=${listId}&enablejsapi=1&autoplay=1&rel=0`;
         } else {
           if (url.includes('youtu.be')) {
             videoId = url.split('youtu.be/')[1].split('?')[0];
           } else {
             videoId = new URL(url).searchParams.get('v');
           }
-          url = `https://www.youtube.com/embed/${videoId}?enablejsapi=1`;
+          url = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&autoplay=1&rel=0`;
         }
         setPlayerType('youtube');
         setNormalizedUrl(url);
         return;
       }
 
-      // Direct mp4
+      // 🔹 Direct mp4
       if (url.endsWith('.mp4')) {
         setPlayerType('video');
         setNormalizedUrl(url);
         return;
       }
 
-      // Fallback
+      // 🔹 Fallback
       setPlayerType('iframe');
       setNormalizedUrl(url);
     } catch (err) {
@@ -54,63 +53,70 @@ const UniversalVideoPlayer = ({ videoUrl, onVideoEnd }) => {
 
   // 🔹 YouTube IFrame API
   useEffect(() => {
-    if (playerType !== 'youtube' || !window.YT) return;
+    if (playerType !== 'youtube') return;
 
-    // Clear previous player if exists
-    if (youtubePlayerRef.current) {
-      youtubePlayerRef.current.destroy();
-      youtubePlayerRef.current = null;
-    }
-
-    const onPlayerStateChange = (event) => {
-      if (event.data === window.YT.PlayerState.ENDED) {
-        if (onVideoEnd) onVideoEnd();
+    const loadYouTubeAPI = () => {
+      if (window.YT && window.YT.Player) {
+        createPlayer();
+      } else {
+        const tag = document.createElement('script');
+        tag.src = 'https://www.youtube.com/iframe_api';
+        document.body.appendChild(tag);
+        window.onYouTubeIframeAPIReady = createPlayer;
       }
     };
 
-    youtubePlayerRef.current = new window.YT.Player(iframeRef.current, {
-      events: {
-        onStateChange: onPlayerStateChange,
-      },
-    });
-  }, [playerType, normalizedUrl, onVideoEnd]);
+    const createPlayer = () => {
+      if (youtubePlayerRef.current) {
+        youtubePlayerRef.current.destroy();
+      }
+      youtubePlayerRef.current = new window.YT.Player(iframeRef.current, {
+        height: '450',
+        width: '100%',
+        videoId: extractVideoId(videoUrl),
+        events: {
+          onStateChange: (event) => {
+            if (event.data === window.YT.PlayerState.ENDED) {
+              if (onVideoEnd) onVideoEnd();
+            }
+          },
+        },
+      });
+    };
 
-  // 🔹 Load YouTube IFrame API if not loaded
-  useEffect(() => {
-    if (playerType === 'youtube' && !window.YT) {
-      const tag = document.createElement('script');
-      tag.src = 'https://www.youtube.com/iframe_api';
-      document.body.appendChild(tag);
-    }
-  }, [playerType]);
+    const extractVideoId = (url) => {
+      if (url.includes('youtu.be')) return url.split('youtu.be/')[1].split('?')[0];
+      return new URL(url).searchParams.get('v');
+    };
+
+    loadYouTubeAPI();
+  }, [playerType, videoUrl, onVideoEnd]);
 
   // 🔹 MP4 ended handler
   const handleVideoEnded = () => {
-    setTimeout(() => {
-      if (onVideoEnd) onVideoEnd();
-    }, 500);
+    if (onVideoEnd) onVideoEnd(); // nta delay
   };
 
   if (!videoUrl) return <p>Video link ntabwo yabonetse</p>;
 
   return (
-    <div style={{ width: '100%', maxWidth: '800px', margin: 'auto' }}>
+    <div style={{ width: '100%', maxWidth: '900px', margin: 'auto' }}>
       {playerType === 'video' ? (
         <video
-  src={normalizedUrl}
-  controls
-  autoPlay
-  preload="auto"
-  onEnded={handleVideoEnded}
-/>
+          src={normalizedUrl}
+          controls
+          autoPlay
+          preload="auto"
+          muted
+          onEnded={handleVideoEnded}
+          style={{ width: '100%', height: '450px', borderRadius: '8px' }}
+        />
       ) : playerType === 'youtube' ? (
-        <div>
-          <div
-            ref={iframeRef}
-            id={`youtube-player-${Math.random()}`}
-            style={{ width: '100%', height: '450px' }}
-          />
-        </div>
+        <div
+          ref={iframeRef}
+          id={`youtube-player-${Math.random()}`}
+          style={{ width: '100%', height: '450px' }}
+        />
       ) : (
         <iframe
           src={normalizedUrl}

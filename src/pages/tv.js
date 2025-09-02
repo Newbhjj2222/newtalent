@@ -67,24 +67,7 @@ const NewTalentsGTV = () => {
   return (
     <div className={styles.videoContainer}>
       {/* 🔹 Input ya videoUrl na content */}
-      <div className={styles.videoInput}>
-        <input
-          type="text"
-          placeholder="Shyiramo link ya video..."
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          className={styles.inputField}
-        />
-        <textarea
-          placeholder="Shyiramo content ya video..."
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          className={styles.textareaField}
-        />
-        <button onClick={saveVideo} className={styles.saveButton}>
-          Save Video
-        </button>
-      </div>
+      
 
       {/* 🔹 Player ya current video */}
       {currentVideo && (

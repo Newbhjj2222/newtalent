@@ -1,10 +1,9 @@
 // pages/newtalentsgtv.js
-'use client'; // 🔹 Only client-side
+'use client';
 
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { db } from '../components/firebase';
 import { collection, getDocs, doc, setDoc, updateDoc, increment } from 'firebase/firestore';
-import ReactPlayer from 'react-player';
 import styles from "../components/NewtalentsG.module.css";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -14,15 +13,13 @@ const NewtalentsGTv = ({ userId }) => {
   const [videos, setVideos] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [videoDuration, setVideoDuration] = useState(0);
   const [timeLeft, setTimeLeft] = useState(0);
-  const countdownRef = useRef(null);
   const playerRef = useRef(null);
+  const intervalRef = useRef(null);
 
-  /** 🔹 Helper: normalizes YouTube links */
+  /** 🔹 Normalize YouTube URLs */
   const normalizeYoutubeUrl = (url) => {
     if (!url) return '';
-    // youtu.be short links → youtube.com/watch?v=
     if (url.includes('youtu.be/')) {
       const videoId = url.split('youtu.be/')[1].split('?')[0];
       return `https://www.youtube.com/watch?v=${videoId}`;
@@ -40,13 +37,11 @@ const NewtalentsGTv = ({ userId }) => {
           shows.push({ id: docSnap.id, ...docSnap.data() });
         });
 
-        // Sort by createdAt if available
         const sorted = shows.sort(
           (a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)
         );
         setVideos(sorted);
         setLoading(false);
-        console.log("Fetched videos:", sorted);
       } catch (err) {
         console.error('Error fetching videos:', err);
       }
@@ -55,80 +50,100 @@ const NewtalentsGTv = ({ userId }) => {
     fetchVideos();
   }, []);
 
-  /** 🔹 Move to next video */
-  const handleVideoEnd = () => {
-    const nextIndex = (currentIndex + 1) % videos.length;
-    setCurrentIndex(nextIndex);
+  /** 🔹 Load YouTube IFrame API once */
+  useEffect(() => {
+    if (document.getElementById("youtube-iframe-api")) return;
+    const tag = document.createElement("script");
+    tag.id = "youtube-iframe-api";
+    tag.src = "https://www.youtube.com/iframe_api";
+    document.body.appendChild(tag);
+  }, []);
+
+  /** 🔹 Initialize YouTube Player */
+  useEffect(() => {
+    if (!videos.length) return;
+
+    window.onYouTubeIframeAPIReady = () => {
+      playerRef.current = new window.YT.Player("yt-player", {
+        height: "390",
+        width: "640",
+        videoId: extractVideoId(videos[currentIndex].videoUrl),
+        playerVars: { autoplay: 1, controls: 1, rel: 0 },
+        events: {
+          onReady: (event) => event.target.playVideo(),
+          onStateChange: handleStateChange,
+        },
+      });
+    };
+  }, [videos]);
+
+  /** 🔹 Extract Video ID */
+  const extractVideoId = (url) => {
+    const cleanUrl = normalizeYoutubeUrl(url);
+    const regex = /[?&]v=([^&#]+)/;
+    const match = cleanUrl.match(regex);
+    if (match && match[1]) return match[1];
+    const short = cleanUrl.split('/').pop();
+    return short;
   };
 
-  /** 🔹 Follow current video */
+  /** 🔹 Handle state change */
+  const handleStateChange = (event) => {
+    if (event.data === window.YT.PlayerState.ENDED) {
+      const nextIndex = (currentIndex + 1) % videos.length;
+      setCurrentIndex(nextIndex);
+      playerRef.current.loadVideoById(extractVideoId(videos[nextIndex].videoUrl));
+      recordView();
+    }
+  };
+
+  /** 🔹 Follow */
   const handleFollow = async () => {
     const video = videos[currentIndex];
     if (!video) return;
-
     const docRef = doc(db, 'Newtalentsg', `${actualUserId}_${video.id}`);
     await setDoc(docRef, {
       userId: actualUserId,
       videoId: video.id,
       followedAt: new Date(),
     });
-    alert('Wakurikiranwe!');
+    alert('Wamaze gukurikira!');
   };
 
-  /** 🔹 Record view count */
+  /** 🔹 Record View */
   const recordView = useCallback(async () => {
     const video = videos[currentIndex];
     if (!video) return;
-
     const viewRef = doc(db, 'views', `${actualUserId}_${video.id}`);
     await setDoc(viewRef, {
       userId: actualUserId,
       videoId: video.id,
       viewedAt: new Date(),
     });
-
     const countRef = doc(db, 'shows', video.id);
     await updateDoc(countRef, { views: increment(1) });
   }, [currentIndex, videos, actualUserId]);
 
-  /** 🔹 Trigger view record when current video changes */
+  /** 🔹 Record when video changes */
   useEffect(() => {
     if (videos.length > 0) recordView();
   }, [currentIndex, videos.length, recordView]);
 
-  /** 🔹 Countdown for video time left */
+  /** 🔹 Timer update */
   useEffect(() => {
     if (!playerRef.current) return;
-    countdownRef.current = setInterval(() => {
-      const played = playerRef.current.getCurrentTime?.() || 0;
+    intervalRef.current = setInterval(() => {
       const duration = playerRef.current.getDuration?.() || 0;
-      const remaining = Math.max(duration - played, 0);
-      setTimeLeft(Math.floor(remaining));
+      const current = playerRef.current.getCurrentTime?.() || 0;
+      setTimeLeft(Math.max(Math.floor(duration - current), 0));
     }, 1000);
+    return () => clearInterval(intervalRef.current);
+  }, [currentIndex]);
 
-    return () => clearInterval(countdownRef.current);
-  }, [videoDuration, currentIndex]);
-
-  /** 🔹 Format seconds to mm:ss */
-  const formatTime = (seconds) => {
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
+  const formatTime = (sec) => {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
     return `${m}:${s.toString().padStart(2, '0')}`;
-  };
-
-  /** 🔹 Determine player URL and config (for YouTube playlists) */
-  const getPlayerUrlAndConfig = (url) => {
-    const cleanUrl = normalizeYoutubeUrl(url);
-    if (!cleanUrl) return { url: '', config: {} };
-
-    if (cleanUrl.includes('list=')) {
-      const listId = cleanUrl.split('list=')[1]?.split('&')[0];
-      return {
-        url: cleanUrl,
-        config: { youtube: { playerVars: { listType: 'playlist', list: listId } } },
-      };
-    }
-    return { url: cleanUrl, config: {} };
   };
 
   if (loading) return <div className={styles.videoPlayer}>Loading videos...</div>;
@@ -136,7 +151,6 @@ const NewtalentsGTv = ({ userId }) => {
 
   const currentVideo = videos[currentIndex];
   const nextVideo = videos[(currentIndex + 1) % videos.length];
-  const { url, config } = getPlayerUrlAndConfig(currentVideo.videoUrl);
 
   return (
     <>
@@ -145,18 +159,7 @@ const NewtalentsGTv = ({ userId }) => {
         <h2>{currentVideo.title}</h2>
 
         <div className={styles.playerWrapper}>
-          <ReactPlayer
-            ref={playerRef}
-            url={url}
-            config={config}
-            playing
-            controls
-            width="100%"
-            height="100%"
-            className="react-player"
-            onEnded={handleVideoEnd}
-            onDuration={setVideoDuration}
-          />
+          <div id="yt-player"></div>
         </div>
 
         <div className={styles.controls}>

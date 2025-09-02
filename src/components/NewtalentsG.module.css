@@ -1,84 +1,92 @@
 /* NewtalentsG.module.css */
 
-/* Container rusange */
+/* 🔹 Container ya video zose */
 .videoContainer {
-  padding: 20px;
-  max-width: 900px;
-  margin: 0 auto;
-  background-color: #f9f9f9;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-/* Input container - hidden */
-.videoInput {
-  display: none; /* 🔹 Input na textarea ntizigaragare */
-  margin-bottom: 20px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-}
-
-/* Input fields style (hidden, ariko niba ushaka ushobora kwereka developer mode) */
-.inputField, .textareaField {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 14px;
-  box-sizing: border-box;
-}
-
-/* Save button */
-.saveButton {
-  padding: 10px 20px;
-  background-color: #4caf50;
-  color: white;
-  font-size: 14px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.saveButton:hover {
-  background-color: #45a049;
-}
-
-/* Video player wrapper */
-.videoPlayer {
-  margin-top: 20px;
-  position: relative;
-  width: 100%;
-  padding-top: 56.25%; /* 16:9 ratio */
-  border-radius: 12px;
-  overflow: hidden;
-  background-color: #000;
-}
-
-/* ReactPlayer iframe/video absolute fill */
-.videoPlayer iframe,
-.videoPlayer video {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
-
-/* Content box above video */
-.contentBox {
-  margin-bottom: 10px;
-  font-size: 16px;
-  font-weight: 500;
-  color: #333;
-}
-
-/* Optional: Controls below video (if needed) */
-.controls {
-  margin-top: 10px;
-  display: flex;
-  justify-content: space-between;
   align-items: center;
-  font-size: 14px;
+  justify-content: center;
+  padding: 20px;
+  background: #f5f5f5; /* light background */
+  min-height: 100vh;
+}
+
+/* 🔹 Single video player box */
+.videoPlayer {
+  width: 100%;
+  max-width: 900px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  padding: 20px;
+  margin-bottom: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 🔹 Content box hejuru ya video */
+.contentBox {
+  width: 100%;
+  padding: 10px 15px;
+  margin-bottom: 15px;
+  background: #e8f0ff;
+  border-left: 4px solid #2f80ed;
+  border-radius: 6px;
+  font-size: 16px;
+  color: #333333;
+  text-align: left;
+  line-height: 1.5;
+}
+
+/* 🔹 Video iframe / video player style */
+.videoPlayer video,
+.videoPlayer iframe {
+  width: 100%;
+  height: 450px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: #000000;
+  outline: none;
+}
+
+/* 🔹 Responsive adjustments */
+@media (max-width: 768px) {
+  .videoPlayer video,
+  .videoPlayer iframe {
+    height: 300px;
   }
+}
+
+@media (max-width: 480px) {
+  .videoPlayer video,
+  .videoPlayer iframe {
+    height: 200px;
+  }
+
+  .contentBox {
+    font-size: 14px;
+    padding: 8px 12px;
+  }
+}
+
+/* 🔹 Loading / No videos messages */
+.videoPlayer p {
+  font-size: 18px;
+  color: #555555;
+  text-align: center;
+  margin: 20px 0;
+}
+
+/* 🔹 Video progress info text */
+.videoPlayer p:last-child {
+  font-size: 14px;
+  color: #777777;
+  margin-top: 12px;
+}
+
+/* 🔹 Hover effect for video container (optional) */
+.videoPlayer:hover {
+  transform: translateY(-3px);
+  transition: transform 0.3s ease;
+}

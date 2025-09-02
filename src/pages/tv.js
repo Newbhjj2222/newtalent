@@ -12,19 +12,22 @@ const NewTalentsGTV = () => {
 
   // 🔹 Fetch videos from Firestore
   const fetchVideos = async () => {
-    try {
-      const q = query(collection(db, 'shows'), orderBy('createdAt', 'desc'));
-      const snapshot = await getDocs(q);
-      const fetchedVideos = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setVideos(fetchedVideos);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching videos:', error);
-    }
-  };
+  try {
+    const q = query(collection(db, 'shows'), orderBy('createdAt', 'desc'));
+    const snapshot = await getDocs(q);
+    const fetchedVideos = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      videoUrl: doc.data().videoUrl, // Fata videoUrl gusa
+    }));
+
+    // Fata videoUrls zose
+    const videoUrls = fetchedVideos.map(video => video.videoUrl).filter(Boolean); // Filter kugirango umenye ko videoUrl itari null cyangwa undefined
+    setVideos(videoUrls);
+    setLoading(false);
+  } catch (error) {
+    console.error('Error fetching videos:', error);
+  }
+};
 
   useEffect(() => {
     fetchVideos();

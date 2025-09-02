@@ -19,7 +19,18 @@ const NewtalentsGTv = ({ userId }) => {
   const countdownRef = useRef(null);
   const playerRef = useRef(null);
 
-  /** Fetch videos from Firestore */
+  /** 🔹 Helper: normalizes YouTube links */
+  const normalizeYoutubeUrl = (url) => {
+    if (!url) return '';
+    // youtu.be short links → youtube.com/watch?v=
+    if (url.includes('youtu.be/')) {
+      const videoId = url.split('youtu.be/')[1].split('?')[0];
+      return `https://www.youtube.com/watch?v=${videoId}`;
+    }
+    return url;
+  };
+
+  /** 🔹 Fetch videos from Firestore */
   useEffect(() => {
     const fetchVideos = async () => {
       try {
@@ -30,9 +41,12 @@ const NewtalentsGTv = ({ userId }) => {
         });
 
         // Sort by createdAt if available
-        const sorted = shows.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+        const sorted = shows.sort(
+          (a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)
+        );
         setVideos(sorted);
         setLoading(false);
+        console.log("Fetched videos:", sorted);
       } catch (err) {
         console.error('Error fetching videos:', err);
       }
@@ -41,13 +55,13 @@ const NewtalentsGTv = ({ userId }) => {
     fetchVideos();
   }, []);
 
-  /** Move to next video */
+  /** 🔹 Move to next video */
   const handleVideoEnd = () => {
     const nextIndex = (currentIndex + 1) % videos.length;
     setCurrentIndex(nextIndex);
   };
 
-  /** Follow current video */
+  /** 🔹 Follow current video */
   const handleFollow = async () => {
     const video = videos[currentIndex];
     if (!video) return;
@@ -61,7 +75,7 @@ const NewtalentsGTv = ({ userId }) => {
     alert('Wakurikiranwe!');
   };
 
-  /** Record view count */
+  /** 🔹 Record view count */
   const recordView = useCallback(async () => {
     const video = videos[currentIndex];
     if (!video) return;
@@ -77,12 +91,12 @@ const NewtalentsGTv = ({ userId }) => {
     await updateDoc(countRef, { views: increment(1) });
   }, [currentIndex, videos, actualUserId]);
 
-  /** Trigger view record when current video changes */
+  /** 🔹 Trigger view record when current video changes */
   useEffect(() => {
     if (videos.length > 0) recordView();
   }, [currentIndex, videos.length, recordView]);
 
-  /** Countdown for video time left */
+  /** 🔹 Countdown for video time left */
   useEffect(() => {
     if (!playerRef.current) return;
     countdownRef.current = setInterval(() => {
@@ -95,24 +109,26 @@ const NewtalentsGTv = ({ userId }) => {
     return () => clearInterval(countdownRef.current);
   }, [videoDuration, currentIndex]);
 
-  /** Format seconds to mm:ss */
+  /** 🔹 Format seconds to mm:ss */
   const formatTime = (seconds) => {
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
     return `${m}:${s.toString().padStart(2, '0')}`;
   };
 
-  /** Determine player URL and config (for YouTube playlists) */
+  /** 🔹 Determine player URL and config (for YouTube playlists) */
   const getPlayerUrlAndConfig = (url) => {
-    if (!url) return { url: '', config: {} };
-    if (url.includes('youtube.com/playlist') || url.includes('list=')) {
-      const listId = url.split('list=')[1]?.split('&')[0];
+    const cleanUrl = normalizeYoutubeUrl(url);
+    if (!cleanUrl) return { url: '', config: {} };
+
+    if (cleanUrl.includes('list=')) {
+      const listId = cleanUrl.split('list=')[1]?.split('&')[0];
       return {
-        url: `https://www.youtube.com/watch?v=dQw4w9WgXcQ`, // placeholder
+        url: cleanUrl,
         config: { youtube: { playerVars: { listType: 'playlist', list: listId } } },
       };
     }
-    return { url, config: {} };
+    return { url: cleanUrl, config: {} };
   };
 
   if (loading) return <div className={styles.videoPlayer}>Loading videos...</div>;
@@ -125,31 +141,31 @@ const NewtalentsGTv = ({ userId }) => {
   return (
     <>
       <Header />
-    <div className={styles.videoPlayer}>
-      <h2>{currentVideo.title}</h2>
+      <div className={styles.videoPlayer}>
+        <h2>{currentVideo.title}</h2>
 
-      <div className={styles.playerWrapper}>
-        <ReactPlayer
-          ref={playerRef}
-          url={url}
-          config={config}
-          playing
-          controls
-          width="100%"
-          height="100%"
-          className="react-player"
-          onEnded={handleVideoEnd}
-          onDuration={setVideoDuration}
-        />
-      </div>
+        <div className={styles.playerWrapper}>
+          <ReactPlayer
+            ref={playerRef}
+            url={url}
+            config={config}
+            playing
+            controls
+            width="100%"
+            height="100%"
+            className="react-player"
+            onEnded={handleVideoEnd}
+            onDuration={setVideoDuration}
+          />
+        </div>
 
-      <div className={styles.controls}>
-        <button onClick={handleFollow}>Follow</button>
-        <p>⏳ Time left: <strong>{formatTime(timeLeft)}</strong></p>
-        <p>▶️ Next video: <strong>{nextVideo?.title || 'None'}</strong></p>
+        <div className={styles.controls}>
+          <button onClick={handleFollow}>Follow</button>
+          <p>⏳ Time left: <strong>{formatTime(timeLeft)}</strong></p>
+          <p>▶️ Next video: <strong>{nextVideo?.title || 'None'}</strong></p>
+        </div>
       </div>
-    </div>
-    <Footer />
+      <Footer />
     </>
   );
 };

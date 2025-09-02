@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
 
-const UniversalVideoPlayer = ({ videoUrl, onVideoEnd }) => {
+const UniversalVideoPlayer = ({ videoUrl, onVideoEnd, isFirst }) => {
   const [playerType, setPlayerType] = useState(null);
   const [normalizedUrl, setNormalizedUrl] = useState('');
   const iframeRef = useRef(null);
@@ -14,20 +14,20 @@ const UniversalVideoPlayer = ({ videoUrl, onVideoEnd }) => {
     let url = videoUrl.trim();
 
     try {
-      // 🔹 YouTube link
+      // 🔹 YouTube
       if (url.includes('youtube.com') || url.includes('youtu.be')) {
         let videoId = '';
         const playlistMatch = url.match(/[?&]list=([^&]+)/);
         if (playlistMatch) {
           const listId = playlistMatch[1];
-          url = `https://www.youtube.com/embed/videoseries?list=${listId}&enablejsapi=1&autoplay=1&mute=1&rel=0`;
+          url = `https://www.youtube.com/embed/videoseries?list=${listId}&enablejsapi=1&autoplay=1&mute=${isFirst ? 1 : 0}&rel=0`;
         } else {
           if (url.includes('youtu.be')) {
             videoId = url.split('youtu.be/')[1].split('?')[0];
           } else {
             videoId = new URL(url).searchParams.get('v');
           }
-          url = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&autoplay=1&mute=1&rel=0`;
+          url = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&autoplay=1&mute=${isFirst ? 1 : 0}&rel=0`;
         }
         setPlayerType('youtube');
         setNormalizedUrl(url);
@@ -43,13 +43,13 @@ const UniversalVideoPlayer = ({ videoUrl, onVideoEnd }) => {
 
       // 🔹 Fallback (iframe)
       setPlayerType('iframe');
-      setNormalizedUrl(`${url}?autoplay=1&mute=1`);
+      setNormalizedUrl(`${url}?autoplay=1&mute=${isFirst ? 1 : 0}`);
     } catch (err) {
       console.error('Error parsing video URL:', err);
       setPlayerType('iframe');
       setNormalizedUrl(url);
     }
-  }, [videoUrl]);
+  }, [videoUrl, isFirst]);
 
   // 🔹 YouTube IFrame API
   useEffect(() => {
@@ -76,7 +76,7 @@ const UniversalVideoPlayer = ({ videoUrl, onVideoEnd }) => {
         videoId: extractVideoId(videoUrl),
         playerVars: {
           autoplay: 1,
-          mute: 1,
+          mute: isFirst ? 1 : 0,
           rel: 0,
         },
         events: {
@@ -95,11 +95,10 @@ const UniversalVideoPlayer = ({ videoUrl, onVideoEnd }) => {
     };
 
     loadYouTubeAPI();
-  }, [playerType, videoUrl, onVideoEnd]);
+  }, [playerType, videoUrl, onVideoEnd, isFirst]);
 
-  // 🔹 MP4 ended handler
   const handleVideoEnded = () => {
-    if (onVideoEnd) onVideoEnd(); // nta delay
+    if (onVideoEnd) onVideoEnd();
   };
 
   if (!videoUrl) return <p>Video link ntabwo yabonetse</p>;
@@ -111,7 +110,7 @@ const UniversalVideoPlayer = ({ videoUrl, onVideoEnd }) => {
           src={normalizedUrl}
           controls
           autoPlay
-          muted
+          muted={isFirst} // ✅ Mute kuri video ya mbere gusa
           preload="auto"
           onEnded={handleVideoEnded}
           style={{ width: '100%', height: '450px', borderRadius: '8px' }}

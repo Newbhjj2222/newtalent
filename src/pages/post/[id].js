@@ -19,7 +19,6 @@ import Bible from "../../components/Bible";
 import NesMine from "../../components/NesMine";
 import styles from "../../components/PostDetail.module.css";
 
-// --- Helper: extract series info from title ---
 const extractSeriesAndEpisode = (head) => {
   if (!head) return { title: null, season: null, episode: null };
   const cleanedHead = head
@@ -27,7 +26,6 @@ const extractSeriesAndEpisode = (head) => {
     .replace(/\s+/g, " ")
     .trim()
     .toUpperCase();
-
   const isFinal = /FINAL(LY)?/.test(cleanedHead);
 
   const seasonMatch = cleanedHead.match(/SEASON\s*0*(\d+)|S\s*0*(\d+)/i);
@@ -60,7 +58,7 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
   const [newComment, setNewComment] = useState("");
   const [currentUser, setCurrentUser] = useState("");
   const [views, setViews] = useState(postData?.views || 0);
-  const domain = "https://newtalentsg.co.rw"; // domain yawe
+  const domain = "https://newtalentsg.co.rw"; // ✅ Domain yawe
 
   useEffect(() => {
     if (typeof window !== "undefined" && postData?.id) {
@@ -77,6 +75,7 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
           const postRef = doc(db, "posts", postData.id);
           await updateDoc(postRef, { views: increment(1) });
 
+          // refresh view count locally
           const snap = await getDoc(postRef);
           if (snap.exists()) {
             setViews(snap.data().views || 0);
@@ -86,10 +85,28 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
         }
       };
       incrementViews();
+
+      // NES logic (author gains NES when someone reads)
+      const handleNES = async () => {
+        try {
+          const author = postData.author || "Unknown";
+          if (author && storedUsername !== author) {
+            const authorRef = doc(db, "authors", author);
+            const authorSnap = await getDoc(authorRef);
+
+            if (authorSnap.exists()) {
+              const authorNes = Number(authorSnap.data().nes) || 0;
+              await updateDoc(authorRef, { nes: authorNes + 1 });
+            }
+          }
+        } catch (err) {
+          console.error("NES update failed:", err);
+        }
+      };
+      handleNES();
     }
   }, [postData, router]);
 
-  // --- Comments ---
   const handleCommentSubmit = async () => {
     if (!newComment.trim() || !currentUser) return;
     try {
@@ -107,7 +124,6 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
     }
   };
 
-  // --- Share ---
   const handleShare = (platform) => {
     const postUrl = window.location.href;
     const cleanText = postData.story.replace(/<[^>]+>/g, "").slice(0, 200);
@@ -301,9 +317,7 @@ export async function getServerSideProps(context) {
   const postsWithInfo = allPosts
     .map((p) => ({ ...p, ...extractSeriesAndEpisode(p.head) }))
     .filter(
-      (p) =>
-        p.title?.toUpperCase() === current.title.toUpperCase() &&
-        p.episode !== null
+      (p) => p.title?.toUpperCase() === current.title.toUpperCase() && p.episode !== null
     );
 
   const seasonsMap = {};

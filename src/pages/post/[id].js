@@ -126,8 +126,8 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
 
   const handleShare = (platform) => {
     const postUrl = window.location.href;
-    const cleanText = postData.story.replace(/<[^>]+>/g, "").slice(0, 200);
-    const text = `${postData.head}\n\n${cleanText}...\nRead more: ${postUrl}`;
+    const cleanText = postData.story.replace(/<[^>]+>/g, "").slice(0, 800);
+    const text = `${postData.head}\n\n${cleanText}...\nSoma inkuru yose ukanze aha: ${postUrl}`;
 
     switch (platform) {
       case "whatsapp":

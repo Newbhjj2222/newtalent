@@ -6,8 +6,13 @@ export default function Document() {
       <Head>
         {/* Favicon/logo */}
         <link rel="icon" href="/logo.png" />
-        {/* Title y'urubuga */}
-        <title>New Talents Stories Group</title>
+
+        {/* Google AdSense script */}
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2059573562083386"
+          crossOrigin="anonymous"
+        ></script>
       </Head>
       <body>
         <Main />

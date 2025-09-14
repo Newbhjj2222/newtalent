@@ -1,10 +1,17 @@
 // pages/_app.js
 import "@/styles/globals.css";
 import Script from "next/script";
+import Head from "next/head";
 
 export default function App({ Component, pageProps }) {
   return (
     <>
+      {/* Title ya website */}
+      <Head>
+        <title>New Talents Stories Group</title>
+        <link rel="icon" href="/logo.png" />
+      </Head>
+
       {/* Google AdSense script global */}
       <Script
         id="adsense-script"

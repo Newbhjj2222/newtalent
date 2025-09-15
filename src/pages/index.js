@@ -4,7 +4,6 @@ import React, { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-import TranslatedText from "../components/TranslatedText";
 import LanguageSelector from "../components/LanguageSelector";
 import Header from "../components/Header";
 import Banner from "../components/Banner";

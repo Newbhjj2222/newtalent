@@ -125,44 +125,48 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
   };
 
   const handleShare = (platform) => {
-    const postUrl = window.location.href;
-    const cleanText = postData.story.replace(/<[^>]+>/g, "").slice(0, 800);
-    const text = `${postData.head}\n\n${cleanText}...\nSoma inkuru yose ukanze aha: ${postUrl}`;
+  const postUrl = window.location.href;
 
-    switch (platform) {
-      case "whatsapp":
-        window.open(
-          `https://wa.me/?text=${encodeURIComponent(text)}`,
-          "_blank"
-        );
-        break;
-      case "telegram":
-        window.open(
-          `https://t.me/share/url?url=${encodeURIComponent(
-            postUrl
-          )}&text=${encodeURIComponent(text)}`,
-          "_blank"
-        );
-        break;
-      case "messenger":
-        window.open(
-          `fb-messenger://share?link=${encodeURIComponent(postUrl)}`,
-          "_blank"
-        );
-        break;
-      case "facebook":
-        window.open(
-          `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-            postUrl
-          )}`,
-          "_blank"
-        );
-        break;
-      default:
-        navigator.clipboard.writeText(text);
-        alert("Text copied to clipboard");
-    }
-  };
+  // Fungura HTML, uhindure <br>, <p>, <div> n'izindi tags zishobora gusaba newline
+  let cleanText = postData.story
+    .replace(/<br\s*\/?>/gi, "\n")       // Hindura <br> na <br/> kuba newline
+    .replace(/<\/p>/gi, "\n")           // Hindura </p> kuba newline
+    .replace(/<\/div>/gi, "\n")         // Hindura </div> kuba newline
+    .replace(/<[^>]+>/g, "")            // Hindura izindi tags zose
+    .replace(/\n\s*\n/g, "\n\n")        // Gusukura newline nyinshi zidakenewe
+    .trim();                             // Gukuraho spaces zitari ngombwa
+
+  // Gabanya text niba ndende cyane
+  if (cleanText.length > 800) {
+    cleanText = cleanText.slice(0, 800) + "...";
+  }
+
+  const text = `${postData.head}\n\n${cleanText}\nSoma inkuru yose ukanze aha: ${postUrl}`;
+
+  switch (platform) {
+    case "whatsapp":
+      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
+      break;
+    case "telegram":
+      window.open(
+        `https://t.me/share/url?url=${encodeURIComponent(postUrl)}&text=${encodeURIComponent(text)}`,
+        "_blank"
+      );
+      break;
+    case "messenger":
+      window.open(`fb-messenger://share?link=${encodeURIComponent(postUrl)}`, "_blank");
+      break;
+    case "facebook":
+      window.open(
+        `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}`,
+        "_blank"
+      );
+      break;
+    default:
+      navigator.clipboard.writeText(text);
+      alert("Text copied to clipboard");
+  }
+};
 
   if (!postData) return <div>Post not found.</div>;
 

@@ -4,7 +4,6 @@ import React, { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-import Translator from "../components/Translator";
 import Header from "../components/Header";
 import Banner from "../components/Banner";
 import Slider from "../components/Slider";
@@ -118,7 +117,7 @@ export default function Home({ trendingPosts, otherPosts, screenTexts, sidebarPo
       <Header />
       <Banner screenTexts={screenTexts} />
       <AdBanner />
-<Translator />
+
       <div className={stylesHome.container}>
         <main className={stylesHome.mainContent}>
           <Slider trendingPosts={trendingPosts} />

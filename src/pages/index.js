@@ -4,6 +4,8 @@ import React, { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
+import TranslatedText from "../components/TranslatedText";
+import LanguageSelector from "../components/LanguageSelector";
 import Header from "../components/Header";
 import Banner from "../components/Banner";
 import Slider from "../components/Slider";
@@ -117,7 +119,7 @@ export default function Home({ trendingPosts, otherPosts, screenTexts, sidebarPo
       <Header />
       <Banner screenTexts={screenTexts} />
       <AdBanner />
-
+<LanguageSelector />
       <div className={stylesHome.container}>
         <main className={stylesHome.mainContent}>
           <Slider trendingPosts={trendingPosts} />

@@ -127,14 +127,19 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
   const handleShare = (platform) => {
   const postUrl = window.location.href;
 
-  // Fungura HTML, uhindure <br>, <p>, <div> n'izindi tags zishobora gusaba newline
+  // Fungura HTML
   let cleanText = postData.story
-    .replace(/<br\s*\/?>/gi, "\n")       // Hindura <br> na <br/> kuba newline
-    .replace(/<\/p>/gi, "\n")           // Hindura </p> kuba newline
-    .replace(/<\/div>/gi, "\n")         // Hindura </div> kuba newline
-    .replace(/<[^>]+>/g, "")            // Hindura izindi tags zose
-    .replace(/\n\s*\n/g, "\n\n")        // Gusukura newline nyinshi zidakenewe
-    .trim();                             // Gukuraho spaces zitari ngombwa
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/p>/gi, "\n")
+    .replace(/<\/div>/gi, "\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/\n\s*\n/g, "\n\n")
+    .trim();
+
+  // Decode HTML entities (&nbsp;, &amp; ...)
+  const textarea = document.createElement("textarea");
+  textarea.innerHTML = cleanText;
+  cleanText = textarea.value;
 
   // Gabanya text niba ndende cyane
   if (cleanText.length > 800) {

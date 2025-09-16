@@ -2,7 +2,6 @@
 import { useRef, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import styles from "./Slider.module.css";
-import TranslatedText from "./TranslatedText";
 
 const Slider = ({ trendingPosts }) => {
 const trackRef = useRef(null);
@@ -87,15 +86,10 @@ return (
               />  
             )}  
             <div className={styles.postContent}>
-
-  <h4>  
-    <TranslatedText text={post.title} />  
-  </h4>  
-  <p>  
-    <TranslatedText text={post.summary} />  
-  </p>  
-                  <small>By: {post.author}</small>  
-                </div>  
+<h4>{post.title}</h4>
+<p>{post.summary}</p>
+<small>By: {post.author}</small>
+</div>  
               </div>  
             ))}  
           </div>  

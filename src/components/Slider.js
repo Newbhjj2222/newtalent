@@ -85,8 +85,12 @@ const Slider = ({ trendingPosts }) => {
                   />
                 )}
                 <div className={styles.postContent}>
-                  <h4>{post.title}</h4>
-                  <p>{post.summary}</p>
+  <h4>
+    <TranslatedText text={post.title} />
+  </h4>
+  <p>
+    <TranslatedText text={post.summary} />
+  </p>
                   <small>By: {post.author}</small>
                 </div>
               </div>

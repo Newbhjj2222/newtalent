@@ -1,11 +1,11 @@
-// src/components/Slider.js
 import { useRef, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import styles from "./Slider.module.css";
+import TranslatedText from "./TranslatedText"; // 👈 ongera import
 
 const Slider = ({ trendingPosts }) => {
   const trackRef = useRef(null);
-  const scrollAmount = 220; // umubare w'ibikoresho bitambutse kuri click
+  const scrollAmount = 220; 
   const [loadedImages, setLoadedImages] = useState({});
   const router = useRouter();
 
@@ -47,15 +47,14 @@ const Slider = ({ trendingPosts }) => {
     router.push(`/post/${id}`);
   };
 
-  // Slider: inkuru 20
   const topPosts = trendingPosts.slice(0, 20);
-
-  // Text scroller: inkuru 10
   const topTextPosts = trendingPosts.slice(0, 6);
 
   return (
     <div className={styles.slider}>
-      <h2>Trending Stories</h2>
+      <h2>
+        <TranslatedText text="Trending Stories" />
+      </h2>
 
       {/* Slider container */}
       <div className={styles.sliderContainer}>
@@ -73,7 +72,9 @@ const Slider = ({ trendingPosts }) => {
                 style={{ cursor: "pointer" }}
               >
                 {!loadedImages[post.id] && (
-                  <div className={styles.imagePlaceholder}>Loading...</div>
+                  <div className={styles.imagePlaceholder}>
+                    <TranslatedText text="Loading..." />
+                  </div>
                 )}
                 {post.image && (
                   <img
@@ -85,13 +86,15 @@ const Slider = ({ trendingPosts }) => {
                   />
                 )}
                 <div className={styles.postContent}>
-  <h4>
-    <TranslatedText text={post.title} />
-  </h4>
-  <p>
-    <TranslatedText text={post.summary} />
-  </p>
-                  <small>By: {post.author}</small>
+                  <h4>
+                    <TranslatedText text={post.title} />
+                  </h4>
+                  <p>
+                    <TranslatedText text={post.summary} />
+                  </p>
+                  <small>
+                    <TranslatedText text={`By: ${post.author}`} />
+                  </small>
                 </div>
               </div>
             ))}
@@ -108,7 +111,7 @@ const Slider = ({ trendingPosts }) => {
         <div className={styles.scrollingText}>
           {topTextPosts.map((post) => (
             <span key={post.id} className={styles.scrollItem}>
-              {post.title} &nbsp; • &nbsp;
+              <TranslatedText text={post.title} /> &nbsp; • &nbsp;
             </span>
           ))}
         </div>

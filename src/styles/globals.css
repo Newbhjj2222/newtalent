@@ -21,14 +21,15 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  /* ===== PREVENT TEXT SELECTION EVERYWHERE ===== */
-  user-select: none;          
-  -webkit-user-select: none;  
-  -moz-user-select: none;     
-  -ms-user-select: none;      
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
   -webkit-touch-callout: none;
-  touch-action: pan-x pan-y; /* ntibemerera pinch-zoom */
-  overscroll-behavior: none; /* ihagarika scrolling zoom effect */
+
+  /* 👇 Hindura ibi bibiri */
+  touch-action: auto;            /* reba niba bikenewe, byibuze ureke defaults */
+  overscroll-behavior-y: auto;   /* wakuyeho none, ibuza pull-to-refresh */
 }
 
 /* ===== RESET & BOX-SIZING ===== */

@@ -3,15 +3,12 @@
 import React, { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-
-import LanguageSelector from "../components/LanguageSelector";
 import Header from "../components/Header";
 import Banner from "../components/Banner";
 import Slider from "../components/Slider";
 import Sidebar from "../components/Sidebar";
 import Footer from "../components/Footer";
 import OtherStories from "../components/OtherStories";
-import AdBanner from "../components/AdBanner";
 import stylesHome from "../components/HomePage.module.css";
 import { db } from "../components/firebase";
 import { collection, query, orderBy, getDocs } from "firebase/firestore";
@@ -117,8 +114,6 @@ export default function Home({ trendingPosts, otherPosts, screenTexts, sidebarPo
     <div className={stylesHome.page}>
       <Header />
       <Banner screenTexts={screenTexts} />
-      <AdBanner />
-<LanguageSelector />
       <div className={stylesHome.container}>
         <main className={stylesHome.mainContent}>
           <Slider trendingPosts={trendingPosts} />

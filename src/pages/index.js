@@ -119,7 +119,7 @@ export default function Home({ trendingPosts, otherPosts, screenTexts, sidebarPo
           <Slider trendingPosts={trendingPosts} />
 
           <section className={stylesHome.postsSection}>
-            <h2>Trending Stories</h2>
+            <h2>All Stories</h2>
             <input
               type="text"
               placeholder="Search posts..."
@@ -138,15 +138,11 @@ export default function Home({ trendingPosts, otherPosts, screenTexts, sidebarPo
             {filteredPosts.length > 0 ? (
               <>
                 {filteredPosts.slice(0, visibleCount).map((post) => (
-                  <div
-                    key={post.id}
-                    className={stylesHome.postCard}
-                    onClick={() => handlePostClick(post.id)}
-                  >
-                    {post.image && (
-                      <img
-                        src={post.image}
-                        alt={post.title}
+                  <div key={post.id} className={stylesHome.postCard}>
+  {post.image && (
+    <img
+      src={post.image}
+      alt={post.title}
                         className={stylesHome.postImage}
                       />
                     )}

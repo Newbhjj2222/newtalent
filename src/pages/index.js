@@ -176,7 +176,7 @@ export default function Home({ trendingPosts, otherPosts, screenTexts, sidebarPo
                       onClick={handleLoadMore}
                       className={stylesHome.loadMoreBtn}
                     >
-                      Load More
+                      Kanda urebe izindi
                     </button>
                   </div>
                 )}

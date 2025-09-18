@@ -28,7 +28,7 @@ body {
   -webkit-touch-callout: none;
 
   /* 👇 Hindura ibi bibiri */
-  touch-action: auto;            /* reba niba bikenewe, byibuze ureke defaults */
+  touch-action: pan-x pan-y;            /* reba niba bikenewe, byibuze ureke defaults */
   overscroll-behavior-y: auto;   /* wakuyeho none, ibuza pull-to-refresh */
 }
 

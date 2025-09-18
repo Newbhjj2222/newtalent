@@ -290,7 +290,7 @@
 }
 
 .actionBtn:hover {
-  background-color: #005bb5;
+  background: green;
 }
 
 /* Responsive: Buri screen iri column, nta row */

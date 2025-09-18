@@ -226,12 +226,12 @@
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0,0,0,0.05);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  cursor: pointer;
+  cursor: default;
 }
 
 .postCard:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+  transform: none;
+  box-shadow: none;
 }
 
 /* Post image */
@@ -285,6 +285,7 @@
   border-radius: 6px;
   font-weight: 600;
   text-decoration: none;
+  cursor: pointer;
   transition: background 0.3s ease;
 }
 

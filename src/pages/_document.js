@@ -4,15 +4,12 @@ import Script from "next/script";
 export default function Document() {
   return (
     <Html lang="en">
-      <Head>
-        {/* Favicon/logo */}
-        <link rel="icon" href="/logo.png" />
-      </Head>
+      <Head />
       <body>
         <Main />
         <NextScript />
 
-        {/* PropellerAds script */}
+        {/* PropellerAds verification script */}
         <Script id="propellerads" strategy="afterInteractive">
           {`(function(s){
               s.dataset.zone='9909216';

@@ -5,13 +5,15 @@ export default function Document() {
   return (
     <Html lang="en">
       <Head>
-        {/* PropellerAds script (global) */}
+        {/* PropellerAds script */}
         <script
-          src="https://fpyf8.com/88/tag.min.js"
-          data-zone="172619"
-          async
-          data-cfasync="false"
-        ></script>
+          dangerouslySetInnerHTML={{
+            __html: `(function(s){
+              s.dataset.zone='9909216';
+              s.src='https://forfrogadiertor.com/tag.min.js'
+            })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))`
+          }}
+        />
       </Head>
       <body>
         <Main />

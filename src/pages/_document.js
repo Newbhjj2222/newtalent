@@ -13,7 +13,7 @@ export default function Document() {
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2059573562083386"
           crossOrigin="anonymous"
         ></script>
-            </head>
+      </Head>
       <body>
         <Main />
         <NextScript />

@@ -1,15 +1,17 @@
-"use client"; // Mu Next.js 13+, kugirango ibe client-side
+"use client"; // Iyi ikenewe kugirango ibe client-side
 
 import { useEffect } from "react";
 
 export default function WiseAds() {
   useEffect(() => {
-    // Zone IDs za Wise Tag
+    // Zone IDs za Wise Ads
     const zones = {
-      banner: "172619", // Banner
-      push: "172620"    // Push notifications
+      banner: "9909708",       // Native Banner (Interstitial)
+      inPagePush: "9909707",   // In-Page Push
+      pushNotification: "9909710" // Push Notifications
     };
 
+    // Fungura script imwe ikora kuri zones zose
     Object.values(zones).forEach((zoneId) => {
       const script = document.createElement("script");
       script.src = "https://fpyf8.com/88/tag.min.js"; // Wise tag URL
@@ -28,38 +30,36 @@ export default function WiseAds() {
 
   return (
     <div className="wise-ads-container">
-      {/* Banner Placeholder */}
-      <div id="propellerads-banner" className="wise-banner"></div>
+      {/* Native Banner */}
+      <div id="wise-banner" className="wise-banner"></div>
+
+      {/* In-Page Push */}
+      <div id="wise-inpage-push" className="wise-inpage-push"></div>
 
       {/* Push notifications ntabwo zikenera container */}
       <style jsx>{`
         .wise-ads-container {
           width: 100%;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          margin: 20px 50px;
-        }
-
-        .wise-banner {
-          width: 100%;
-          max-width: 728px; /* Max banner size */
-          min-width: 300px; /* Min banner size */
-          height: auto;
-          margin: 0 auto;
+          max-width: 1000px;
+          margin: 20px auto;
           text-align: center;
         }
 
-        /* Responsive adjustments */
+        .wise-banner, .wise-inpage-push {
+          width: 100%;
+          margin: 10px 0;
+          min-height: 90px; /* height y'ibanze ya banner */
+        }
+
         @media (max-width: 768px) {
-          .wise-banner {
-            max-width: 468px;
+          .wise-banner, .wise-inpage-push {
+            min-height: 70px;
           }
         }
 
         @media (max-width: 480px) {
-          .wise-banner {
-            max-width: 320px;
+          .wise-banner, .wise-inpage-push {
+            min-height: 60px;
           }
         }
       `}</style>

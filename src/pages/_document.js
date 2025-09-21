@@ -1,29 +1,17 @@
+// pages/_document.js
 import { Html, Head, Main, NextScript } from "next/document";
 
 export default function Document() {
   return (
     <Html lang="en">
       <Head>
-        {/* Native Banner (subtle banner display) */}
-        <script
-          src="https://fpyf8.com/88/tag.min.js"
-          data-zone="9909708"
-          async
-          data-cfasync="false"
-        ></script>
+        {/* Favicon/logo */}
+        <link rel="icon" href="/logo.png" />
 
-        {/* In-Page Push (user-friendly notifications within page) */}
+        {/* PropellerAds Global Tag */}
         <script
           src="https://fpyf8.com/88/tag.min.js"
-          data-zone="9909707"
-          async
-          data-cfasync="false"
-        ></script>
-
-        {/* Push Notifications (opt-in notifications) */}
-        <script
-          src="https://fpyf8.com/88/tag.min.js"
-          data-zone="9909710"
+          data-zone="172619"           // Shyiramo ID yawe ya Push / Banner zone
           async
           data-cfasync="false"
         ></script>
@@ -34,4 +22,4 @@ export default function Document() {
       </body>
     </Html>
   );
-}
+    }

@@ -13,6 +13,7 @@ export default function Document() {
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2059573562083386"
           crossOrigin="anonymous"
         ></script>
+            <script>(function(s){s.dataset.zone='9909216',s.src='https://forfrogadiertor.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
       </Head>
       <body>
         <Main />

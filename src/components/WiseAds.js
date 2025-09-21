@@ -4,13 +4,12 @@ import { useEffect } from "react";
 
 export default function WiseAds() {
   useEffect(() => {
-    // Zone IDs za PropellerAds / Wise Tag
+    // Zone IDs za Wise Tag
     const zones = {
-      banner: "172619",
-      push: "172620"
+      banner: "172619", // Banner
+      push: "172620"    // Push notifications
     };
 
-    // Fungura script imwe ikora kuri zones zose
     Object.values(zones).forEach((zoneId) => {
       const script = document.createElement("script");
       script.src = "https://fpyf8.com/88/tag.min.js"; // Wise tag URL
@@ -28,11 +27,42 @@ export default function WiseAds() {
   }, []);
 
   return (
-    <div>
-      {/* Placeholder Banner */}
-      <div id="propellerads-banner" style={{ width: "100%", textAlign: "center", margin: "20px 0" }}></div>
+    <div className="wise-ads-container">
+      {/* Banner Placeholder */}
+      <div id="propellerads-banner" className="wise-banner"></div>
 
       {/* Push notifications ntabwo zikenera container */}
+      <style jsx>{`
+        .wise-ads-container {
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          margin: 20px 50px;
+        }
+
+        .wise-banner {
+          width: 100%;
+          max-width: 728px; /* Max banner size */
+          min-width: 300px; /* Min banner size */
+          height: auto;
+          margin: 0 auto;
+          text-align: center;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+          .wise-banner {
+            max-width: 468px;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .wise-banner {
+            max-width: 320px;
+          }
+        }
+      `}</style>
     </div>
   );
 }

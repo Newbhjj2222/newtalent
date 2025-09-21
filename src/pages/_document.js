@@ -1,3 +1,4 @@
+// src/pages/_document.js
 import { Html, Head, Main, NextScript } from "next/document";
 import Script from "next/script";
 
@@ -9,7 +10,7 @@ export default function Document() {
         <Main />
         <NextScript />
 
-        {/* PropellerAds verification script */}
+        {/* PropellerAds global script */}
         <Script id="propellerads" strategy="afterInteractive">
           {`(function(s){
               s.dataset.zone='9909216';

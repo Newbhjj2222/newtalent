@@ -2,7 +2,7 @@
 import "@/styles/globals.css";
 import Script from "next/script";
 import Head from "next/head";
-
+import WiseAds from "../components/WiseAds";
 // Import language provider
 import { LanguageProvider } from "../components/LanguageProvider";
 
@@ -31,6 +31,7 @@ export default function App({ Component, pageProps }) {
 
         {/* Pages zose zishyirwa hano */}
         <Component {...pageProps} />
+          <WiseAds />
       </>
     </LanguageProvider>
   );

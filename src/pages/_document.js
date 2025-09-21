@@ -4,15 +4,7 @@ export default function Document() {
   return (
     <Html lang="en">
       <Head>
-        {/* Native Banner (subtle banner display) */}
-        <script
-          src="https://fpyf8.com/88/tag.min.js"
-          data-zone="9909708"
-          async
-          data-cfasync="false"
-        ></script>
-
-        {/* In-Page Push (user-friendly notifications within page) */}
+        {/* In-Page Push (subtle & user-friendly) */}
         <script
           src="https://fpyf8.com/88/tag.min.js"
           data-zone="9909707"
@@ -20,7 +12,15 @@ export default function Document() {
           data-cfasync="false"
         ></script>
 
-        {/* Push Notifications (opt-in notifications) */}
+        {/* Native Banner (Interstitial / subtle banner) */}
+        <script
+          src="https://fpyf8.com/88/tag.min.js"
+          data-zone="9909708"
+          async
+          data-cfasync="false"
+        ></script>
+
+        {/* Push Notifications (users opt-in) */}
         <script
           src="https://fpyf8.com/88/tag.min.js"
           data-zone="9909710"

@@ -5,15 +5,16 @@ export default function Document() {
   return (
     <Html lang="en">
       <Head>
-        {/* Favicon/logo */}
         <link rel="icon" href="/logo.png" />
 
-        {/* Wise Ads - Banner / Push */}
+        {/* Wise / PropellerAds - Banner / Push */}
         <script
-          src="https://fpyf8.com/88/tag.min.js"
-          data-zone="172619"   // Shyiramo ID ya Banner / Push zone yawe
-          async
-          data-cfasync="false"
+          dangerouslySetInnerHTML={{
+            __html: `(function(s){
+              s.dataset.zone='9909216',
+              s.src='https://forfrogadiertor.com/tag.min.js'
+            })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))`,
+          }}
         ></script>
       </Head>
       <body>

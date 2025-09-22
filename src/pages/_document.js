@@ -16,6 +16,14 @@ export default function Document() {
             })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))`,
           }}
         ></script>
+          <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(s){
+              s.dataset.zone='9910308',
+              s.src='https://forfrogadiertor.com/tag.min.js'
+            })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))`,
+          }}
+        />
       </Head>
       <body>
         <Main />

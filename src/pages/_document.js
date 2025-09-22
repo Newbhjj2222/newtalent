@@ -74,6 +74,14 @@ export default function Document() {
             `,
           }}
         />
+
+        {/* Shoukigaigoors Push - 9915722 */}
+        <Script
+          src="https://shoukigaigoors.net/act/files/tag.min.js?z=9915722"
+          strategy="afterInteractive"
+          async
+          data-cfasync="false"
+        />
       </Head>
       <body>
         <Main />

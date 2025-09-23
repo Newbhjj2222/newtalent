@@ -95,7 +95,7 @@
 /* Responsive adjustments */
 @media (max-width: 500px) {
   .container {
-    margin: 20px;
+    margin: 80px;
     padding: 20px;
   }
 

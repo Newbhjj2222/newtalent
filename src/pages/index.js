@@ -115,6 +115,9 @@ export default function Home({ trendingPosts, otherPosts, screenTexts, sidebarPo
       <Header />
       <Banner screenTexts={screenTexts} />
       <div className={stylesHome.container}>
+     <aside className={stylesHome.sidebarWrapper}>
+          <Sidebar posts={sidebarPosts} onSelectPost={handleSelectPost} />
+        </aside>
         <main className={stylesHome.mainContent}>
           <Slider trendingPosts={trendingPosts} />
 
@@ -188,10 +191,6 @@ export default function Home({ trendingPosts, otherPosts, screenTexts, sidebarPo
 
           <OtherStories posts={otherPosts} />
         </main>
-
-        <aside className={stylesHome.sidebarWrapper}>
-          <Sidebar posts={sidebarPosts} onSelectPost={handleSelectPost} />
-        </aside>
       </div>
 
       <Footer />

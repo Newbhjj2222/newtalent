@@ -115,13 +115,14 @@ export default function Home({ trendingPosts, otherPosts, screenTexts, sidebarPo
       <Header />
       <Banner screenTexts={screenTexts} />
       <div className={stylesHome.container}>
-     <aside className={stylesHome.sidebarWrapper}>
-          <Sidebar posts={sidebarPosts} onSelectPost={handleSelectPost} />
-        </aside>
+    
         <main className={stylesHome.mainContent}>
           <Slider trendingPosts={trendingPosts} />
 
           <section className={stylesHome.postsSection}>
+     <aside className={stylesHome.sidebarWrapper}>
+          <Sidebar posts={sidebarPosts} onSelectPost={handleSelectPost} />
+        </aside>
             <h2>All Stories</h2>
             <input
               type="text"

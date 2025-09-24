@@ -11,15 +11,15 @@ const PrivacyPolicy = () => {
       <section>
         <h2>Intangiriro</h2>
         <p>
-          Twubaha ubwiru bwawe kandi twiyemeje kurinda amakuru yawe bwite. 
-          Iyi Politiki y&apos;Ubwiru isobanura uburyo dukusanya, dukoresha, kandi turinda amakuru yawe igihe ukoresha urubuga rwacu <strong>newtalentsg.co.rw</strong>.
+          tukugirira ibanga ku makuru yawe kandi twiyemeje kurinda amakuru yawe bwite muburyo bwizewe. 
+          ubu buryo kukubikira amakuru, bisobanuye ko amakuru dukusanya, dukoresha, byose bimenywa nawe nyirayo na system iyakoresha gusa. ntawundi umenya amakuru yawe. niyo mpamvu ukwiye kwizera <strong>newtalentsg.co.rw</strong>.
         </p>
       </section>
 
       <section>
-        <h2>Amakuru Dukusanya</h2>
+        <h2>Amakuru Dukusanya n&apos;aya akurikira</h2>
         <ul>
-          <li>Amakuru uduha ubwayo (nka izina, email).</li>
+          <li>Amakuru uduha ( izina, email, nimero ya telephone).</li>
           <li>Amakuru dukusanya mu buryo bwikora (nka cookies, IP address, ubwoko bwa browser).</li>
           <li>Amakuru aturuka ku maservice y&apos;inyongera uhuza n’urubuga rwacu.</li>
         </ul>
@@ -28,7 +28,7 @@ const PrivacyPolicy = () => {
       <section>
         <h2>Uko Dukoresha Amakuru Yawe</h2>
         <ul>
-          <li>Kugira ngo dutange no kunoza serivisi zacu.</li>
+          <li>izina, email, na telephone nibyo byibanze bikenerwa ngo urubuga rukwemerere gusoma cyangwa kwandika.</li>
           <li>Kuvugana nawe ku bijyanye n’amaraporo, promotions, cyangwa ubufasha.</li>
           <li>Gusesengura uburyo urubuga rukoreshejwe kugira ngo turwubake neza.</li>
         </ul>
@@ -37,36 +37,30 @@ const PrivacyPolicy = () => {
       <section>
         <h2>Gusangira Amakuru Yawe</h2>
         <p>
-          Ntitugurisha amakuru yawe bwite. Ariko dushobora gusangira amakuru hamwe n’abatanga serivisi badufasha gutunganya urubuga cyangwa kubahiriza amategeko.
+          Ntitugurisha amakuru yawe bwite. Ariko dushobora gusangira amakuru hamwe n’abatanga serivisi badufasha gutunganya urubuga cyangwa kubahiriza amategeko. biryo amakuru mutanga hari igihe tuyifashisha.
         </p>
       </section>
 
-      <section>
-        <h2>Cookies</h2>
-        <p>
-          Urubuga rwacu rukoresha cookies kugirango ruzamure uburyo ubona serivisi. Ushobora kuzihagarika muri settings za browser yawe, ariko bimwe mu bice by&apos;urubuga ntibishobora gukora neza.
-        </p>
-      </section>
-
+      
       <section>
         <h2>Umutekano w&apos;Amakuru</h2>
         <p>
-          Dukoresha uburyo bwo kurinda amakuru yawe, ariko ntibishoboka ko uburyo bwose bwo kohereza amakuru kuri Internet bwaba 100% butekanye.
+          turinda amakuru yawe, twifashishije password mukoresha. bityo amakuru yanyu ntawayabona atazi passward yanyu. ikindi urubuga rukumira umuntu uwariwe wese ushaka kwinjirira konti zabandi.
         </p>
       </section>
 
       <section>
         <h2>Impinduka kuri Politiki y&apos;Ubwiru</h2>
         <p>
-          Dushobora kuvugurura iyi Politiki y&apos;Ubwiru igihe cyose. Impinduka zose zizashyirwa kuri uru rubuga hamwe n’itariki y’ivugururwa.
+          Dushobora kuvugurura iyi Politiki y&apos;Ubwiru igihe cyose. Impinduka zose zizashyirwa kuri uru rubuga hamwe n’itariki y’ivugururwa muzajya mubimenyeshwa mbere yuko biba..
         </p>
       </section>
 
       <section>
         <h2>Twandikire</h2>
         <p>
-          Niba ufite ikibazo cyangwa igitekerezo ku bijyanye n’iyi Politiki y&apos;Ubwiru, twandikire kuri: 
-          <a href="mailto:info@newtalentsg.co.rw">info@newtalentsg.co.rw</a>
+          Niba ufite ikibazo cyangwa igitekerezo ku bijyanye n’iyi Politiki y&apos;Umutekano, twandikire kuri: 
+          <a href="mailto:admin@newtalentsg.co.rw">admin@newtalentsg.co.rw</a>
         </p>
       </section>
     </div>

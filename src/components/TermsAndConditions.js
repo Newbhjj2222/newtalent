@@ -6,8 +6,8 @@ import styles from "./Terms.module.css";
 const TermsAndConditions = () => {
   return (
     <div className={styles.container}>
-      <h1>Amategeko n&apos;Amabwiriza yo Gukoresha Urubuga (Terms & Conditions)</h1>
-      <p className={styles.date}>Itariki yo kuvugurura: Nzeri 24, 2025</p>
+      <h1>Terms & Conditions</h1>
+      <p className={styles.date}>Itariki yo kuvugurura: ugushyingo 24, 2025</p>
 
       <section>
         <h2>1. Intangiriro</h2>
@@ -24,34 +24,34 @@ const TermsAndConditions = () => {
         <ul>
           <li>Ntugomba gukoresha urubuga mu bikorwa binyuranyije n’amategeko.</li>
           <li>Ntugomba kugerageza kwinjirira cyangwa guhungabanya umutekano w’urubuga.</li>
-          <li>Konti ishobora guhagarikwa igihe uishe aya mategeko.</li>
+          <li>Konti ishobora guhagarikwa igihe wishe aya mategeko kandi wanabiregerwa mu nyiko.</li>
         </ul>
       </section>
 
       <section>
-        <h2>3. Uburenganzira ku Mumutungo bw&apos;Ubwenge</h2>
+        <h2>3. Uburenganzira ku Mutungo na copyright.</h2>
         <p>
           Ibiri ku rubuga (logo, inyandiko, amafoto, software n’ibindi)
           byose ni uburenganzira bwa <strong>newtalentsg.co.rw</strong>
           cyangwa abafatanyabikorwa bayo. Kubikoresha bisaba
-          uburenganzira bwanditse.
+          uburenganzira bwanditse uhabwa na Admin.
         </p>
       </section>
 
       <section>
         <h2>4. Amasezerano y&apos;Ubwishyu</h2>
         <p>
-          Niba hari serivisi zishyurwa, urasabwa kwishyura neza kandi ku gihe.
+          Niba hari serivisi zisaba kwishyurwa nko kwamamaza nizindi, urasabwa kwishyura neza kandi ku gihe.
           Politiki yo gusubizwa amafaranga (refund policy) izaba igengwa n’ayo
-          masezerano yihariye.
+          masezerano yihariye uzagirana na Admin.
         </p>
       </section>
 
       <section>
         <h2>5. Kwirengera n&apos;Imipaka</h2>
         <p>
-          Uru rubuga rutangwa &quot;nk’uko ruri&quot; kandi nta bur保証 bwo gutanga
-          amakuru yuzuye cyangwa adafite amakosa.
+          Uru rubuga rutangwa &quot;nk’uko ruri&quot; kandi nta buriganya bwo gutanga
+          amakuru atuzuye cyangwa afite amakosa.
           <strong> newtalentsg.co.rw </strong> ntiyirengera ibibazo
           biterwa n’ikoreshwa nabi ry’urubuga.
         </p>

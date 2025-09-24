@@ -1,5 +1,6 @@
 // components/TermsAndConditions.js
 import React from "react";
+import Link from "next/link";
 import styles from "./Terms.module.css";
 
 const TermsAndConditions = () => {
@@ -49,8 +50,8 @@ const TermsAndConditions = () => {
       <section>
         <h2>5. Kwirengera n&apos;Imipaka</h2>
         <p>
-          Uru rubuga rutangwa &quot;nk’uko ruri&quot; kandi nta
-          bur保証 bwo gutanga amakuru yuzuye cyangwa adafite amakosa.
+          Uru rubuga rutangwa &quot;nk’uko ruri&quot; kandi nta bur保証 bwo gutanga
+          amakuru yuzuye cyangwa adafite amakosa.
           <strong> newtalentsg.co.rw </strong> ntiyirengera ibibazo
           biterwa n’ikoreshwa nabi ry’urubuga.
         </p>
@@ -60,7 +61,7 @@ const TermsAndConditions = () => {
         <h2>6. Politiki y&apos;Ubwiru</h2>
         <p>
           Amakuru bwite yawe arinzwe nk’uko bisobanurwa muri{" "}
-          <a href="/privacy">Politiki y&apos;Ubwiru</a>.
+          <Link href="/privacy">Politiki y’Ubwiru</Link>.
         </p>
       </section>
 

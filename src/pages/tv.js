@@ -40,6 +40,18 @@ const FirestoreVLCPlayer = () => {
 
   const currentMedia = playlist[currentIndex];
 
+  // 🔹 Convert YouTube short/share links to playable full URL
+  const getPlayableUrl = (url) => {
+    try {
+      if (url.includes('youtu.be')) {
+        return `https://www.youtube.com/watch?v=${url.split('youtu.be/')[1].split('?')[0]}`;
+      }
+      return url; // normal YouTube or direct link
+    } catch {
+      return url;
+    }
+  };
+
   const handleNext = () => setCurrentIndex((prev) => (prev + 1) % playlist.length);
   const handlePrev = () =>
     setCurrentIndex((prev) => (prev === 0 ? playlist.length - 1 : prev - 1));
@@ -56,7 +68,7 @@ const FirestoreVLCPlayer = () => {
       {/* 🔹 Player */}
       <ReactPlayer
         ref={playerRef}
-        url={currentMedia}
+        url={getPlayableUrl(currentMedia)}
         playing={playing}
         volume={volume}
         controls={false}

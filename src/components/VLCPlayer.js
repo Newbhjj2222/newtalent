@@ -2,20 +2,24 @@
 import React, { useState, useRef } from 'react';
 import ReactPlayer from 'react-player';
 
-// Clean YouTube links
-const getPlayableUrl = (url) => {
+// Function yo guhindura link ziba embed-ready
+const getPlayableEmbed = (url) => {
   try {
     if (url.includes('youtu.be')) {
-      const clean = url.split('?')[0]; // remove ?si=...
+      const clean = url.split('?')[0];
       const id = clean.split('youtu.be/')[1];
-      return `https://www.youtube.com/watch?v=${id}`;
+      return { type: 'youtube', embed: `https://www.youtube.com/embed/${id}` };
     } else if (url.includes('youtube.com/watch')) {
       const id = new URL(url).searchParams.get('v');
-      return `https://www.youtube.com/watch?v=${id}`;
+      return { type: 'youtube', embed: `https://www.youtube.com/embed/${id}` };
+    } else if (url.includes('vimeo.com')) {
+      const id = url.split('vimeo.com/')[1];
+      return { type: 'vimeo', embed: `https://player.vimeo.com/video/${id}` };
     }
-    return url; // mp4, mp3, vimeo, soundcloud, cloudinary...
+    // default: return original link (mp4, mp3, etc.)
+    return { type: 'file', embed: url };
   } catch {
-    return url;
+    return { type: 'file', embed: url };
   }
 };
 
@@ -23,11 +27,10 @@ const VLCPlayer = ({ playlist }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [playing, setPlaying] = useState(true);
   const [volume, setVolume] = useState(0.8);
-  const [played, setPlayed] = useState(0);
   const playerRef = useRef(null);
 
   const rawUrl = playlist[currentIndex].url;
-  const currentMedia = getPlayableUrl(rawUrl);
+  const currentMedia = getPlayableEmbed(rawUrl);
 
   const handleNext = () =>
     setCurrentIndex((prev) => (prev + 1) % playlist.length);
@@ -38,25 +41,40 @@ const VLCPlayer = ({ playlist }) => {
   return (
     <div style={{ maxWidth: '900px', margin: '20px auto', textAlign: 'center' }}>
       {/* Player */}
-      {ReactPlayer.canPlay(currentMedia) ? (
+      {currentMedia.type === 'youtube' || currentMedia.type === 'vimeo' ? (
+        <iframe
+          src={currentMedia.embed}
+          width="100%"
+          height="450px"
+          frameBorder="0"
+          allow="autoplay; fullscreen"
+          allowFullScreen
+        ></iframe>
+      ) : ReactPlayer.canPlay(currentMedia.embed) ? (
         <ReactPlayer
           ref={playerRef}
-          url={currentMedia}
+          url={currentMedia.embed}
           playing={playing}
-          muted={true} // 🚀 mute on start to bypass autoplay restrictions
+          muted={false}
           volume={volume}
-          controls={false}
+          controls={true}
           width="100%"
           height="450px"
           onEnded={handleNext}
-          onProgress={({ played }) => setPlayed(played)}
         />
       ) : (
         <p style={{ color: 'red' }}>❌ Cannot play this media: {rawUrl}</p>
       )}
 
       {/* Controls */}
-      <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', marginTop: '10px' }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          gap: '15px',
+          marginTop: '10px',
+        }}
+      >
         <button onClick={handlePrev}>⏮️ Prev</button>
         <button onClick={() => setPlaying(!playing)}>
           {playing ? '⏸️ Pause' : '▶️ Play'}
@@ -72,21 +90,7 @@ const VLCPlayer = ({ playlist }) => {
         />
       </div>
 
-      {/* Seek bar */}
-      <input
-        type="range"
-        min={0}
-        max={1}
-        step={0.001}
-        value={played}
-        onChange={(e) => {
-          playerRef.current.seekTo(parseFloat(e.target.value));
-          setPlayed(parseFloat(e.target.value));
-        }}
-        style={{ width: '100%', marginTop: '10px' }}
-      />
-
-      {/* Show title instead of link */}
+      {/* Title */}
       <p style={{ marginTop: '10px', fontWeight: 'bold' }}>
         ▶️ Now Playing: {playlist[currentIndex].title}
       </p>

@@ -1,76 +1,121 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import ReactPlayer from 'react-player';
 import { db } from '../components/firebase';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import styles from '../components/NewtalentsG.module.css';
-import UniversalVideoPlayer from '../components/UniversalVideoPlayer';
 
-const NewTalentsGTV = () => {
-  const [videos, setVideos] = useState([]); // array y'objects {id, videoUrl, content}
+const FirestoreVLCPlayer = () => {
+  const [playlist, setPlaylist] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [playing, setPlaying] = useState(true);
+  const [volume, setVolume] = useState(0.8);
+  const [played, setPlayed] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const playerRef = useRef(null);
 
-  // 🔹 Fetch videos from Firestore
-  const fetchVideos = async () => {
+  // 🔹 Fetch videos/audio from Firestore
+  const fetchPlaylist = async () => {
     try {
       const q = query(collection(db, 'shows'), orderBy('createdAt', 'desc'));
       const snapshot = await getDocs(q);
-
-      const fetchedVideos = snapshot.docs
-        .map(doc => ({
-          id: doc.id,
-          videoUrl: doc.data().videoUrl,
-          content: doc.data().content || '',
-        }))
-        .filter(video => video.videoUrl); // ensure videoUrl exists
-
-      console.log('Fetched videos:', fetchedVideos);
-
-      setVideos(fetchedVideos);
+      const items = snapshot.docs
+        .map(doc => doc.data().videoUrl)
+        .filter(url => url); // ensure URL exists
+      setPlaylist(items);
       setLoading(false);
     } catch (error) {
-      console.error('Error fetching videos:', error);
+      console.error('Error fetching playlist:', error);
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchVideos();
+    fetchPlaylist();
   }, []);
 
-  // 🔹 Automatic next video (circular)
-  const handleNextVideo = () => {
-    setCurrentIndex(prev => (videos.length ? (prev + 1) % videos.length : 0));
+  if (loading) return <p className={styles.videoPlayer}>Loading playlist...</p>;
+  if (!playlist.length) return <p className={styles.videoPlayer}>No media available.</p>;
+
+  const currentMedia = playlist[currentIndex];
+
+  const handleNext = () => setCurrentIndex((prev) => (prev + 1) % playlist.length);
+  const handlePrev = () =>
+    setCurrentIndex((prev) => (prev === 0 ? playlist.length - 1 : prev - 1));
+
+  const formatTime = (seconds) => {
+    if (isNaN(seconds)) return '00:00';
+    const m = Math.floor(seconds / 60);
+    const s = Math.floor(seconds % 60);
+    return `${m < 10 ? '0' + m : m}:${s < 10 ? '0' + s : s}`;
   };
 
-  if (loading) return <p className={styles.videoPlayer}>Loading videos...</p>;
-  if (!videos.length) return <p className={styles.videoPlayer}>No videos available.</p>;
-
-  const currentVideo = videos[currentIndex];
-
   return (
-    <div className={styles.videoContainer}>
-      {currentVideo && (
-        <div className={styles.videoPlayer}>
-          {currentVideo.content && (
-            <div className={styles.contentBox}>{currentVideo.content}</div>
-          )}
+    <div style={{ maxWidth: '900px', margin: 'auto', fontFamily: 'sans-serif' }}>
+      {/* 🔹 Player */}
+      <ReactPlayer
+        ref={playerRef}
+        url={currentMedia}
+        playing={playing}
+        volume={volume}
+        controls={false}
+        width="100%"
+        height="450px"
+        onEnded={handleNext}
+        onProgress={({ played }) => setPlayed(played)}
+        onDuration={(dur) => setDuration(dur)}
+      />
 
-          {/* 🔹 UniversalVideoPlayer ikina automatic auto-play */}
-          <UniversalVideoPlayer
-            key={`${currentVideo.id}-${currentIndex}`}
-            videoUrl={currentVideo.videoUrl}
-            onVideoEnd={handleNextVideo}
-            autoPlay={true} // 🔹 Twongeye autoplay prop
-          />
+      {/* 🔹 VLC-style controls */}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginTop: '10px',
+        }}
+      >
+        <button onClick={handlePrev}>⏮️ Prev</button>
+        <button onClick={() => setPlaying(!playing)}>
+          {playing ? '⏸️ Pause' : '▶️ Play'}
+        </button>
+        <button onClick={handleNext}>⏭️ Next</button>
+        <input
+          type="range"
+          min={0}
+          max={1}
+          step={0.01}
+          value={volume}
+          onChange={(e) => setVolume(parseFloat(e.target.value))}
+        />
+      </div>
 
-          <p style={{ textAlign: 'center', marginTop: '10px' }}>
-            Video {currentIndex + 1} of {videos.length}
-          </p>
-        </div>
-      )}
+      {/* 🔹 Seek bar */}
+      <div style={{ display: 'flex', alignItems: 'center', marginTop: '10px' }}>
+        <span>{formatTime(played * duration)}</span>
+        <input
+          type="range"
+          min={0}
+          max={1}
+          step={0.001}
+          value={played}
+          onChange={(e) => {
+            const val = parseFloat(e.target.value);
+            playerRef.current.seekTo(val);
+            setPlayed(val);
+          }}
+          style={{ flexGrow: 1, margin: '0 10px' }}
+        />
+        <span>{formatTime(duration)}</span>
+      </div>
+
+      {/* 🔹 Now playing */}
+      <p style={{ textAlign: 'center', marginTop: '5px', wordBreak: 'break-word' }}>
+        Now playing: {currentMedia}
+      </p>
     </div>
   );
 };
 
-export default NewTalentsGTV;
+export default FirestoreVLCPlayer;

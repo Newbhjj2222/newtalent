@@ -6,14 +6,14 @@ import ReactPlayer from 'react-player';
 const getPlayableUrl = (url) => {
   try {
     if (url.includes('youtu.be')) {
-      const clean = url.split('?')[0];
+      const clean = url.split('?')[0]; // remove ?si=...
       const id = clean.split('youtu.be/')[1];
       return `https://www.youtube.com/watch?v=${id}`;
     } else if (url.includes('youtube.com/watch')) {
-      const clean = url.split('?v=')[1].split('&')[0];
-      return `https://www.youtube.com/watch?v=${clean}`;
+      const id = new URL(url).searchParams.get('v');
+      return `https://www.youtube.com/watch?v=${id}`;
     }
-    return url;
+    return url; // mp4, mp3, vimeo, soundcloud, cloudinary...
   } catch {
     return url;
   }
@@ -26,7 +26,8 @@ const VLCPlayer = ({ playlist }) => {
   const [played, setPlayed] = useState(0);
   const playerRef = useRef(null);
 
-  const currentMedia = getPlayableUrl(playlist[currentIndex].url);
+  const rawUrl = playlist[currentIndex].url;
+  const currentMedia = getPlayableUrl(rawUrl);
 
   const handleNext = () =>
     setCurrentIndex((prev) => (prev + 1) % playlist.length);
@@ -37,17 +38,22 @@ const VLCPlayer = ({ playlist }) => {
   return (
     <div style={{ maxWidth: '900px', margin: '20px auto', textAlign: 'center' }}>
       {/* Player */}
-      <ReactPlayer
-        ref={playerRef}
-        url={currentMedia}
-        playing={playing}
-        volume={volume}
-        controls={false}
-        width="100%"
-        height="450px"
-        onEnded={handleNext}
-        onProgress={({ played }) => setPlayed(played)}
-      />
+      {ReactPlayer.canPlay(currentMedia) ? (
+        <ReactPlayer
+          ref={playerRef}
+          url={currentMedia}
+          playing={playing}
+          muted={true} // 🚀 mute on start to bypass autoplay restrictions
+          volume={volume}
+          controls={false}
+          width="100%"
+          height="450px"
+          onEnded={handleNext}
+          onProgress={({ played }) => setPlayed(played)}
+        />
+      ) : (
+        <p style={{ color: 'red' }}>❌ Cannot play this media: {rawUrl}</p>
+      )}
 
       {/* Controls */}
       <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', marginTop: '10px' }}>

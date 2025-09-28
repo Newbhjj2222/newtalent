@@ -1,57 +1,32 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
 
-const UniversalVideoPlayer = ({ videoUrl, onVideoEnd, isFirst }) => {
-  const [playerType, setPlayerType] = useState(null);
-  const [normalizedUrl, setNormalizedUrl] = useState('');
+const VLCStyleMediaPlayer = ({ playlist }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const currentMedia = playlist[currentIndex];
   const iframeRef = useRef(null);
   const youtubePlayerRef = useRef(null);
+  const [playerType, setPlayerType] = useState(null);
+  const [normalizedUrl, setNormalizedUrl] = useState('');
+  const [volume, setVolume] = useState(1); // 0 to 1
+  const [isPlaying, setIsPlaying] = useState(true);
 
-  // 🔹 Detect video type and normalize URL
+  const isFirst = currentIndex === 0;
+
+  // 🔹 Detect media type
   useEffect(() => {
-    if (!videoUrl) return;
+    if (!currentMedia) return;
+    let url = currentMedia.trim();
 
-    let url = videoUrl.trim();
+    if (url.match(/\.(mp4|webm|mov)$/i)) setPlayerType('video');
+    else if (url.match(/\.(mp3|wav|ogg|m4a)$/i)) setPlayerType('audio');
+    else if (url.includes('youtube.com') || url.includes('youtu.be')) setPlayerType('youtube');
+    else setPlayerType('iframe');
 
-    try {
-      // 🔹 YouTube
-      if (url.includes('youtube.com') || url.includes('youtu.be')) {
-        let videoId = '';
-        const playlistMatch = url.match(/[?&]list=([^&]+)/);
-        if (playlistMatch) {
-          const listId = playlistMatch[1];
-          url = `https://www.youtube.com/embed/videoseries?list=${listId}&enablejsapi=1&autoplay=1&mute=${isFirst ? 1 : 0}&rel=0`;
-        } else {
-          if (url.includes('youtu.be')) {
-            videoId = url.split('youtu.be/')[1].split('?')[0];
-          } else {
-            videoId = new URL(url).searchParams.get('v');
-          }
-          url = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&autoplay=1&mute=${isFirst ? 1 : 0}&rel=0`;
-        }
-        setPlayerType('youtube');
-        setNormalizedUrl(url);
-        return;
-      }
+    setNormalizedUrl(url);
+  }, [currentMedia]);
 
-      // 🔹 Direct mp4
-      if (url.endsWith('.mp4')) {
-        setPlayerType('video');
-        setNormalizedUrl(url);
-        return;
-      }
-
-      // 🔹 Fallback (iframe)
-      setPlayerType('iframe');
-      setNormalizedUrl(`${url}?autoplay=1&mute=${isFirst ? 1 : 0}`);
-    } catch (err) {
-      console.error('Error parsing video URL:', err);
-      setPlayerType('iframe');
-      setNormalizedUrl(url);
-    }
-  }, [videoUrl, isFirst]);
-
-  // 🔹 YouTube IFrame API
+  // 🔹 YouTube API
   useEffect(() => {
     if (playerType !== 'youtube') return;
 
@@ -67,23 +42,16 @@ const UniversalVideoPlayer = ({ videoUrl, onVideoEnd, isFirst }) => {
     };
 
     const createPlayer = () => {
-      if (youtubePlayerRef.current) {
-        youtubePlayerRef.current.destroy();
-      }
+      if (youtubePlayerRef.current) youtubePlayerRef.current.destroy();
+      const videoId = extractVideoId(normalizedUrl);
       youtubePlayerRef.current = new window.YT.Player(iframeRef.current, {
         height: '450',
         width: '100%',
-        videoId: extractVideoId(videoUrl),
-        playerVars: {
-          autoplay: 1,
-          mute: isFirst ? 1 : 0,
-          rel: 0,
-        },
+        videoId: videoId,
+        playerVars: { autoplay: 1, mute: 0, rel: 0 },
         events: {
           onStateChange: (event) => {
-            if (event.data === window.YT.PlayerState.ENDED) {
-              if (onVideoEnd) onVideoEnd();
-            }
+            if (event.data === window.YT.PlayerState.ENDED) handleNext();
           },
         },
       });
@@ -95,44 +63,80 @@ const UniversalVideoPlayer = ({ videoUrl, onVideoEnd, isFirst }) => {
     };
 
     loadYouTubeAPI();
-  }, [playerType, videoUrl, onVideoEnd, isFirst]);
+  }, [playerType, normalizedUrl]);
 
-  const handleVideoEnded = () => {
-    if (onVideoEnd) onVideoEnd();
+  const handleNext = () => {
+    if (currentIndex + 1 < playlist.length) setCurrentIndex(currentIndex + 1);
   };
 
-  if (!videoUrl) return <p>Video link ntabwo yabonetse</p>;
+  const handlePrev = () => {
+    if (currentIndex > 0) setCurrentIndex(currentIndex - 1);
+  };
+
+  const togglePlay = () => {
+    setIsPlaying(!isPlaying);
+  };
 
   return (
-    <div style={{ width: '100%', maxWidth: '900px', margin: 'auto' }}>
-      {playerType === 'video' ? (
-        <video
-          src={normalizedUrl}
-          controls
-          autoPlay
-          muted={isFirst} // ✅ Mute kuri video ya mbere gusa
-          preload="auto"
-          onEnded={handleVideoEnded}
-          style={{ width: '100%', height: '450px', borderRadius: '8px' }}
+    <div style={{ maxWidth: '900px', margin: 'auto' }}>
+      <div style={{ width: '100%', height: '450px', borderRadius: '8px', marginBottom: '10px' }}>
+        {playerType === 'video' ? (
+          <video
+            src={normalizedUrl}
+            controls
+            autoPlay={isPlaying}
+            muted={false}
+            volume={volume}
+            onEnded={handleNext}
+            style={{ width: '100%', height: '100%' }}
+          />
+        ) : playerType === 'audio' ? (
+          <audio
+            src={normalizedUrl}
+            controls
+            autoPlay={isPlaying}
+            volume={volume}
+            onEnded={handleNext}
+            style={{ width: '100%' }}
+          />
+        ) : playerType === 'youtube' ? (
+          <div ref={iframeRef} style={{ width: '100%', height: '100%' }} />
+        ) : (
+          <iframe
+            src={normalizedUrl}
+            width="100%"
+            height="450"
+            frameBorder="0"
+            allow="autoplay; encrypted-media"
+            allowFullScreen
+          />
+        )}
+      </div>
+
+      {/* VLC-style controls */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+        <button onClick={handlePrev} disabled={currentIndex === 0}>
+          ⏮️ Prev
+        </button>
+        <button onClick={togglePlay}>{isPlaying ? '⏸️ Pause' : '▶️ Play'}</button>
+        <button onClick={handleNext} disabled={currentIndex === playlist.length - 1}>
+          ⏭️ Next
+        </button>
+        <input
+          type="range"
+          min="0"
+          max="1"
+          step="0.01"
+          value={volume}
+          onChange={(e) => setVolume(parseFloat(e.target.value))}
         />
-      ) : playerType === 'youtube' ? (
-        <div
-          ref={iframeRef}
-          id={`youtube-player-${Math.random()}`}
-          style={{ width: '100%', height: '450px' }}
-        />
-      ) : (
-        <iframe
-          src={normalizedUrl}
-          width="100%"
-          height="450"
-          frameBorder="0"
-          allow="autoplay; encrypted-media"
-          allowFullScreen
-        ></iframe>
-      )}
+      </div>
+
+      <div>
+        <strong>Now playing:</strong> {currentMedia}
+      </div>
     </div>
   );
 };
 
-export default UniversalVideoPlayer;
+export default VLCStyleMediaPlayer;

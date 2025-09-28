@@ -15,7 +15,7 @@ const FirestoreVLCPlayer = () => {
   const [duration, setDuration] = useState(0);
   const playerRef = useRef(null);
 
-  // 🔹 Fetch videos/audio from Firestore
+  // 🔹 Fetch playlist from Firestore
   const fetchPlaylist = async () => {
     try {
       const q = query(collection(db, 'shows'), orderBy('createdAt', 'desc'));
@@ -40,13 +40,19 @@ const FirestoreVLCPlayer = () => {
 
   const currentMedia = playlist[currentIndex];
 
-  // 🔹 Convert YouTube short/share links to playable full URL
+  // 🔹 Convert YouTube share links to full playable URL
   const getPlayableUrl = (url) => {
     try {
       if (url.includes('youtu.be')) {
-        return `https://www.youtube.com/watch?v=${url.split('youtu.be/')[1].split('?')[0]}`;
+        // youtu.be short link
+        const id = url.split('youtu.be/')[1].split('?')[0];
+        return `https://www.youtube.com/watch?v=${id}`;
+      } else if (url.includes('youtube.com')) {
+        // normal youtube link (remove unnecessary query params)
+        const videoId = new URL(url).searchParams.get('v');
+        return `https://www.youtube.com/watch?v=${videoId}`;
       }
-      return url; // normal YouTube or direct link
+      return url; // direct mp4/audio or Vimeo
     } catch {
       return url;
     }

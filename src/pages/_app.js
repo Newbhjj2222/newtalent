@@ -2,6 +2,8 @@
 import "@/styles/globals.css";
 import Script from "next/script";
 import Head from "next/head";
+import 'video.js/dist/video-js.css';
+import NotificationChecker from "../components/NotificationChecker";
 
 // Import language provider
 import { LanguageProvider } from "../components/LanguageProvider";
@@ -30,6 +32,7 @@ export default function App({ Component, pageProps }) {
         {/* <LanguageSelector /> */}
 
         {/* Pages zose zishyirwa hano */}
+         <NotificationChecker />
         <Component {...pageProps} />
           
       </>

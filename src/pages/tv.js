@@ -1,48 +1,103 @@
-'use client';
-import React, { useEffect, useState } from 'react';
-import { db } from '../components/firebase';
-import { collection, getDocs, query, orderBy } from 'firebase/firestore';
-import VLCPlayer from '../components/VLCPlayer';
-import styles from '../components/NewtalentsG.module.css';
+"use client";
 
-const NewTalentsGTV = () => {
-  const [playlist, setPlaylist] = useState([]);
-  const [loading, setLoading] = useState(true);
+import { useEffect } from "react";
+import Head from "next/head";
+import styles from "../components/Tv.module.css";
+import { db } from "../components/firebase";
+import { collection, getDocs, query, orderBy } from "firebase/firestore";
 
-  const fetchVideos = async () => {
-    try {
-      const q = query(collection(db, 'shows'), orderBy('createdAt', 'desc'));
-      const snapshot = await getDocs(q);
-
-      const fetchedVideos = snapshot.docs
-        .map(doc => ({
-          id: doc.id,
-          videoUrl: doc.data().videoUrl,
-          title: doc.data().content || `Video ${doc.id}`,
-        }))
-        .filter(video => video.videoUrl); // Ensure videoUrl exists
-
-      // Playlist izaba array ya objects { url, title }
-      setPlaylist(fetchedVideos.map(v => ({ url: v.videoUrl, title: v.title })));
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching videos:', error);
-      setLoading(false);
-    }
-  };
-
+export default function TvPage() {
   useEffect(() => {
+    async function fetchVideos() {
+      try {
+        const showsRef = collection(db, "shows");
+        const showsQuery = query(showsRef, orderBy("createdAt", "desc"));
+        const snapshot = await getDocs(showsQuery);
+        const videoUrls = snapshot.docs.map(doc => doc.data().videoUrl).filter(Boolean);
+        if (videoUrls.length > 0) {
+          playPlaylist(videoUrls);
+        }
+      } catch (err) {
+        console.error("Ikosa ribaye:", err);
+      }
+    }
+
+    function playPlaylist(videoUrls) {
+      const container = document.getElementById("autoPlayVideo");
+      if (!container || videoUrls.length === 0) return;
+
+      let currentIndex = 0;
+
+      function playNextVideo() {
+        if (currentIndex >= videoUrls.length) {
+          // Iyo playlist irangiye → subira kuri iya mbere
+          currentIndex = 0;
+        }
+
+        const url = videoUrls[currentIndex];
+        container.innerHTML = ""; // gusiba video/iframe iheruka
+
+        // KINYA YOUTUBE
+        if (url.includes("youtube.com") || url.includes("youtu.be")) {
+          const videoId = getYoutubeVideoID(url);
+          const iframe = document.createElement("iframe");
+          iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=0&rel=0&modestbranding=1`;
+          iframe.allow = "autoplay; encrypted-media";
+          iframe.allowFullscreen = true;
+          iframe.className = styles.videoPlayer;
+          container.appendChild(iframe);
+
+          // fallback: nyuma y'iminota 5 (300s) ihite ijya ku yindi
+          setTimeout(() => {
+            currentIndex++;
+            playNextVideo();
+          }, 300000);
+
+        } else {
+          // KINYA MP4 / CLOUDINARY
+          const video = document.createElement("video");
+          video.src = url;
+          video.autoplay = true;
+          video.muted = true;
+          video.controls = true;
+          video.className = styles.videoPlayer;
+          container.appendChild(video);
+
+          video.onended = () => {
+            currentIndex++;
+            playNextVideo();
+          };
+
+          video.play().catch(err => console.error("Autoplay error:", err));
+        }
+      }
+
+      function getYoutubeVideoID(url) {
+        try {
+          const parsedUrl = new URL(url);
+          return parsedUrl.searchParams.get("v") || url.split("/").pop();
+        } catch {
+          return null;
+        }
+      }
+
+      playNextVideo();
+    }
+
     fetchVideos();
   }, []);
 
-  if (loading) return <p className={styles.videoPlayer}>Loading videos...</p>;
-  if (!playlist.length) return <p className={styles.videoPlayer}>No videos available.</p>;
-
   return (
-    <div className={styles.videoContainer}>
-      <VLCPlayer playlist={playlist} />
-    </div>
-  );
-};
+    <>
+      <Head>
+        <title>NewtalentsG Tv</title>
+      </Head>
 
-export default NewTalentsGTV;
+      <div className={styles.ntv}>
+        <div className={styles.tv}>
+          <div id="autoPlayVideo" className={styles.videoContainer}></div>
+        </div>
+      </div>
+    </>
+  );
+}

@@ -27,6 +27,7 @@ export default function Pop() {
               head: baseHead,
               totalViews: 0,
               imageUrl: post.imageUrl || null,
+              episodeCount: 0, // optional: kumenya umubare w'episodes
             };
           }
 
@@ -37,10 +38,15 @@ export default function Pop() {
           if (!aggregated[baseHead].imageUrl && post.imageUrl) {
             aggregated[baseHead].imageUrl = post.imageUrl;
           }
+
+          // Hano dushobora kubara episodes
+          aggregated[baseHead].episodeCount += 1;
         });
 
         // Hindura object ibe array hanyuma utunganye hakurikije views
-        const aggregatedArray = Object.values(aggregated).sort((a, b) => b.totalViews - a.totalViews);
+        const aggregatedArray = Object.values(aggregated)
+          .sort((a, b) => b.totalViews - a.totalViews)
+          .slice(0, 5); // Only show top 5
 
         setPosts(aggregatedArray);
       } catch (error) {
@@ -74,7 +80,9 @@ export default function Pop() {
             )}
             <div className={styles.content}>
               <h3 className={styles.postTitle}>{post.head}</h3>
-              <p className={styles.views}>👁 {post.totalViews} views</p>
+              <p className={styles.views}>
+                👁 {post.totalViews} views {post.episodeCount > 1 ? `– ${post.episodeCount} episodes` : ""}
+              </p>
             </div>
           </div>
         ))}

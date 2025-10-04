@@ -12,6 +12,12 @@ const Footer = () => {
           <li>
             <Link href="/">Home</Link>
           </li>
+         <li>
+            <Link href="/profile">Your Profile</Link>
+          </li>
+           <li>
+            <Link href="/tv">Newtalentg Tv</Link>
+          </li>
           <li>
             <Link href="/balance">Your Balance</Link>
           </li>

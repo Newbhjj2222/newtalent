@@ -14,31 +14,32 @@ export default function Pop() {
         const snapshot = await getDocs(collection(db, "posts"));
         const allPosts = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
-        // Fungura head y'inkuru gusa
-        const aggregated = allPosts.reduce((acc, post) => {
-          // Fata izina ry'inkuru gusa (remove EP, S01, FINALLY, etc)
+        const aggregated = {};
+
+        allPosts.forEach((post) => {
+          // Fata head y'inkuru nyamukuru gusa
           let baseHead = post.head
-            ? post.head.replace(/(S\d+)?\s*(EP\d+)?\s*(EPISODE\s*\d+)?\s*(FINALLY)?/i, "").trim()
+            ? post.head.replace(/(S\d+)?\s*(EP\d+)?\s*(EPISODE\s*\d+)?\s*(FINALLY)?/gi, "").trim()
             : "Untitled";
 
-          if (!acc[baseHead]) {
-            acc[baseHead] = {
+          if (!aggregated[baseHead]) {
+            aggregated[baseHead] = {
               head: baseHead,
               totalViews: 0,
               imageUrl: post.imageUrl || null,
             };
           }
 
-          acc[baseHead].totalViews += post.views ?? 0;
-          // Fata image ya mbere gusa
-          if (!acc[baseHead].imageUrl && post.imageUrl) {
-            acc[baseHead].imageUrl = post.imageUrl;
+          // Iteranya views zose
+          aggregated[baseHead].totalViews += post.views ?? 0;
+
+          // Fata image ya mbere iboneka
+          if (!aggregated[baseHead].imageUrl && post.imageUrl) {
+            aggregated[baseHead].imageUrl = post.imageUrl;
           }
+        });
 
-          return acc;
-        }, {});
-
-        // Hindura object iba array hanyuma utunganye hakurikije views
+        // Hindura object ibe array hanyuma utunganye hakurikije views
         const aggregatedArray = Object.values(aggregated).sort((a, b) => b.totalViews - a.totalViews);
 
         setPosts(aggregatedArray);

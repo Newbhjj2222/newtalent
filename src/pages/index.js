@@ -12,6 +12,7 @@ import Footer from "../components/Footer";
 import OtherStories from "../components/OtherStories";
 import stylesHome from "../components/HomePage.module.css";
 import { db } from "../components/firebase";
+import Pop from "../components/Pop";
 import { collection, query, orderBy, getDocs } from "firebase/firestore";
 
 // Server-side data fetching
@@ -227,6 +228,7 @@ export default function Home({ trendingPosts, otherPosts, screenTexts, sidebarPo
           </section>
 
           <OtherStories posts={otherPosts} />
+              <Pop />
         </main>
       </div>
 

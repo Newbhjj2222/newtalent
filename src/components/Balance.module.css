@@ -108,7 +108,7 @@
 /* ================== RESPONSIVE ================== */
 @media screen and (max-width: 480px) {
   .formContainer {
-    margin: 80px 15px;
+    margin: 140px 15px;
     padding: 20px 18px;
   }
 

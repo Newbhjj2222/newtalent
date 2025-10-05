@@ -104,7 +104,7 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
 
             const currentNes = Number(depositerSnap.data().nes) || 0;
             if (currentNes < 1) {
-              alert("Nta NeS zihagije ufite zikwemerera gusoma iyi Nkuru. Nyamuneka banza uzigure. tugiye kukujyana aho uzigurira, niba ubibonye waziguze, twandikire Whatsapp nonaha tugufashe. +25072319367.");
+              alert("Nta NeS zihagije ufite zikwemerera gusoma iyi Nkuru. Nyamuneka banza uzigure. tugiye kukujyana aho uzigurira, niba ubibonye waziguze, twandikire Whatsapp nonaha tugufashe. +250722319367.");
               router.push("/balance");
               return;
             }

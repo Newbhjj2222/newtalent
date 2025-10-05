@@ -58,7 +58,22 @@ const domain = "https://newtalentsg.co.rw"; // ✅ Domain yawe
         return;
       }
       setCurrentUser(storedUsername);
+const incrementViews = async () => {
+        try {
+          const postRef = doc(db, "posts", postData.id);
+          await updateDoc(postRef, { views: increment(1) });
 
+          // refresh view count locally
+          const snap = await getDoc(postRef);
+          if (snap.exists()) {
+            setViews(snap.data().views || 0);
+          }
+        } catch (err) {
+          console.error("View update failed:", err);
+        }
+      };
+      incrementViews();
+      
       // NES logic
       const handleNES = async () => {
         try {

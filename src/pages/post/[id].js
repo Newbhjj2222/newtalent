@@ -89,20 +89,42 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
       // NES logic (author gains NES when someone reads)
       const handleNES = async () => {
         try {
+          const username = storedUsername;
           const author = postData.author || "Unknown";
-          if (author && storedUsername !== author) {
-            const authorRef = doc(db, "authors", author);
-            const authorSnap = await getDoc(authorRef);
 
-            if (authorSnap.exists()) {
-              const authorNes = Number(authorSnap.data().nes) || 0;
-              await updateDoc(authorRef, { nes: authorNes + 1 });
+          if (username !== author && username.toLowerCase() !== "newtalentsg") {
+            const depositerRef = doc(db, "depositers", username);
+            const depositerSnap = await getDoc(depositerRef);
+
+            if (!depositerSnap.exists()) {
+              alert("Account yawe ntiboneka mubaguze NeS. Kugira ngo wemererwe gusoma banza uzigura. tugiye kukujyana aho uzigurira. niba ukeneye ubufasha twandikire Whatsapp +250722319367.");
+              router.push("/balance");
+              return;
+            }
+
+            const currentNes = Number(depositerSnap.data().nes) || 0;
+            if (currentNes < 1) {
+              alert("Nta NeS zihagije ufite zikwemerera gusoma iyi Nkuru. Nyamuneka banza uzigure. tugiye kukujyana aho uzigurira, niba ubibonye waziguze, twandikire Whatsapp nonaha tugufashe. +25072319367.");
+              router.push("/balance");
+              return;
+            }
+
+            await updateDoc(depositerRef, { nes: currentNes - 1 });
+
+            if (author !== username) {
+              const authorRef = doc(db, "authors", author);
+              const authorSnap = await getDoc(authorRef);
+              if (authorSnap.exists()) {
+                const authorNes = Number(authorSnap.data().nes) || 0;
+                await updateDoc(authorRef, { nes: authorNes + 1 });
+              }
             }
           }
         } catch (err) {
           console.error("NES update failed:", err);
         }
       };
+
       handleNES();
     }
   }, [postData, router]);

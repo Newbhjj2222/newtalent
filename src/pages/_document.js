@@ -23,20 +23,7 @@ export default function Document() {
           }}
         />
 
-        {/* 🟢 PropellerAds - Wise Banner / Push (Zone ID: 9910308) */}
-        <Script
-          id="zone-9910308"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function(s){
-                s.dataset.zone='9910308';
-                s.src='https://forfrogadiertor.com/tag.min.js';
-              })(document.body.appendChild(document.createElement('script')));
-            `,
-          }}
-        />
-
+        
         {/* 🟢 PropellerAds - Banner / Push (Zone ID: 9915615) */}
         <Script
           id="zone-9915615"

@@ -1,0 +1,96 @@
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: #478ebc;
+  font-family: sans-serif;
+}
+
+.sponsorCard {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 3px 0px 3px whitesmoke;
+  background: linear-gradient(
+    135deg,
+    #2d58aa,
+    #99aa2d,
+    #ed6a3b,
+    #d4d4d4,
+    #cfd80c,
+    white,
+    #e0f834,
+    red,
+    skyblue
+  );
+  animation: expandContract 15s ease-in-out infinite;
+  transition: all 0.7s ease;
+}
+
+.sponsorCard.collapsed {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+}
+
+.sponsorCard.expanded {
+  width: 300px;
+  height: 150px;
+  border-radius: 15px;
+}
+
+.sponsorLogo {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  position: absolute;
+  left: 20px;
+  top: 20px;
+  z-index: 1;
+}
+
+.sponsorDetails {
+  position: absolute;
+  left: 100px;
+  right: 15px;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.sponsorCard.expanded .sponsorDetails {
+  opacity: 1;
+}
+
+h3,
+p {
+  margin: 0;
+  color: #333;
+}
+
+/* 🔁 Animation */
+@keyframes expandContract {
+  0% {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+  }
+  10% {
+    width: 300px;
+    height: 150px;
+    border-radius: 15px;
+  }
+  90% {
+    width: 300px;
+    height: 150px;
+    border-radius: 15px;
+  }
+  100% {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+  }
+}

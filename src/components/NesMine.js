@@ -34,7 +34,7 @@ const NesMineSSR = ({ username, initialNesTotal }) => {
 
   // Eligibility check
   useEffect(() => {
-    const allowed = (userPlan === "monthly" || userPlan === "bestreader") && nesTotal > 5;
+    const allowed = (userPlan === "bestreader") && nesTotal > 5;
     setCanMine(allowed);
   }, [userPlan, nesTotal]);
 
@@ -52,7 +52,7 @@ const NesMineSSR = ({ username, initialNesTotal }) => {
   // Start mining logic
   const startMining = async () => {
     if (!canMine) {
-      alert("⚠️ Ngura plan y’ukwezi kugira ngo wemererwe ku mininga 💳");
+      alert("⚠️ Ngura full plan y’ukwezi yi 1200 rwf kugira ngo wemererwe ku mininga 💳");
       return;
     }
 
@@ -62,7 +62,7 @@ const NesMineSSR = ({ username, initialNesTotal }) => {
 
     miningInterval.current = setInterval(async () => {
       await addNesToUser(1); // increase NES by 1
-    }, 90000); // buri masegonda 5
+    }, 5000); // buri masegonda 5
   };
 
   // Stop mining when user leaves or component unmounts

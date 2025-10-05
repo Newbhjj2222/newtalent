@@ -6,28 +6,66 @@ export default function Document() {
   return (
     <Html lang="en">
       <Head>
-        {/* Favicon/logo */}
+        {/* Favicon / Logo */}
         <link rel="icon" href="/logo.png" />
 
-        {/* Wise / PropellerAds - Banner / Push (forfrogadiertor.com - combined) */}
+        {/* 🟢 PropellerAds - Wise Banner / Push (Zone ID: 9909216) */}
         <Script
-          id="forfrogadiertor-zone"
+          id="zone-9909216"
           strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: `
-              (function(zones){
-                zones.forEach(z => {
-                  const s = document.createElement('script');
-                  s.dataset.zone = z;
-                  s.src = 'https://forfrogadiertor.com/tag.min.js';
-                  document.body.appendChild(s);
-                });
-              })(['9909216']); // One main zone kept active
+              (function(s){
+                s.dataset.zone='9909216';
+                s.src='https://forfrogadiertor.com/tag.min.js';
+              })(document.body.appendChild(document.createElement('script')));
             `,
           }}
         />
 
-        {/* Gizokraijaw Push - 9915679 */}
+        {/* 🟢 PropellerAds - Wise Banner / Push (Zone ID: 9910308) */}
+        <Script
+          id="zone-9910308"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function(s){
+                s.dataset.zone='9910308';
+                s.src='https://forfrogadiertor.com/tag.min.js';
+              })(document.body.appendChild(document.createElement('script')));
+            `,
+          }}
+        />
+
+        {/* 🟢 PropellerAds - Banner / Push (Zone ID: 9915615) */}
+        <Script
+          id="zone-9915615"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function(s){
+                s.dataset.zone='9915615';
+                s.src='https://forfrogadiertor.com/tag.min.js';
+              })(document.body.appendChild(document.createElement('script')));
+            `,
+          }}
+        />
+
+        {/* 🟣 Epic Tag - Push Notifications (Zone ID: 9915614) */}
+        <Script
+          id="zone-9915614"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function(s){
+                s.dataset.zone='9915614';
+                s.src='https://forfrogadiertor.com/tag.min.js';
+              })(document.body.appendChild(document.createElement('script')));
+            `,
+          }}
+        />
+
+        {/* 🔵 Gizokraijaw - Push Ads (Zone ID: 9915679) */}
         <Script
           id="zone-9915679"
           strategy="afterInteractive"
@@ -41,7 +79,7 @@ export default function Document() {
           }}
         />
 
-        {/* Shoukigaigoors Push - 9915722 */}
+        {/* 🟠 Shoukigaigoors - Push Ads (Zone ID: 9915722) */}
         <Script
           src="https://shoukigaigoors.net/act/files/tag.min.js?z=9915722"
           strategy="afterInteractive"
@@ -49,6 +87,7 @@ export default function Document() {
           data-cfasync="false"
         />
       </Head>
+
       <body>
         <Main />
         <NextScript />

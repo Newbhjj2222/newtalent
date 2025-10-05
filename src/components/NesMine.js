@@ -87,7 +87,7 @@ const NesMineSSR = ({ username, initialNesTotal }) => {
       onClick={handleClick}
       style={{
         position: "fixed",
-        top: 90,
+        bottom: 120,
         right: 20,
         backgroundColor: canMine ? (isMining ? "#00b341" : "#f0c330") : "#999",
         color: "#000",

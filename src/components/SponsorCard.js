@@ -26,7 +26,7 @@ export default function SponsorCard() {
         }`}
       >
         <img
-          src="/netchat/imeges/n4.jpeg"
+          src="/logo.png"
           alt="Sponsor Logo"
           className={styles.sponsorLogo}
         />

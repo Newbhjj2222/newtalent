@@ -1,101 +1,131 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from "react";
-import { getFirestore, doc, updateDoc, getDoc, onSnapshot, setDoc } from "firebase/firestore";
+import { doc, updateDoc, getDoc, onSnapshot, setDoc } from "firebase/firestore";
 import { FaCoins } from "react-icons/fa";
-import { db } from "./firebase"; // import db yateguwe muri firebase.js
+import { db } from "./firebase";
 
 const NesMineSSR = ({ username, initialNesTotal }) => {
-  const [nesMined, setNesMined] = useState(0); // Local mining counter
-  const [nesTotal, setNesTotal] = useState(initialNesTotal || 0); // Server-side fetched NES
+  const [nesTotal, setNesTotal] = useState(initialNesTotal || 0);
+  const [userPlan, setUserPlan] = useState(null);
+  const [canMine, setCanMine] = useState(false);
+  const [isMining, setIsMining] = useState(false);
   const miningInterval = useRef(null);
 
-  // Load nesMined from localStorage
-  useEffect(() => {
-    const saved = localStorage.getItem(`nesMined_${username}`);
-    if (saved) setNesMined(parseFloat(saved));
-  }, [username]);
-
-  // Save nesMined to localStorage
-  useEffect(() => {
-    if (username) localStorage.setItem(`nesMined_${username}`, nesMined);
-  }, [nesMined, username]);
-
-  // Listen to nesTotal updates in Firestore
+  // Listen for updates (NES + plan)
   useEffect(() => {
     if (!username) return;
 
     const depositerRef = doc(db, "depositers", username);
     const unsubscribe = onSnapshot(depositerRef, async (snap) => {
-      if (snap.exists()) setNesTotal(Number(snap.data().nes) || 0);
-      else {
-        await setDoc(depositerRef, { nes: 0 });
+      if (snap.exists()) {
+        const data = snap.data();
+        setNesTotal(Number(data.nes) || 0);
+        setUserPlan(data.plan || "free");
+      } else {
+        await setDoc(depositerRef, { nes: 0, plan: "free" });
         setNesTotal(0);
+        setUserPlan("free");
       }
     });
 
     return () => unsubscribe();
   }, [username]);
 
-  // Mining logic
-  const startMining = () => {
-    if (miningInterval.current) return;
-    miningInterval.current = setInterval(async () => {
-      setNesMined((prev) => {
-        const next = parseFloat((prev + 0.001).toFixed(3));
-        if (next >= 1) {
-          addNesToUser(next);
-          return 0;
-        }
-        return next;
-      });
-    }, 1000);
-  };
+  // Eligibility check
+  useEffect(() => {
+    const allowed = (userPlan === "monthly" || userPlan === "bestreader") && nesTotal > 5;
+    setCanMine(allowed);
+  }, [userPlan, nesTotal]);
 
-  // Add mined NES to user in Firestore
-  const addNesToUser = async (amount) => {
+  // Add mined NES (whole number only)
+  const addNesToUser = async (amount = 1) => {
     if (!username) return;
     const depositerRef = doc(db, "depositers", username);
-    const currentSnap = await getDoc(depositerRef);
-    const currentNes = currentSnap.exists() ? Number(currentSnap.data().nes || 0) : 0;
-    await updateDoc(depositerRef, { nes: currentNes + amount });
-    localStorage.setItem(`nesMined_${username}`, 0);
+    const snap = await getDoc(depositerRef);
+    const current = snap.exists() ? Math.floor(Number(snap.data().nes) || 0) : 0;
+    const newTotal = current + amount;
+    await updateDoc(depositerRef, { nes: newTotal });
+    setNesTotal(newTotal);
   };
 
-  const handleClick = () => startMining();
+  // Start mining logic
+  const startMining = async () => {
+    if (!canMine) {
+      alert("⚠️ Ngura plan y’ukwezi kugira ngo wemererwe ku mininga 💳");
+      return;
+    }
+
+    if (isMining || miningInterval.current) return;
+
+    setIsMining(true);
+
+    miningInterval.current = setInterval(async () => {
+      await addNesToUser(1); // increase NES by 1
+    }, 5000); // buri masegonda 5
+  };
+
+  // Stop mining when user leaves or component unmounts
+  useEffect(() => {
+    return () => {
+      if (miningInterval.current) clearInterval(miningInterval.current);
+    };
+  }, []);
+
+  const handleClick = () => {
+    if (isMining) {
+      clearInterval(miningInterval.current);
+      miningInterval.current = null;
+      setIsMining(false);
+    } else {
+      startMining();
+    }
+  };
 
   return (
     <div
-      className="nes-mine-button"
       onClick={handleClick}
       style={{
         position: "fixed",
         top: 90,
         right: 20,
-        backgroundColor: "#f0c330",
+        backgroundColor: canMine ? (isMining ? "#00b341" : "#f0c330") : "#999",
         color: "#000",
         borderRadius: "50%",
-        width: 60,
-        height: 60,
+        width: 70,
+        height: 70,
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
         boxShadow: "0 4px 8px rgba(0,0,0,0.3)",
-        cursor: "pointer",
+        cursor: canMine ? "pointer" : "not-allowed",
         zIndex: 1000,
+        opacity: canMine ? 1 : 0.6,
+        transition: "all 0.3s ease-in-out",
       }}
+      title={
+        canMine
+          ? isMining
+            ? "Mining irimo gukora..."
+            : "Kanda utangire mining"
+          : "Ugomba kugura plan y’ukwezi kugira ngo wemererwe ku mininga"
+      }
     >
-      <FaCoins size={24} />
-      <span style={{ fontSize: 12, marginTop: 4 }}>{nesMined.toFixed(3)}</span>
-      <span style={{ fontSize: 10 }}>({nesTotal.toFixed(3)})</span>
+      <FaCoins size={26} />
+      <span style={{ fontSize: 12, marginTop: 4, fontWeight: "bold" }}>
+        {Math.floor(nesTotal)}
+      </span>
+      <span style={{ fontSize: 10 }}>
+        {canMine ? (isMining ? "Mining..." : "Ready") : "Not allowed"}
+      </span>
     </div>
   );
 };
 
 export default NesMineSSR;
 
-// Optional: Fetch initial NES total server-side in Next.js page
+// Optional: server-side fetch initial NES
 export async function getServerSideProps(context) {
   const username = context.query.username || null;
   let nesTotal = 0;
@@ -103,7 +133,7 @@ export async function getServerSideProps(context) {
   if (username) {
     const depositerRef = doc(db, "depositers", username);
     const snap = await getDoc(depositerRef);
-    if (snap.exists()) nesTotal = Number(snap.data().nes || 0);
+    if (snap.exists()) nesTotal = Math.floor(Number(snap.data().nes || 0));
   }
 
   return { props: { username, initialNesTotal: nesTotal } };

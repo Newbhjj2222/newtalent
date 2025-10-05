@@ -9,54 +9,20 @@ export default function Document() {
         {/* Favicon/logo */}
         <link rel="icon" href="/logo.png" />
 
-        {/* Wise / PropellerAds - Banner / Push */}
+        {/* Wise / PropellerAds - Banner / Push (forfrogadiertor.com - combined) */}
         <Script
-          id="zone-9909216"
+          id="forfrogadiertor-zone"
           strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: `
-              (function(s){
-                s.dataset.zone='9909216';
-                s.src='https://forfrogadiertor.com/tag.min.js';
-              })(document.body.appendChild(document.createElement('script')));
-            `,
-          }}
-        />
-        <Script
-          id="zone-9910308"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function(s){
-                s.dataset.zone='9910308';
-                s.src='https://forfrogadiertor.com/tag.min.js';
-              })(document.body.appendChild(document.createElement('script')));
-            `,
-          }}
-        />
-        <Script
-          id="zone-9915615"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function(s){
-                s.dataset.zone='9915615';
-                s.src='https://forfrogadiertor.com/tag.min.js';
-              })(document.body.appendChild(document.createElement('script')));
-            `,
-          }}
-        />
-
-        {/* Epic tag Push Notifications - 9915614 */}
-        <Script
-          id="zone-9915614"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function(s){
-                s.dataset.zone='9915614';
-                s.src='https://forfrogadiertor.com/tag.min.js';
-              })(document.body.appendChild(document.createElement('script')));
+              (function(zones){
+                zones.forEach(z => {
+                  const s = document.createElement('script');
+                  s.dataset.zone = z;
+                  s.src = 'https://forfrogadiertor.com/tag.min.js';
+                  document.body.appendChild(s);
+                });
+              })(['9909216']); // One main zone kept active
             `,
           }}
         />

@@ -62,7 +62,7 @@ const NesMineSSR = ({ username, initialNesTotal }) => {
 
     miningInterval.current = setInterval(async () => {
       await addNesToUser(1); // increase NES by 1
-    }, 5000); // buri masegonda 5
+    }, 30000); // buri masegonda 5
   };
 
   // Stop mining when user leaves or component unmounts

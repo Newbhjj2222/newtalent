@@ -147,44 +147,52 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
   };
 
   const handleShare = (platform) => {
-    const postUrl = window.location.href;
-    const cleanText = postData.story.replace(/<[^>]+>/g, "").slice(0, 800);
-    const text = `${postData.head}\n\n${cleanText}...\nSoma inkuru yose ukanze aha: ${postUrl}`;
+  const postUrl = window.location.href;
 
-    switch (platform) {
-      case "whatsapp":
-        window.open(
-          `https://wa.me/?text=${encodeURIComponent(text)}`,
-          "_blank"
-        );
-        break;
-      case "telegram":
-        window.open(
-          `https://t.me/share/url?url=${encodeURIComponent(
-            postUrl
-          )}&text=${encodeURIComponent(text)}`,
-          "_blank"
-        );
-        break;
-      case "messenger":
-        window.open(
-          `fb-messenger://share?link=${encodeURIComponent(postUrl)}`,
-          "_blank"
-        );
-        break;
-      case "facebook":
-        window.open(
-          `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-            postUrl
-          )}`,
-          "_blank"
-        );
-        break;
-      default:
-        navigator.clipboard.writeText(text);
-        alert("Text copied to clipboard");
-    }
-  };
+  // 1. Kuramo tags za HTML
+  let cleanText = postData.story.replace(/<[^>]+>/g, "");
+
+  // 2. Gusimbuza &nbsp; na izindi HTML entities n'ibisanzwe
+  cleanText = cleanText
+    .replace(/&nbsp;/g, " ") // Umwanya usanzwe
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">");
+
+  // 3. Gufata gusa inyandiko 800 za mbere
+  cleanText = cleanText.slice(0, 800);
+
+  const text = `${postData.head}\n\n${cleanText}...\nSoma inkuru yose ukanze aha 👉 ${postUrl}`;
+
+  switch (platform) {
+    case "whatsapp":
+      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
+      break;
+    case "telegram":
+      window.open(
+        `https://t.me/share/url?url=${encodeURIComponent(postUrl)}&text=${encodeURIComponent(text)}`,
+        "_blank"
+      );
+      break;
+    case "messenger":
+      window.open(
+        `fb-messenger://share?link=${encodeURIComponent(postUrl)}`,
+        "_blank"
+      );
+      break;
+    case "facebook":
+      window.open(
+        `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}`,
+        "_blank"
+      );
+      break;
+    default:
+      navigator.clipboard.writeText(text);
+      alert("Text copied to clipboard ✅");
+  }
+};
 
   if (!postData) return <div>Post not found.</div>;
 

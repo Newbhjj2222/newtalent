@@ -148,8 +148,8 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
 
   const handleShare = (platform) => {
     const postUrl = window.location.href;
-    const cleanText = postData.story.replace(/<[^>]+>/g, "").slice(0, 200);
-    const text = `${postData.head}\n\n${cleanText}...\nRead more: ${postUrl}`;
+    const cleanText = postData.story.replace(/<[^>]+>/g, "").slice(0, 800);
+    const text = `${postData.head}\n\n${cleanText}...\nSoma inkuru yose ukanze aha: ${postUrl}`;
 
     switch (platform) {
       case "whatsapp":
@@ -195,7 +195,7 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
         <meta property="og:title" content={postData.head} />
         <meta
           property="og:description"
-          content={postData.story.replace(/<[^>]+>/g, "").slice(0, 200)}
+          content={postData.story.replace(/<[^>]+>/g, "").slice(0, 800)}
         />
         <meta property="og:image" content={`${domain}${postData.imageUrl}`} />
         <meta property="og:url" content={`${domain}/post/${postData.id}`} />
@@ -204,7 +204,7 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
         <meta name="twitter:title" content={postData.head} />
         <meta
           name="twitter:description"
-          content={postData.story.replace(/<[^>]+>/g, "").slice(0, 200)}
+          content={postData.story.replace(/<[^>]+>/g, "").slice(0, 800)}
         />
         <meta name="twitter:image" content={`${domain}${postData.imageUrl}`} />
       </Head>

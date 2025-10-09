@@ -21,23 +21,22 @@ export async function getServerSideProps() {
   try {
     const foldersSnapshot = await getDocs(collection(db, "folders"));
 
-    // 🔹 Fata documents zose zidasanzwe zifite hidden = true
-    const visibleFolders = foldersSnapshot.docs.filter(
+    // 🔹 Fata gusa folders zifite hidden ≠ true
+    const visibleDocs = foldersSnapshot.docs.filter(
       (doc) => !doc.data().hidden
     );
 
-    // 🔹 Fata titles zidasubirwamo kandi zisukuremo Season/Episode labels
-    const cleanedTitles = visibleFolders.map((doc) => {
-      const rawTitle = doc.data().title || "Untitled";
-      return rawTitle
-        .replace(/S\d{1,2}E\d{1,2}/gi, "") // S01E01
-        .replace(/Ep\s?\d+/gi, "")         // Ep 1
-        .replace(/Episode\s?\d+/gi, "")    // Episode 1
-        .replace(/\s{2,}/g, " ")           // Imyanya ibiri
-        .trim();
+    // Fata titles zidasubirwamo  
+    const cleanedTitles = visibleDocs.map((doc) => {  
+      const rawTitle = doc.data().title || "Untitled";  
+      return rawTitle  
+        .replace(/S\d{1,2}E\d{1,2}/gi, "")  
+        .replace(/Ep\s?\d+/gi, "")  
+        .replace(/Episode\s?\d+/gi, "")  
+        .replace(/\s{2,}/g, " ")  
+        .trim();  
     });
 
-    // 🔹 Sobanura ibisohoka
     return {
       props: {
         folders: cleanedTitles,

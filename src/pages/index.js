@@ -37,21 +37,6 @@ export async function getServerSideProps() {
         .trim();  
     });
 
-    return {
-      props: {
-        folders: cleanedTitles,
-      },
-    };
-  } catch (error) {
-    console.error("Error fetching folders:", error);
-    return {
-      props: {
-        folders: [],
-      },
-    };
-  }
-}
-
     const uniqueTitles = [...new Set(cleanedTitles)];
     const sidebarPosts = uniqueTitles.map((title, index) => ({ id: index, title }));
 

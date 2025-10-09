@@ -21,16 +21,37 @@ export async function getServerSideProps() {
   try {
     const foldersSnapshot = await getDocs(collection(db, "folders"));
 
-    // Fata titles zidasubirwamo
-    const cleanedTitles = foldersSnapshot.docs.map((doc) => {
+    // 🔹 Fata documents zose zidasanzwe zifite hidden = true
+    const visibleFolders = foldersSnapshot.docs.filter(
+      (doc) => !doc.data().hidden
+    );
+
+    // 🔹 Fata titles zidasubirwamo kandi zisukuremo Season/Episode labels
+    const cleanedTitles = visibleFolders.map((doc) => {
       const rawTitle = doc.data().title || "Untitled";
       return rawTitle
-        .replace(/S\d{1,2}E\d{1,2}/gi, "")
-        .replace(/Ep\s?\d+/gi, "")
-        .replace(/Episode\s?\d+/gi, "")
-        .replace(/\s{2,}/g, " ")
+        .replace(/S\d{1,2}E\d{1,2}/gi, "") // S01E01
+        .replace(/Ep\s?\d+/gi, "")         // Ep 1
+        .replace(/Episode\s?\d+/gi, "")    // Episode 1
+        .replace(/\s{2,}/g, " ")           // Imyanya ibiri
         .trim();
     });
+
+    // 🔹 Sobanura ibisohoka
+    return {
+      props: {
+        folders: cleanedTitles,
+      },
+    };
+  } catch (error) {
+    console.error("Error fetching folders:", error);
+    return {
+      props: {
+        folders: [],
+      },
+    };
+  }
+}
 
     const uniqueTitles = [...new Set(cleanedTitles)];
     const sidebarPosts = uniqueTitles.map((title, index) => ({ id: index, title }));

@@ -167,7 +167,7 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
     .replace(/&gt;/g, ">");
 
   // 3. Gukata inyandiko (optional)
-  cleanText = cleanText.slice(0, 1200);
+  cleanText = cleanText.slice(0, 1700);
 
   // 4. Kubaka message
   const text = `${postData.head}\n\n${cleanText.trim()}...\n\nSoma inkuru yose ukanze aha 👉 ${postUrl}`;

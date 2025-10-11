@@ -148,23 +148,31 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
   const handleShare = (platform) => {
   const postUrl = window.location.href;
 
-  // 1. Kuramo tags za HTML
-  let cleanText = postData.story.replace(/<[^>]+>/g, "");
+  // 1. Hindura tags zerekana umurongo cyangwa paragraphe
+  let cleanText = postData.story
+    .replace(/<br\s*\/?>/gi, "\n")     // tag <br> → umurongo mushya
+    .replace(/<\/p>/gi, "\n\n")        // tag </p> → paragraphe nshya
+    .replace(/<\/div>/gi, "\n")        // <div> → umurongo mushya
+    .replace(/<li>/gi, "- ")           // <li> → bullet point
+    .replace(/<\/li>/gi, "\n")         // iherezo rya <li>
+    .replace(/<[^>]+>/g, "");          // Hanyuma ukuraho izindi tags zose zisigaye
 
-  // 2. Gusimbuza &nbsp; na izindi HTML entities n'ibisanzwe
+  // 2. Gukosora HTML entities
   cleanText = cleanText
-    .replace(/&nbsp;/g, " ") // Umwanya usanzwe
+    .replace(/&nbsp;/g, " ")
     .replace(/&amp;/g, "&")
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">");
 
-  // 3. Gufata gusa inyandiko 800 za mbere
-  cleanText = cleanText.slice(0, 800);
+  // 3. Gukata inyandiko (optional)
+  cleanText = cleanText.slice(0, 2000);
 
-  const text = `${postData.head}\n\n${cleanText}...\nSoma inkuru yose ukanze aha 👉 ${postUrl}`;
+  // 4. Kubaka message
+  const text = `${postData.head}\n\n${cleanText.trim()}...\n\nSoma inkuru yose ukanze aha 👉 ${postUrl}`;
 
+  // 5. Share platforms
   switch (platform) {
     case "whatsapp":
       window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
@@ -176,16 +184,10 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
       );
       break;
     case "messenger":
-      window.open(
-        `fb-messenger://share?link=${encodeURIComponent(postUrl)}`,
-        "_blank"
-      );
+      window.open(`fb-messenger://share?link=${encodeURIComponent(postUrl)}`, "_blank");
       break;
     case "facebook":
-      window.open(
-        `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}`,
-        "_blank"
-      );
+      window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}`, "_blank");
       break;
     default:
       navigator.clipboard.writeText(text);

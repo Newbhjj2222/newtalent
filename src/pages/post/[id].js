@@ -21,22 +21,21 @@ import styles from "../../components/PostDetail.module.css";
 
 const extractSeriesAndEpisode = (head) => {
   if (!head) return { title: null, season: null, episode: null };
+
   const cleanedHead = head
     .replace(/[\/\-_:.]+/g, " ")
     .replace(/\s+/g, " ")
     .trim()
     .toUpperCase();
-  const isFinal = /FINAL(LY)?/.test(cleanedHead);
+
+  // Kora regex ifata ibihe byose bya "final" cyangwa "finally"
+  const isFinal = /\b(FINAL(LY)?|EPISODE\s*FINAL(LY)?|FINAL(LY)?\s*EPISODE|EP\s*FINAL(LY)?|FINAL(LY)?\s*EP)\b/i.test(cleanedHead);
 
   const seasonMatch = cleanedHead.match(/SEASON\s*0*(\d+)|S\s*0*(\d+)/i);
   let season = seasonMatch ? parseInt(seasonMatch[1] || seasonMatch[2], 10) : 1;
 
-  const episodeMatch = cleanedHead.match(
-    /EPISODE\s*0*(\d+)|EP\s*0*(\d+)|E\s*0*(\d+)/i
-  );
-  let episode = episodeMatch
-    ? parseInt(episodeMatch[1] || episodeMatch[2] || episodeMatch[3], 10)
-    : 1;
+  const episodeMatch = cleanedHead.match(/EPISODE\s*0*(\d+)|EP\s*0*(\d+)|E\s*0*(\d+)/i);
+  let episode = episodeMatch ? parseInt(episodeMatch[1] || episodeMatch[2] || episodeMatch[3], 10) : 1;
 
   if (isFinal) episode = 999;
 
@@ -46,7 +45,7 @@ const extractSeriesAndEpisode = (head) => {
     .replace(/EPISODE\s*0*\d+/gi, "")
     .replace(/EP\s*0*\d+/gi, "")
     .replace(/E\s*0*\d+/gi, "")
-    .replace(/FINAL(LY)?/gi, "")
+    .replace(/\bFINAL(LY)?\b/gi, "")
     .trim();
 
   return { title, season, episode };
@@ -58,7 +57,7 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
   const [newComment, setNewComment] = useState("");
   const [currentUser, setCurrentUser] = useState("");
   const [views, setViews] = useState(postData?.views || 0);
-  const domain = "https://newtalentsg.co.rw"; // ✅ Domain yawe
+  const domain = "https://www.newtalentsg.co.rw"; // ✅ Domain yawe
 
   useEffect(() => {
     if (typeof window !== "undefined" && postData?.id) {

@@ -28,17 +28,21 @@ const extractSeriesAndEpisode = (head) => {
     .trim()
     .toUpperCase();
 
-  // Kora regex ifata ibihe byose bya "final" cyangwa "finally"
-  const isFinal = /\b(FINAL(LY)?|EPISODE\s*FINAL(LY)?|FINAL(LY)?\s*EPISODE|EP\s*FINAL(LY)?|FINAL(LY)?\s*EP)\b/i.test(cleanedHead);
+  // ✅ Regex nshya ifata uburyo bwose bwa FINAL / FINALLY / EPISODE
+  const isFinal = /\b(FINAL(LY)?|EPISODE\s*(FINAL(LY)?)?|EP\s*(FINAL(LY)?)?|FINAL(LY)?\s*(EP(ISODE)?)?)\b/i.test(cleanedHead);
 
+  // 🔍 Shaka season
   const seasonMatch = cleanedHead.match(/SEASON\s*0*(\d+)|S\s*0*(\d+)/i);
   let season = seasonMatch ? parseInt(seasonMatch[1] || seasonMatch[2], 10) : 1;
 
+  // 🔍 Shaka episode number
   const episodeMatch = cleanedHead.match(/EPISODE\s*0*(\d+)|EP\s*0*(\d+)|E\s*0*(\d+)/i);
   let episode = episodeMatch ? parseInt(episodeMatch[1] || episodeMatch[2] || episodeMatch[3], 10) : 1;
 
+  // 👉 Niba ari “Final” cyangwa “Finally”, episode ibe 999
   if (isFinal) episode = 999;
 
+  // 🧹 Sukura title
   const title = cleanedHead
     .replace(/SEASON\s*0*\d+/gi, "")
     .replace(/S\s*0*\d+/gi, "")
@@ -50,7 +54,6 @@ const extractSeriesAndEpisode = (head) => {
 
   return { title, season, episode };
 };
-
 const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
   const router = useRouter();
   const [comments, setComments] = useState(commentsData || []);

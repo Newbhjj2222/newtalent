@@ -17,17 +17,26 @@ export default function Pop() {
         const aggregated = {};
 
         allPosts.forEach((post) => {
-          // Fata head y'inkuru nyamukuru gusa
+          if (!post.head) return;
+
+          // ✅ Sukura head mu buryo bwagutse — ifate FINAL / FINALLY / EPISODE / EP mu buryo bwose
           let baseHead = post.head
-            ? post.head.replace(/(S\d+)?\s*(EP\d+)?\s*(EPISODE\s*\d+)?\s*(FINALLY)?/gi, "").trim()
-            : "Untitled";
+            .replace(/[\/\-_:.]+/g, " ") // Kuraho amakarita n'utundi tumenyetso
+            .replace(/\s+/g, " ") // Kuraho espaces nyinshi
+            .replace(
+              /\b(SEASON\s*\d+|S\s*\d+|EPISODE\s*\d+|EP\s*\d+|E\s*\d+|FINAL(LY)?|EPISODE\s*FINAL(LY)?|FINAL(LY)?\s*EPISODE|EP\s*FINAL(LY)?|FINAL(LY)?\s*EP|THE\s*END|LAST\s*EPISODE)\b/gi,
+              ""
+            )
+            .trim();
+
+          if (!baseHead) baseHead = "Untitled";
 
           if (!aggregated[baseHead]) {
             aggregated[baseHead] = {
               head: baseHead,
               totalViews: 0,
               imageUrl: post.imageUrl || null,
-              episodeCount: 0, // optional: kumenya umubare w'episodes
+              episodeCount: 0,
             };
           }
 
@@ -39,7 +48,7 @@ export default function Pop() {
             aggregated[baseHead].imageUrl = post.imageUrl;
           }
 
-          // Hano dushobora kubara episodes
+          // Bika umubare w’episodes
           aggregated[baseHead].episodeCount += 1;
         });
 
@@ -81,7 +90,8 @@ export default function Pop() {
             <div className={styles.content}>
               <h3 className={styles.postTitle}>{post.head}</h3>
               <p className={styles.views}>
-                👁 {post.totalViews} views {post.episodeCount > 1 ? `– ${post.episodeCount} episodes` : ""}
+                👁 {post.totalViews} views{" "}
+                {post.episodeCount > 1 ? `– ${post.episodeCount} episodes` : ""}
               </p>
             </div>
           </div>

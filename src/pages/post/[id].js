@@ -19,8 +19,6 @@ import Footer from "../../components/Footer";
 import Bible from "../../components/Bible";
 import NesMine from "../../components/NesMine";
 import styles from "../../components/PostDetail.module.css";
-
-// --- Function: Gusohora title, season, episode neza ---
 const extractSeriesAndEpisode = (head) => {
   if (!head) return { title: null, season: null, episode: null };
 

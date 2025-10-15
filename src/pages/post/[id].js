@@ -332,26 +332,54 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
 export async function getServerSideProps(context) {
   const { id } = context.params;
 
+  // --- Fata post nyayo ---
   const postRef = doc(db, "posts", id);
   const postSnap = await getDoc(postRef);
   if (!postSnap.exists()) return { props: { postData: null } };
   const postData = { id: postSnap.id, ...postSnap.data() };
 
+  // --- Comments ---
   const commentsRef = collection(db, "posts", id, "comments");
   const commentsSnap = await getDocs(commentsRef);
   const commentsData = commentsSnap.docs.map((d) => d.data());
 
-  // --- Navigation logic ---
+  // --- Posts zose ---
   const allPostsSnap = await getDocs(collection(db, "posts"));
   const allPosts = allPostsSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
+
+  // --- Helper: kuringaniza title neza ---
+  const normalizeTitle = (t) =>
+    t
+      ? t
+          .toUpperCase()
+          .replace(/[^\w]+/g, " ")
+          .replace(/\s+/g, " ")
+          .trim()
+      : "";
+
+  // --- Current post info ---
   const current = extractSeriesAndEpisode(postData.head);
 
+  // --- Bishyira kuri buri post: season, episode, title ---
   const postsWithInfo = allPosts
-    .map((p) => ({ ...p, ...extractSeriesAndEpisode(p.head) }))
+    .map((p) => ({
+      ...p,
+      ...extractSeriesAndEpisode(p.head),
+    }))
     .filter(
-      (p) => p.title?.toUpperCase() === current.title.toUpperCase() && p.episode !== null
+      (p) =>
+        normalizeTitle(p.title) === normalizeTitle(current.title) &&
+        p.episode !== null
     );
 
+  // --- Gusobanura final/ finally episode yose nk’episode 999 ---
+  postsWithInfo.forEach((p) => {
+    if (/FINAL(LY)?/i.test(p.head)) {
+      p.episode = 999;
+    }
+  });
+
+  // --- Gupanga posts muri order ya season + episode ---
   const seasonsMap = {};
   postsWithInfo.forEach((p) => {
     if (!seasonsMap[p.season]) seasonsMap[p.season] = [];
@@ -359,34 +387,46 @@ export async function getServerSideProps(context) {
   });
 
   Object.values(seasonsMap).forEach((seasonPosts) =>
-    seasonPosts.sort((a, b) =>
-      a.episode === 999 ? 1 : b.episode === 999 ? -1 : a.episode - b.episode
-    )
+    seasonPosts.sort((a, b) => {
+      const ea = a.episode === 999 ? Infinity : a.episode;
+      const eb = b.episode === 999 ? Infinity : b.episode;
+      return ea - eb;
+    })
   );
 
   let sortedPosts = [];
   Object.keys(seasonsMap)
-    .sort((a, b) => a - b)
+    .sort((a, b) => parseInt(a) - parseInt(b))
     .forEach((sn) => sortedPosts.push(...seasonsMap[sn]));
 
+  // --- Kubona previous & next ---
   const currentIndex = sortedPosts.findIndex((p) => p.id === id);
   const prevPostId = currentIndex > 0 ? sortedPosts[currentIndex - 1].id : null;
 
   let nextPostId = null;
   if (currentIndex < sortedPosts.length - 1) {
-    const currentEpisode = sortedPosts[currentIndex].episode;
-    if (currentEpisode === 999) {
-      const nextSeason = current.season + 1;
+    const currentPost = sortedPosts[currentIndex];
+
+    if (currentPost.episode === 999) {
+      // Niba ari Final Episode, ujye kuri Season ikurikiraho (Episode 1)
+      const nextSeason = currentPost.season + 1;
       const nextSeasonPost = sortedPosts.find(
         (p) => p.season === nextSeason && p.episode === 1
       );
       nextPostId = nextSeasonPost ? nextSeasonPost.id : null;
     } else {
-      nextPostId = sortedPosts[currentIndex + 1].id;
+      // Otherwise, next episode muri urwo rutonde
+      nextPostId = sortedPosts[currentIndex + 1]?.id || null;
     }
   }
 
-  return { props: { postData, commentsData, prevPostId, nextPostId } };
+  // --- Return ---
+  return {
+    props: {
+      postData,
+      commentsData,
+      prevPostId,
+      nextPostId,
+    },
+  };
 }
-
-export default PostDetails;

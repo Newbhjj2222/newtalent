@@ -1,4 +1,5 @@
 // pages/post/[id].js
+"use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Head from "next/head";
@@ -19,18 +20,24 @@ import Bible from "../../components/Bible";
 import NesMine from "../../components/NesMine";
 import styles from "../../components/PostDetail.module.css";
 
+// --- Function: Gusohora title, season, episode neza ---
 const extractSeriesAndEpisode = (head) => {
   if (!head) return { title: null, season: null, episode: null };
+
   const cleanedHead = head
     .replace(/[\/\-_:.]+/g, " ")
     .replace(/\s+/g, " ")
     .trim()
     .toUpperCase();
+
+  // --- Check niba ari Final cyangwa Finally ---
   const isFinal = /FINAL(LY)?/.test(cleanedHead);
 
+  // --- Shakisha Season ---
   const seasonMatch = cleanedHead.match(/SEASON\s*0*(\d+)|S\s*0*(\d+)/i);
   let season = seasonMatch ? parseInt(seasonMatch[1] || seasonMatch[2], 10) : 1;
 
+  // --- Shakisha Episode ---
   const episodeMatch = cleanedHead.match(
     /EPISODE\s*0*(\d+)|EP\s*0*(\d+)|E\s*0*(\d+)/i
   );
@@ -38,8 +45,10 @@ const extractSeriesAndEpisode = (head) => {
     ? parseInt(episodeMatch[1] || episodeMatch[2] || episodeMatch[3], 10)
     : 1;
 
+  // --- Niba ari Final cyangwa Finally, episode = 999 ---
   if (isFinal) episode = 999;
 
+  // --- Gusukura title ngo ibe izina gusa ry’inkuru ---
   const title = cleanedHead
     .replace(/SEASON\s*0*\d+/gi, "")
     .replace(/S\s*0*\d+/gi, "")
@@ -60,6 +69,7 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
   const [views, setViews] = useState(postData?.views || 0);
   const domain = "https://www.newtalentsg.co.rw"; // ✅ Domain yawe
 
+  // --- Ureba user na views ---
   useEffect(() => {
     if (typeof window !== "undefined" && postData?.id) {
       const storedUsername = localStorage.getItem("username");
@@ -75,7 +85,7 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
           const postRef = doc(db, "posts", postData.id);
           await updateDoc(postRef, { views: increment(1) });
 
-          // refresh view count locally
+          // Refresh local views
           const snap = await getDoc(postRef);
           if (snap.exists()) {
             setViews(snap.data().views || 0);
@@ -86,7 +96,7 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
       };
       incrementViews();
 
-      // NES logic (author gains NES when someone reads)
+      // --- NES logic ---
       const handleNES = async () => {
         try {
           const username = storedUsername;
@@ -97,14 +107,18 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
             const depositerSnap = await getDoc(depositerRef);
 
             if (!depositerSnap.exists()) {
-              alert("Account yawe ntiboneka mubaguze NeS. Kugira ngo wemererwe gusoma banza uzigura. tugiye kukujyana aho uzigurira. niba ukeneye ubufasha twandikire Whatsapp +250722319367.");
+              alert(
+                "Account yawe ntiboneka mubaguze NeS. Kugira ngo wemererwe gusoma banza uzigura. tugiye kukujyana aho uzigurira. niba ukeneye ubufasha twandikire Whatsapp +250722319367."
+              );
               router.push("/balance");
               return;
             }
 
             const currentNes = Number(depositerSnap.data().nes) || 0;
             if (currentNes < 1) {
-              alert("Nta NeS zihagije ufite zikwemerera gusoma iyi Nkuru. Nyamuneka banza uzigure. tugiye kukujyana aho uzigurira, niba ubibonye waziguze, twandikire Whatsapp nonaha tugufashe. +250722319367.");
+              alert(
+                "Nta NeS zihagije ufite zikwemerera gusoma iyi Nkuru. Nyamuneka banza uzigure. tugiye kukujyana aho uzigurira, niba ubibonye waziguze, twandikire Whatsapp nonaha tugufashe. +250722319367."
+              );
               router.push("/balance");
               return;
             }
@@ -124,11 +138,11 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
           console.error("NES update failed:", err);
         }
       };
-
       handleNES();
     }
   }, [postData, router]);
 
+  // --- Comments ---
   const handleCommentSubmit = async () => {
     if (!newComment.trim() || !currentUser) return;
     try {
@@ -146,55 +160,57 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
     }
   };
 
+  // --- Share function ---
   const handleShare = (platform) => {
-  const postUrl = window.location.href;
+    const postUrl = window.location.href;
 
-  // 1. Hindura tags zerekana umurongo cyangwa paragraphe
-  let cleanText = postData.story
-    .replace(/<br\s*\/?>/gi, "\n")     // tag <br> → umurongo mushya
-    .replace(/<\/p>/gi, "\n\n")        // tag </p> → paragraphe nshya
-    .replace(/<\/div>/gi, "\n")        // <div> → umurongo mushya
-    .replace(/<li>/gi, "- ")           // <li> → bullet point
-    .replace(/<\/li>/gi, "\n")         // iherezo rya <li>
-    .replace(/<[^>]+>/g, "");          // Hanyuma ukuraho izindi tags zose zisigaye
+    let cleanText = postData.story
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(/<\/p>/gi, "\n\n")
+      .replace(/<\/div>/gi, "\n")
+      .replace(/<li>/gi, "- ")
+      .replace(/<\/li>/gi, "\n")
+      .replace(/<[^>]+>/g, "");
 
-  // 2. Gukosora HTML entities
-  cleanText = cleanText
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">");
+    cleanText = cleanText
+      .replace(/&nbsp;/g, " ")
+      .replace(/&amp;/g, "&")
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">");
 
-  // 3. Gukata inyandiko (optional)
-  cleanText = cleanText.slice(0, 1700);
+    cleanText = cleanText.slice(0, 1700);
 
-  // 4. Kubaka message
-  const text = `${postData.head}\n\n${cleanText.trim()}...\n\nSoma inkuru yose ukanze aha 👉 ${postUrl}`;
+    const text = `${postData.head}\n\n${cleanText.trim()}...\n\nSoma inkuru yose ukanze aha 👉 ${postUrl}`;
 
-  // 5. Share platforms
-  switch (platform) {
-    case "whatsapp":
-      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
-      break;
-    case "telegram":
-      window.open(
-        `https://t.me/share/url?url=${encodeURIComponent(postUrl)}&text=${encodeURIComponent(text)}`,
-        "_blank"
-      );
-      break;
-    case "messenger":
-      window.open(`fb-messenger://share?link=${encodeURIComponent(postUrl)}`, "_blank");
-      break;
-    case "facebook":
-      window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}`, "_blank");
-      break;
-    default:
-      navigator.clipboard.writeText(text);
-      alert("Text copied to clipboard ✅");
-  }
-};
+    switch (platform) {
+      case "whatsapp":
+        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
+        break;
+      case "telegram":
+        window.open(
+          `https://t.me/share/url?url=${encodeURIComponent(postUrl)}&text=${encodeURIComponent(text)}`,
+          "_blank"
+        );
+        break;
+      case "messenger":
+        window.open(
+          `fb-messenger://share?link=${encodeURIComponent(postUrl)}`,
+          "_blank"
+        );
+        break;
+      case "facebook":
+        window.open(
+          `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}`,
+          "_blank"
+        );
+        break;
+      default:
+        navigator.clipboard.writeText(text);
+        alert("Text copied to clipboard ✅");
+    }
+  };
 
   if (!postData) return <div>Post not found.</div>;
 
@@ -239,36 +255,17 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
           <small>By: {postData.author || "Unknown"}</small>
           <small style={{ marginLeft: "10px" }}>👁 {views} views</small>
           <div className={styles.shareButtons}>
-            <button
-              className={styles.shareButton}
-              onClick={() => handleShare("whatsapp")}
-            >
-              <FaShareAlt /> WhatsApp
-            </button>
-            <button
-              className={styles.shareButton}
-              onClick={() => handleShare("telegram")}
-            >
-              <FaShareAlt /> Telegram
-            </button>
-            <button
-              className={styles.shareButton}
-              onClick={() => handleShare("messenger")}
-            >
-              <FaShareAlt /> Messenger
-            </button>
-            <button
-              className={styles.shareButton}
-              onClick={() => handleShare("facebook")}
-            >
-              <FaShareAlt /> Facebook
-            </button>
-            <button
-              className={styles.shareButton}
-              onClick={() => handleShare("clipboard")}
-            >
-              <FaShareAlt /> Copy Link
-            </button>
+            {["whatsapp", "telegram", "messenger", "facebook", "clipboard"].map(
+              (platform) => (
+                <button
+                  key={platform}
+                  className={styles.shareButton}
+                  onClick={() => handleShare(platform)}
+                >
+                  <FaShareAlt /> {platform.charAt(0).toUpperCase() + platform.slice(1)}
+                </button>
+              )
+            )}
           </div>
         </div>
 
@@ -328,26 +325,22 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
   );
 };
 
-// --- SSR logic
+// --- SSR Logic (Get server side props) ---
 export async function getServerSideProps(context) {
   const { id } = context.params;
 
-  // --- Fata post nyayo ---
   const postRef = doc(db, "posts", id);
   const postSnap = await getDoc(postRef);
   if (!postSnap.exists()) return { props: { postData: null } };
   const postData = { id: postSnap.id, ...postSnap.data() };
 
-  // --- Comments ---
   const commentsRef = collection(db, "posts", id, "comments");
   const commentsSnap = await getDocs(commentsRef);
   const commentsData = commentsSnap.docs.map((d) => d.data());
 
-  // --- Posts zose ---
   const allPostsSnap = await getDocs(collection(db, "posts"));
   const allPosts = allPostsSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
 
-  // --- Helper: kuringaniza title neza ---
   const normalizeTitle = (t) =>
     t
       ? t
@@ -357,29 +350,22 @@ export async function getServerSideProps(context) {
           .trim()
       : "";
 
-  // --- Current post info ---
   const current = extractSeriesAndEpisode(postData.head);
 
-  // --- Bishyira kuri buri post: season, episode, title ---
   const postsWithInfo = allPosts
-    .map((p) => ({
-      ...p,
-      ...extractSeriesAndEpisode(p.head),
-    }))
+    .map((p) => ({ ...p, ...extractSeriesAndEpisode(p.head) }))
     .filter(
       (p) =>
         normalizeTitle(p.title) === normalizeTitle(current.title) &&
         p.episode !== null
     );
 
-  // --- Gusobanura final/ finally episode yose nk’episode 999 ---
   postsWithInfo.forEach((p) => {
     if (/FINAL(LY)?/i.test(p.head)) {
       p.episode = 999;
     }
   });
 
-  // --- Gupanga posts muri order ya season + episode ---
   const seasonsMap = {};
   postsWithInfo.forEach((p) => {
     if (!seasonsMap[p.season]) seasonsMap[p.season] = [];
@@ -399,34 +385,26 @@ export async function getServerSideProps(context) {
     .sort((a, b) => parseInt(a) - parseInt(b))
     .forEach((sn) => sortedPosts.push(...seasonsMap[sn]));
 
-  // --- Kubona previous & next ---
   const currentIndex = sortedPosts.findIndex((p) => p.id === id);
   const prevPostId = currentIndex > 0 ? sortedPosts[currentIndex - 1].id : null;
 
   let nextPostId = null;
   if (currentIndex < sortedPosts.length - 1) {
     const currentPost = sortedPosts[currentIndex];
-
     if (currentPost.episode === 999) {
-      // Niba ari Final Episode, ujye kuri Season ikurikiraho (Episode 1)
       const nextSeason = currentPost.season + 1;
       const nextSeasonPost = sortedPosts.find(
         (p) => p.season === nextSeason && p.episode === 1
       );
       nextPostId = nextSeasonPost ? nextSeasonPost.id : null;
     } else {
-      // Otherwise, next episode muri urwo rutonde
       nextPostId = sortedPosts[currentIndex + 1]?.id || null;
     }
   }
 
-  // --- Return ---
   return {
-    props: {
-      postData,
-      commentsData,
-      prevPostId,
-      nextPostId,
-    },
+    props: { postData, commentsData, prevPostId, nextPostId },
   };
 }
+
+export default PostDetails;

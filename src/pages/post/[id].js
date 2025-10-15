@@ -30,25 +30,26 @@ const extractSeriesAndEpisode = (head) => {
     .trim()
     .toUpperCase();
 
-  // --- Check niba ari Final cyangwa Finally ---
-  const isFinal = /FINAL(LY)?/.test(cleanedHead);
+  // 🔹 Reba niba ari FINAL cyangwa FINALLY
+  const isFinal = /(FINAL(LY)?(\s*EPISODE)?|EPISODE\s*FINAL(LY)?)/i.test(cleanedHead);
 
-  // --- Shakisha Season ---
+  // 🔹 Shaka Season
   const seasonMatch = cleanedHead.match(/SEASON\s*0*(\d+)|S\s*0*(\d+)/i);
   let season = seasonMatch ? parseInt(seasonMatch[1] || seasonMatch[2], 10) : 1;
 
-  // --- Shakisha Episode ---
-  const episodeMatch = cleanedHead.match(
-    /EPISODE\s*0*(\d+)|EP\s*0*(\d+)|E\s*0*(\d+)/i
-  );
+  // 🔹 Shaka Episode Number
+  const episodeMatch = cleanedHead.match(/EPISODE\s*0*(\d+)|EP\s*0*(\d+)|E\s*0*(\d+)/i);
   let episode = episodeMatch
     ? parseInt(episodeMatch[1] || episodeMatch[2] || episodeMatch[3], 10)
-    : 1;
+    : null;
 
-  // --- Niba ari Final cyangwa Finally, episode = 999 ---
+  // 🔹 Niba ari FINAL cyangwa FINALLY, shyiraho episode = 999
   if (isFinal) episode = 999;
 
-  // --- Gusukura title ngo ibe izina gusa ry’inkuru ---
+  // 🔹 Niba ntabonye number ariko atari FINAL, nyishyire kuri 1
+  if (episode === null || isNaN(episode)) episode = 1;
+
+  // 🔹 Sobanura title (udukuremo ibintu byongera)
   const title = cleanedHead
     .replace(/SEASON\s*0*\d+/gi, "")
     .replace(/S\s*0*\d+/gi, "")
@@ -60,7 +61,6 @@ const extractSeriesAndEpisode = (head) => {
 
   return { title, season, episode };
 };
-
 const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
   const router = useRouter();
   const [comments, setComments] = useState(commentsData || []);

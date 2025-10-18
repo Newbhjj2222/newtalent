@@ -78,7 +78,7 @@ export default function Pop() {
 
   return (
     <div className={styles.container}>
-      <h2 className={styles.title}>🔥 Inkuru Zasomwe cyane</h2>
+      <h2 className={styles.title}>🔥 Inkuru Ziri gusomwa cyane</h2>
       <div className={styles.grid}>
         {posts.map((post, idx) => (
           <div key={idx} className={styles.post}>

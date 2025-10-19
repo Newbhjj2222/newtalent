@@ -1,22 +1,28 @@
-import { exec } from 'child_process';
-import util from 'util';
-
-const execPromise = util.promisify(exec);
+import ytdl from 'ytdl-core';
 
 export default async function handler(req, res) {
   const { url } = req.query;
+
   if (!url) return res.status(400).json({ error: 'Missing URL' });
 
   try {
-    const command = `yt-dlp -f bestaudio -g ${url}`;
-    const { stdout, stderr } = await execPromise(command);
+    // Validate URL
+    if (!ytdl.validateURL(url)) {
+      return res.status(400).json({ error: 'Invalid YouTube URL' });
+    }
 
-    if (stderr) console.error(stderr);
+    // Get audio info
+    const info = await ytdl.getInfo(url);
 
-    const audioUrl = stdout.trim();
-    if (!audioUrl) throw new Error('Audio URL ntiboneka');
+    // Find the best audio format
+    const audioFormat = ytdl.chooseFormat(info.formats, { quality: 'highestaudio' });
 
-    res.status(200).json({ audioUrl });
+    if (!audioFormat || !audioFormat.url) {
+      throw new Error('Audio URL ntiboneka');
+    }
+
+    // Return direct audio URL
+    res.status(200).json({ audioUrl: audioFormat.url });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message });

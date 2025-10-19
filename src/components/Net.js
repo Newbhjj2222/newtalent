@@ -132,7 +132,7 @@ export default function NeTDownloader() {
     }
   };
 
-  // --- Fetch YouTube audio via API with progress ---
+  // --- Fetch YouTube audio via backend API ---
   const fetchYouTubeAudio = async () => {
     resetUI();
     if (!url) return alert('Shyiramo YouTube URL mbere.');
@@ -145,8 +145,6 @@ export default function NeTDownloader() {
       if (!resp.ok || !data.audioUrl) throw new Error(data.error || 'Audio URL ntiboneka');
 
       const audioLink = data.audioUrl;
-
-      // Download via blob to track progress
       await fetchAndDownload(audioLink);
     } catch (err) {
       console.error(err);
@@ -160,7 +158,9 @@ export default function NeTDownloader() {
     <main className="card p-4">
       <h1 id="title">NeT Downloader</h1>
       <p className="lead">
-        Andika cyangwa shyiramo <b>direct audio URL</b> (mp3/wav/ogg) cyangwa <b>URL y'urupapuro</b>. Iyi page izagerageza gukina audio no kuyigura (download) mu buryo bwemewe.
+        Andika cyangwa shyiramo <b>direct audio URL</b> (mp3/wav/ogg) cyangwa{' '}
+        <b>URL y&apos;urupapuro</b>. Iyi page izagerageza gukina audio no kuyigura
+        (download) mu buryo bwemewe.
       </p>
 
       <div className="row mb-2">
@@ -173,10 +173,12 @@ export default function NeTDownloader() {
           onKeyDown={(e) => e.key === 'Enter' && checkUrl()}
           className="border p-2 w-full mr-2"
         />
-        <button onClick={checkUrl} disabled={loading}>Check & Load</button>
+        <button onClick={checkUrl} disabled={loading}>Check &amp; Load</button>
         <button onClick={fetchYouTubeAudio} disabled={loading}>Download YouTube Audio</button>
-        <button onClick={() => fetchAndDownload()} disabled={loading}>Fetch & Download</button>
-        <button onClick={() => url && window.open(url, '_blank', 'noopener')} disabled={loading}>Open URL</button>
+        <button onClick={() => fetchAndDownload()} disabled={loading}>Fetch &amp; Download</button>
+        <button onClick={() => url && window.open(url, '_blank', 'noopener')} disabled={loading}>
+          Open URL
+        </button>
       </div>
 
       {meta.url && (
@@ -198,22 +200,30 @@ export default function NeTDownloader() {
       )}
 
       <div className="row-actions mb-2">
-        <a ref={directAnchorRef} download hidden={!audioUrl}><button>Direct Download (is allowed)</button></a>
-        <a ref={blobAnchorRef} download hidden={!audioUrl}><button>Download (via fetched blob)</button></a>
+        <a ref={directAnchorRef} download hidden={!audioUrl}>
+          <button>Direct Download (is allowed)</button>
+        </a>
+        <a ref={blobAnchorRef} download hidden={!audioUrl}>
+          <button>Download (via fetched blob)</button>
+        </a>
       </div>
 
       {notesVisible && (
         <div id="notes" className="note mb-2">
-          <strong>Note:</strong> Niba server ifite CORS disabled, browser izahagarika fetch; muri ubwo buryo kanda <em>Open URL</em> kugirango ugerageze gufungura iyo file mu tab nshya.
+          <strong>Note:</strong> Niba server ifite CORS disabled, browser izahagarika fetch; muri
+          ubwo buryo kanda <em>Open URL</em> kugira ngo ugerageze gufungura iyo file mu tab nshya.
         </div>
       )}
 
       <div id="warning" className="warning mb-2">
-        <strong>Important:</strong> Ntukoreshe iyi tool mu gukuramo ama-audio utabifitiye uburenganzira.
+        <strong>Important:</strong> Ntukoreshe iyi tool mu gukuramo ama-audio utabifitiye
+        uburenganzira.
       </div>
 
       <footer>
-        Ikitonderwa: Iyi page n'izagufasha gusa <code>ku downloadinga audio ukoresheje URLs</code> kandi ntigomba gukoreshwa ngo ihungabanye amategeko. New talents stories group, all rights reserved
+        Ikitonderwa: Iyi page n&apos;izagufasha gusa{' '}
+        <code>ku downloadinga audio ukoresheje URLs</code> kandi ntigomba gukoreshwa mu buryo
+        butemewe. <b>New Talents Stories Group</b> &ndash; All rights reserved.
       </footer>
     </main>
   );

@@ -35,13 +35,13 @@ export default function TvPage() {
         }
 
         const url = videoUrls[currentIndex];
-        container.innerHTML = ""; // gusiba video/iframe iheruka
+        container.innerHTML = ""; // Gusiba video/iframe iheruka
 
-        // KINYA YOUTUBE
+        // ▶️ YouTube Video
         if (url.includes("youtube.com") || url.includes("youtu.be")) {
           const videoId = getYoutubeVideoID(url);
           const iframe = document.createElement("iframe");
-          iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=0&rel=0&modestbranding=1`;
+          iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&controls=0&rel=0&modestbranding=1`;
           iframe.allow = "autoplay; encrypted-media";
           iframe.allowFullscreen = true;
           iframe.className = styles.videoPlayer;
@@ -51,14 +51,14 @@ export default function TvPage() {
           setTimeout(() => {
             currentIndex++;
             playNextVideo();
-          }, 300000);
+          }, 1);
 
         } else {
-          // KINYA MP4 / CLOUDINARY
+          // ▶️ MP4 cyangwa izindi video
           const video = document.createElement("video");
           video.src = url;
           video.autoplay = true;
-          video.muted = true;
+          video.muted = false; // <-- Amafaranga hano!
           video.controls = true;
           video.className = styles.videoPlayer;
           container.appendChild(video);

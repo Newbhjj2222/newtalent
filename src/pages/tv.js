@@ -91,20 +91,19 @@ export default function TvPage() {
         <div className={styles.tv}>
           <button
             onClick={startTv}
-            style={{
-              backgroundColor: "#e50914",
-              color: "white",
-              padding: "10px 20px",
-              border: "none",
-              borderRadius: "8px",
-              cursor: "pointer",
-              fontSize: "18px",
-              marginBottom: "10px"
-            }}
+            className={styles.playButton}
           >
             ▶️ Tangira TV
           </button>
+
           <div id="autoPlayVideo" className={styles.videoContainer}></div>
+
+          {/* 📰 Scrolling text banner */}
+          <div className={styles.tickerWrapper}>
+            <div className={styles.ticker}>
+              📰 Soma inkuru zitandukanye zabanditsi batandukanye kandi buri munsi kuri website yacu.
+            </div>
+          </div>
         </div>
       </div>
     </>

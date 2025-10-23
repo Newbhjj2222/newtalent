@@ -1,65 +1,118 @@
 .ntv {
-  width: 100vw;
-  height: 100vh;
-  background-color: #000;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  color: #fff;
-  overflow: hidden;
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 20px;
-  background-color: rgba(0,0,0,0.7);
-  z-index: 10;
-}
-
-.header h2 {
-  margin: 0;
-  font-size: 1.5rem;
-}
-
-.header button {
-  background-color: #ff0000;
-  color: #fff;
-  border: none;
-  padding: 8px 16px;
-  font-size: 1rem;
-  cursor: pointer;
-  border-radius: 4px;
-}
-
-.header button:hover {
-  background-color: #cc0000;
-}
-
-.tv {
-  flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
+  min-height: 100vh;
+  background: radial-gradient(circle at center, #000000 40%, #111111 100%);
+  color: white;
+  text-align: center;
+  padding: 20px;
+  font-family: "Poppins", sans-serif;
+}
+
+.tv {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  width: 100%;
+  max-width: 900px;
+  position: relative;
 }
 
 .videoContainer {
   width: 100%;
-  height: 100%;
-  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 0 30px rgba(255, 0, 0, 0.4);
+  background: black;
+  transition: all 0.4s ease-in-out;
+}
+
+.videoContainer:hover {
+  box-shadow: 0 0 40px rgba(255, 50, 50, 0.6);
+  transform: scale(1.02);
 }
 
 .videoPlayer {
   width: 100%;
   height: 100%;
+  border: none;
   object-fit: cover;
+  background-color: black;
 }
 
-.flower {
+/* ▶️ Button */
+.playButton {
+  background: linear-gradient(135deg, #e50914, #b00610);
+  color: white;
+  font-weight: 600;
+  font-size: 18px;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(229, 9, 20, 0.5);
+  transition: all 0.3s ease;
+}
+
+.playButton:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 30px rgba(255, 50, 50, 0.8);
+}
+
+.playButton:active {
+  transform: scale(0.98);
+}
+
+/* 📰 Scrolling text banner (ticker) */
+.tickerWrapper {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: linear-gradient(90deg, #b00610, #e50914);
+  border-radius: 0 0 15px 15px;
+  height: 45px;
   display: flex;
-  justify-content: space-between;
-  padding: 10px 20px;
-  background-color: rgba(0,0,0,0.7);
-  font-size: 1rem;
+  align-items: center;
+  margin-top: 10px;
+  box-shadow: 0 0 15px rgba(229, 9, 20, 0.4);
+}
+
+.ticker {
+  display: inline-block;
+  white-space: nowrap;
+  font-size: 18px;
+  font-weight: 500;
+  color: #fff;
+  animation: scrollText 20s linear infinite;
+  padding-left: 100%;
+}
+
+@keyframes scrollText {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+/* 📱 Responsive */
+@media (max-width: 768px) {
+  .videoContainer {
+    border-radius: 12px;
+  }
+
+  .playButton {
+    font-size: 16px;
+    padding: 10px 20px;
+  }
+
+  .ticker {
+    font-size: 15px;
+    animation-duration: 25s;
+  }
 }

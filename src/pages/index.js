@@ -13,6 +13,7 @@ import OtherStories from "../components/OtherStories";
 import stylesHome from "../components/HomePage.module.css";
 import { db } from "../components/firebase";
 import Pop from "../components/Pop";
+import Sound from "../components/Sound";
 import SponsorCard from "../components/SponsorCard";
 import { collection, query, orderBy, getDocs } from "firebase/firestore";
 
@@ -155,6 +156,7 @@ export default function Home({ trendingPosts, otherPosts, screenTexts, sidebarPo
         <link rel="canonical" href="https://newtalentsg.co.rw/" />
       </Head>
     <div className={stylesHome.page}>
+            <Sound />
       <Header />
       <Banner screenTexts={screenTexts} />
             <SponsorCard />

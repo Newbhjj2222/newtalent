@@ -1,12 +1,13 @@
 // components/LanguageProvider.js
 "use client";
+import Script from "next/script";
 import { createContext, useEffect } from "react";
 
 export const LanguageContext = createContext();
 
 export const LanguageProvider = ({ children }) => {
   useEffect(() => {
-    // Shyiramo function yitwa na script ya Google
+    // Tangira function ya Google Translate
     window.googleTranslateElementInit = () => {
       new window.google.translate.TranslateElement(
         {
@@ -17,7 +18,7 @@ export const LanguageProvider = ({ children }) => {
         "google_translate_element"
       );
 
-      // Ihita ikoresha system language (browser)
+      // Fata system language
       const userLang = navigator.language.split("-")[0];
       setTimeout(() => {
         const select = document.querySelector(".goog-te-combo");
@@ -27,19 +28,17 @@ export const LanguageProvider = ({ children }) => {
         }
       }, 2000);
     };
-
-    // Shyiramo script ya Google Translate
-    if (!document.querySelector("#google-translate-script")) {
-      const script = document.createElement("script");
-      script.id = "google-translate-script";
-      script.src =
-        "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
-      document.body.appendChild(script);
-    }
   }, []);
 
   return (
     <LanguageContext.Provider value={{}}>
+      {/* Shyiramo script ya Google Translate */}
+      <Script
+        id="google-translate-script"
+        src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
+        strategy="afterInteractive"
+      />
+      <div id="google_translate_element" style={{ display: "none" }}></div>
       {children}
     </LanguageContext.Provider>
   );

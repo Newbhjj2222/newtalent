@@ -7,6 +7,7 @@ import NotificationChecker from "../components/NotificationChecker";
 
 // Import language provider
 import { LanguageProvider } from "../components/LanguageProvider";
+import LanguageSelector from "../components/LanguageSelector";
 
 export default function App({ Component, pageProps }) {
   return (
@@ -27,15 +28,13 @@ export default function App({ Component, pageProps }) {
           crossOrigin="anonymous"
         />
 
-        {/* Language selector global (ushobora gushyira kuri navbar) */}
-        {/* Example: use in layout or top of each page */}
-        {/* <LanguageSelector /> */}
+        {/* Language Selector (urashobora kuyishyira kuri Navbar cyangwa Footer) */}
+        <LanguageSelector />
 
-        {/* Pages zose zishyirwa hano */}
-         <NotificationChecker />
+        {/* Izi component zose zizaba mu rurimi rwahiswemo */}
+        <NotificationChecker />
         <Component {...pageProps} />
-          
       </>
     </LanguageProvider>
   );
-    }
+}

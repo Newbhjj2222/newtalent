@@ -4,8 +4,6 @@ import Script from "next/script";
 import Head from "next/head";
 import 'video.js/dist/video-js.css';
 import NotificationChecker from "../components/NotificationChecker";
-import GoogleTranslateDropdown from "../components/GoogleTranslateDropdown";
-
 export default function App({ Component, pageProps }) {
   return (
     <>
@@ -24,7 +22,7 @@ export default function App({ Component, pageProps }) {
       />
 
       {/* Dropdown ya Google Translate (igaragara kuri pages zose) */}
-      <GoogleTranslateDropdown />
+      
 
       <NotificationChecker />
       <Component {...pageProps} />

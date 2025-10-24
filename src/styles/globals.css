@@ -43,7 +43,26 @@ a {
   color: inherit;
   text-decoration: none;
 }
+/* Kuraho banner ya Google Translate hejuru */
+.goog-te-banner-frame.skiptranslate {
+  display: none !important;
+}
+body {
+  top: 0px !important;
+}
 
+/* Kuraho logo ya Google ya default */
+.goog-logo-link {
+  display: none !important;
+}
+.goog-te-gadget {
+  font-size: 0 !important;
+}
+
+/* Dropdown ya translate */
+#google_translate_element {
+  display: none; /* Tuzayihisha kuko dukoresha buttons zacu */
+  }
 /* Dark mode color scheme */
 @media (prefers-color-scheme: dark) {
   html {

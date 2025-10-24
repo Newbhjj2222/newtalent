@@ -1,27 +1,30 @@
 // components/LanguageSelector.js
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function LanguageSelector() {
-  // Function ifasha guhindura ururimi ukoresheje Google Translate
+  const [ready, setReady] = useState(false);
+
+  // Reba niba combo ya Google Translate iriho
+  useEffect(() => {
+    const timer = setInterval(() => {
+      if (document.querySelector(".goog-te-combo")) {
+        setReady(true);
+        clearInterval(timer);
+      }
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
   const switchLanguage = (lang) => {
     const select = document.querySelector(".goog-te-combo");
     if (select) {
       select.value = lang;
       select.dispatchEvent(new Event("change"));
+    } else {
+      alert("Please wait a second, translation system is loading...");
     }
   };
-
-  // Kora init check kugira ngo dropdown ya Google ibe yiteguye
-  useEffect(() => {
-    const checkExist = setInterval(() => {
-      const select = document.querySelector(".goog-te-combo");
-      if (select) {
-        clearInterval(checkExist);
-      }
-    }, 1000);
-    return () => clearInterval(checkExist);
-  }, []);
 
   return (
     <div
@@ -38,10 +41,10 @@ export default function LanguageSelector() {
         boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
       }}
     >
-      <button onClick={() => switchLanguage("en")}>🇬🇧 EN</button>
-      <button onClick={() => switchLanguage("rw")}>🇷🇼 RW</button>
-      <button onClick={() => switchLanguage("fr")}>🇫🇷 FR</button>
-      <button onClick={() => switchLanguage("sw")}>🇰🇪 SW</button>
+      <button disabled={!ready} onClick={() => switchLanguage("en")}>🇬🇧 EN</button>
+      <button disabled={!ready} onClick={() => switchLanguage("rw")}>🇷🇼 RW</button>
+      <button disabled={!ready} onClick={() => switchLanguage("fr")}>🇫🇷 FR</button>
+      <button disabled={!ready} onClick={() => switchLanguage("sw")}>🇰🇪 SW</button>
     </div>
   );
 }

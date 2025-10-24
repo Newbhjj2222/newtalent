@@ -9,19 +9,7 @@ export default function Document() {
         {/* Favicon / Logo */}
         <link rel="icon" href="/logo.png" />
 
-        {/* 🟢 PropellerAds - Wise Banner / Push (Zone ID: 9909216) */}
-        <Script
-          id="zone-9909216"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function(s){
-                s.dataset.zone='9909216';
-                s.src='https://forfrogadiertor.com/tag.min.js';
-              })(document.body.appendChild(document.createElement('script')));
-            `,
-          }}
-        />
+        
 
         
         {/* 🟢 PropellerAds - Banner / Push (Zone ID: 9915615) */}

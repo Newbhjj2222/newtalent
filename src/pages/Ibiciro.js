@@ -1,8 +1,11 @@
 "use client";
 import styles from "../components/Ibiciro.module.css";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
 
 export default function Ibiciro() {
   return (
+    <Header />
     <div className={styles.container}>
       <h1 className={styles.title}>💎 TANGIRA GUSOMA INKURU NAWE KURUBUGA RWACU 💎</h1>
       <p className={styles.intro}>
@@ -47,6 +50,7 @@ export default function Ibiciro() {
         </p>
       </div>
     </div>
+<Footer />
   );
 }
 

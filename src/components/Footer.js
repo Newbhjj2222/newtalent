@@ -21,6 +21,9 @@ const Footer = () => {
           <li>
             <Link href="/balance">Your Balance</Link>
           </li>
+           <li>
+            <Link href="/Ibiciro">Ibiciro by'inkuru</Link>
+          </li>
           <li>
             <Link href="/About">About</Link>
           </li>

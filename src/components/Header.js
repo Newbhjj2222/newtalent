@@ -31,6 +31,8 @@ const Header = () => {
         <li><Link href="/">Homepage</Link></li>
         <li><Link href="/About">About</Link></li>
         <li><Link href="/contact">Contact</Link></li>
+        <li><Link href="/Ibiciro">Ibiciro by'inkuru</Link></li>
+        <li><Link href="/balance">your Balance</Link></li>
         <li><Link href="/tv">NewtalentsG Tv</Link></li>
         <li><Link href="/login">Login</Link></li>
         <li><Link href="/profile">Profile</Link></li>

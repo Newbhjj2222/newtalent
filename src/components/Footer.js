@@ -22,7 +22,7 @@ const Footer = () => {
             <Link href="/balance">Your Balance</Link>
           </li>
            <li>
-            <Link href="/Ibiciro">Ibiciro by'inkuru</Link>
+            <Link href="/Ibiciro">Ibiciro byinkuru</Link>
           </li>
           <li>
             <Link href="/About">About</Link>

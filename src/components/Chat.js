@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import styles from "./Chat.module.css";
-import { MessageCircle, Send } from "lucide-react";
+import { FaWhatsapp, FaPaperPlane } from "react-icons/fa";
 
 export default function Chat() {
   const [isOpen, setIsOpen] = useState(false);
@@ -9,7 +9,6 @@ export default function Chat() {
   const [siteName, setSiteName] = useState("");
 
   useEffect(() => {
-    // Automatically detect current site domain
     if (typeof window !== "undefined") {
       setSiteName(window.location.hostname);
     }
@@ -30,7 +29,7 @@ export default function Chat() {
     <div className={styles.chatContainer}>
       {isOpen && (
         <div className={styles.chatBox}>
-          <div className={styles.chatHeader}>💬 Vugana natwe</div>
+          <div className={styles.chatHeader}>💬 Vugana natwe kuri WhatsApp</div>
           <textarea
             className={styles.chatInput}
             placeholder="Andika ubutumwa bwawe hano..."
@@ -38,7 +37,7 @@ export default function Chat() {
             onChange={(e) => setMessage(e.target.value)}
           />
           <button className={styles.sendButton} onClick={handleSend}>
-            <Send size={18} />
+            <FaPaperPlane size={16} />
             Ohereza
           </button>
         </div>
@@ -48,7 +47,7 @@ export default function Chat() {
         onClick={() => setIsOpen(!isOpen)}
         title="Twandikire kuri WhatsApp"
       >
-        <MessageCircle size={26} />
+        <FaWhatsapp size={28} />
       </button>
     </div>
   );

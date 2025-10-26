@@ -31,6 +31,9 @@ const Footer = () => {
             <Link href="/contact">Contact</Link>
           </li>
           <li>
+            <Link href="/Monitize">Monitization</Link>
+          </li>
+          <li>
             <Link href="/privacy">Privacy and policy</Link>
           </li>
            <li>
@@ -42,7 +45,7 @@ const Footer = () => {
       <div className={styles.footerSection}>
         <h4>About Us</h4>
         <p>
-          NewtalentsG is a creative platform for young talents. It is a library of different stories.
+          NewtalentsG is a creative platform for young talents. It is a library of different stories. welcome and read more stories.
         </p>
       </div>
 

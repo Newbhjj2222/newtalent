@@ -14,6 +14,7 @@ import stylesHome from "../components/HomePage.module.css";
 import { db } from "../components/firebase";
 import Pop from "../components/Pop";
 import Sound from "../components/Sound";
+import Chat from "../components/Chat";
 import SponsorCard from "../components/SponsorCard";
 import { collection, query, orderBy, getDocs } from "firebase/firestore";
 
@@ -240,7 +241,7 @@ export default function Home({ trendingPosts, otherPosts, screenTexts, sidebarPo
               <Pop />
         </main>
       </div>
-
+<Chat />
       <Footer />
     </div>
      </>

@@ -28,6 +28,7 @@
   background-color: #1ebe5d;
 }
 
+/* Chat box animations */
 .chatBox {
   background-color: white;
   border-radius: 12px;
@@ -35,7 +36,19 @@
   box-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
   margin-bottom: 10px;
   overflow: hidden;
-  animation: fadeIn 0.3s ease-in-out;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.chatBox.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.chatBox.hide {
+  opacity: 0;
+  transform: translateY(10px);
 }
 
 .chatHeader {
@@ -69,19 +82,9 @@
   justify-content: center;
   gap: 6px;
   border-top: 1px solid #eee;
+  transition: background-color 0.3s ease;
 }
 
 .sendButton:hover {
   background-color: #1ebe5d;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }

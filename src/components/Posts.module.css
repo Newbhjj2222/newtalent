@@ -3,7 +3,7 @@
 /* Posts Section Container */
 .postsSection {
   max-width: 100%;
-  margin: 40px auto;
+  margin: 0px auto;
   padding: 20px;
   background: var(--card-bg, #fafafa);
   border-radius: 10px;

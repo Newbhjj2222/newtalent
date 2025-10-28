@@ -15,6 +15,7 @@ import { db } from "../components/firebase";
 import Pop from "../components/Pop";
 import Sound from "../components/Sound";
 import Chat from "../components/Chat";
+import PerimeterAdBoard from "../components/PerimeterAdBoard";
 import SponsorCard from "../components/SponsorCard";
 import { collection, query, orderBy, getDocs } from "firebase/firestore";
 
@@ -160,6 +161,7 @@ export default function Home({ trendingPosts, otherPosts, screenTexts, sidebarPo
             <Sound />
       <Header />
       <Banner screenTexts={screenTexts} />
+            <PerimeterAdBoard />
             <SponsorCard />
       <div className={stylesHome.container}>
     

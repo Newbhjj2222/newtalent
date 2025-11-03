@@ -5,14 +5,15 @@ import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 
 export default function NesGain() {
   const [username, setUsername] = useState("");
-  const [num, setNum] = useState(0);
+  const [num1, setNum1] = useState(0);
+  const [num2, setNum2] = useState(0);
   const [choices, setChoices] = useState([]);
   const [score, setScore] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(5);
+  const [timeLeft, setTimeLeft] = useState(10);
   const [message, setMessage] = useState("");
   const [playing, setPlaying] = useState(false);
 
-  // Fata username muri localStorage (ntabwo iyibika)
+  // Fata username muri localStorage
   useEffect(() => {
     const storedUser = localStorage.getItem("username");
     if (storedUser) {
@@ -33,25 +34,27 @@ export default function NesGain() {
     generateQuestion();
   };
 
-  // Kora ikibazo gishya
+  // Kora ikibazo gishya (nk'ikibazo cya 12×45)
   const generateQuestion = () => {
-    const randomNum = Math.floor(Math.random() * (50000 - 2 + 1)) + 2; // kuva kuri 2 kugeza kuri 50000
-    const correct = randomNum * randomNum;
+    const random1 = Math.floor(Math.random() * (50000 - 2 + 1)) + 2;
+    const random2 = Math.floor(Math.random() * (50000 - 2 + 1)) + 2;
 
-    // Kora amahitamo
+    const correct = random1 * random2;
+
     const answers = [
       correct,
-      correct + Math.floor(Math.random() * 2000) + 1,
-      correct - Math.floor(Math.random() * 2000) - 1,
-      correct + Math.floor(Math.random() * 10000) + 500,
+      correct + Math.floor(Math.random() * 5000) + 10,
+      correct - Math.floor(Math.random() * 3000) - 10,
+      correct + Math.floor(Math.random() * 10000) + 100,
     ].sort(() => Math.random() - 0.5);
 
-    setNum(randomNum);
+    setNum1(random1);
+    setNum2(random2);
     setChoices(answers);
-    setTimeLeft(5);
+    setTimeLeft(10);
   };
 
-  // Timer (amasegonda 5)
+  // Timer (10 seconds)
   useEffect(() => {
     if (!playing) return;
     if (timeLeft <= 0) {
@@ -65,12 +68,12 @@ export default function NesGain() {
 
   // Function yo gusubiza
   const handleAnswer = async (ans) => {
-    const correct = num * num;
+    const correct = num1 * num2;
 
     if (ans === correct) {
       setScore((prev) => prev + 5);
       setMessage("✅ Ni byo! +5 points");
-      await updateFirestore(15); // ongera kuri nes
+      await updateFirestore(15);
     } else {
       setScore((prev) => (prev >= 5 ? prev - 5 : 0));
       setMessage("❌ Sibyo! -5 points");
@@ -119,7 +122,7 @@ export default function NesGain() {
           <p className={styles.timer}>⏳ {timeLeft} sec</p>
 
           <h2 className={styles.question}>
-            Ikubo rya <span>{num}</span> ni irihe?
+            {num1.toLocaleString()} × {num2.toLocaleString()} = ?
           </h2>
 
           <div className={styles.answers}>

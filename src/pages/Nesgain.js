@@ -160,7 +160,7 @@ export default function NesGain() {
         {/* === Amabwiriza mbere yo gutangira === */}
         {!playing && (
           <div className={styles.rules}>
-            <h2>📜 Amabwiriza y'Umukino</h2>
+            <h2>📜 Amabwiriza y&apos;Umukino</h2>
             <ol>
               <li>👉 Ukina ariko winjiye <b>kurubuga</b>.</li>
               <li>👉 Uhabwa ikibazo cyo gukuba imibare ibiri (urugero: 12 × 45).</li>

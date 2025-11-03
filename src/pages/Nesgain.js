@@ -33,26 +33,30 @@ export default function NesGain() {
     }
   }, []);
 
-  // === Bika amanota buri gihe ahindutse ===
+  // === Bika amanota muri localStorage buri gihe ahindutse ===
   useEffect(() => {
     localStorage.setItem("nesgain_score", score);
   }, [score]);
 
-  // === Fungura amakuru ya Firestore ===
+  // === Fata amakuru ya Firestore ===
   const fetchNes = async (user) => {
-    const userRef = doc(db, "depositers", user);
-    const snap = await getDoc(userRef);
-    if (snap.exists()) {
-      setNesBalance(snap.data().nes || 0);
-    } else {
-      setNesBalance(0);
+    try {
+      const userRef = doc(db, "depositers", user);
+      const snap = await getDoc(userRef);
+      if (snap.exists()) {
+        setNesBalance(snap.data().nes || 0);
+      } else {
+        setNesBalance(0);
+      }
+    } catch (error) {
+      console.error("Error fetching user balance:", error);
     }
   };
 
   // === Tangiza umukino ===
   const startGame = () => {
     if (!username) {
-      alert("emeza ko winjiye mbere yo gutangira umukino. winjiye!");
+      alert("Emeza ko winjiye mbere yo gutangira umukino!");
       return;
     }
     setPlaying(true);
@@ -64,7 +68,6 @@ export default function NesGain() {
   const generateQuestion = () => {
     const random1 = Math.floor(Math.random() * (50000 - 2 + 1)) + 2;
     const random2 = Math.floor(Math.random() * (50000 - 2 + 1)) + 2;
-
     const correct = random1 * random2;
 
     const answers = [
@@ -80,15 +83,17 @@ export default function NesGain() {
     setTimeLeft(10);
   };
 
-  // === Timer (10 seconds) ===
+  // === Timer logic (10 seconds) ===
   useEffect(() => {
     if (!playing) return;
+
     if (timeLeft <= 0) {
       setMessage("⏰ Time out!");
       setTimeout(() => generateQuestion(), 1000);
       return;
     }
-    const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
+
+    const timer = setTimeout(() => setTimeLeft((prev) => prev - 1), 1000);
     return () => clearTimeout(timer);
   }, [timeLeft, playing]);
 
@@ -101,13 +106,13 @@ export default function NesGain() {
       setScore(newScore);
       setMessage("✅ Ni byo! +5 points");
 
-      // Iyo yujuje 100 points
+      // Iyo amanota ageze kuri 100 → ahawe nes 15
       if (newScore >= 100) {
         setMessage("🏆 Wujuje amanota 100! Uhawe nes 15!");
         await updateFirestore(15);
         await fetchNes(username);
 
-        // Reset umukino nyuma gato
+        // Reset umukino nyuma y’igihe gito
         setTimeout(() => {
           setScore(0);
           localStorage.setItem("nesgain_score", "0");
@@ -127,17 +132,21 @@ export default function NesGain() {
     }, 1000);
   };
 
-  // === Firestore logic ===
+  // === Firestore update logic ===
   const updateFirestore = async (addAmount) => {
     if (!username) return;
-    const userRef = doc(db, "depositers", username);
-    const snap = await getDoc(userRef);
+    try {
+      const userRef = doc(db, "depositers", username);
+      const snap = await getDoc(userRef);
 
-    if (snap.exists()) {
-      const current = snap.data().nes || 0;
-      await updateDoc(userRef, { nes: current + addAmount });
-    } else {
-      await setDoc(userRef, { nes: addAmount });
+      if (snap.exists()) {
+        const current = snap.data().nes || 0;
+        await updateDoc(userRef, { nes: current + addAmount });
+      } else {
+        await setDoc(userRef, { nes: addAmount });
+      }
+    } catch (error) {
+      console.error("Error updating Firestore:", error);
     }
   };
 
@@ -148,11 +157,12 @@ export default function NesGain() {
       <div className={styles.container}>
         <h1 className={styles.title}>🧮 NesGain Game</h1>
 
+        {/* === Amabwiriza mbere yo gutangira === */}
         {!playing && (
           <div className={styles.rules}>
             <h2>📜 Amabwiriza y'Umukino</h2>
             <ol>
-              <li>👉 Ukina ariko winjiye<b>kurubuga</b>.</li>
+              <li>👉 Ukina ariko winjiye <b>kurubuga</b>.</li>
               <li>👉 Uhabwa ikibazo cyo gukuba imibare ibiri (urugero: 12 × 45).</li>
               <li>👉 Ufite amasegonda 10 yo gusubiza buri kibazo.</li>
               <li>✅ Iyo usubije neza, wongererwa amanota 5.</li>
@@ -161,6 +171,7 @@ export default function NesGain() {
           </div>
         )}
 
+        {/* === Start Button cyangwa Game Box === */}
         {!playing ? (
           <button className={styles.startBtn} onClick={startGame}>
             🎮 Tangira Gukina

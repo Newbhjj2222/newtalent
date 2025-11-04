@@ -67,10 +67,9 @@ export default function NesGain() {
 
   // === Kora ikibazo gishya (Division ÷) ===
   const generateQuestion = () => {
-    // Tanga division itanga integer igisubizo
     const divisor = Math.floor(Math.random() * 98) + 2; // hagati ya 2–100
     const quotient = Math.floor(Math.random() * 98) + 2; // hagati ya 2–100
-    const dividend = divisor * quotient; // kugira ngo dividend ÷ divisor = quotient
+    const dividend = divisor * quotient;
 
     const correct = quotient;
 
@@ -109,15 +108,15 @@ export default function NesGain() {
     if (ans === correct) {
       const newScore = score + 5;
       setScore(newScore);
-      setMessage("✅ Ni byo! +5 points na +5 nes");
-      await updateFirestore(5); // yongera nes 5 kuri balance
-      await fetchNes(username);
+      setMessage("✅ Ni byo! +5 points");
 
-      // Iyo amanota ageze kuri 100 → ahawe nes 15
+      // Iyo amanota ageze kuri 100 → ahawe nes 5 gusa
       if (newScore >= 100) {
-        setMessage("🏆 Wujuje amanota 100! Uhawe nes 15!");
-        await updateFirestore(15);
+        setMessage("🏆 Wujuje amanota 100! Uhawe nes 5!");
+        await updateFirestore(5);
         await fetchNes(username);
+
+        // Reset umukino
         setTimeout(() => {
           setScore(0);
           localStorage.setItem("nesgain_score", "0");
@@ -167,11 +166,11 @@ export default function NesGain() {
             <h2>📜 Amabwiriza y&apos;Umukino</h2>
             <ol>
               <li>👉 Ukina ariko winjiye <b>kurubuga</b>.</li>
-              <li>👉 Uhabwa ikibazo cyo kugabanya (division) nk&apos;urugero: 144 ÷ 12.</li>
+              <li>👉 Uhabwa ikibazo cyo kugabanya (division) nka: 144 ÷ 12.</li>
               <li>👉 Ufite amasegonda 10 yo gusubiza buri kibazo.</li>
-              <li>✅ Usubije neza: +5 points na +5 nes.</li>
-              <li>❌ Usubije nabi: -5 points gusa.</li>
-              <li>🏆 Iyo ugeze ku manota 100: uhabwa nes 15, umukino utangire bushya.</li>
+              <li>✅ Usubije neza: +5 points.</li>
+              <li>❌ Usubije nabi: -5 points.</li>
+              <li>🏆 Iyo ugeze ku manota 100: uhabwa nes 5, umukino utangire bushya.</li>
             </ol>
           </div>
         )}

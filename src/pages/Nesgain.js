@@ -1,3 +1,4 @@
+'use client';
 import { useState, useEffect } from "react";
 import styles from "../components/nesgain.module.css";
 import Header from "../components/Header";
@@ -33,7 +34,7 @@ export default function NesGain() {
     }
   }, []);
 
-  // === Bika amanota muri localStorage buri gihe ahindutse ===
+  // === Bika amanota muri localStorage ===
   useEffect(() => {
     localStorage.setItem("nesgain_score", score);
   }, [score]);
@@ -64,32 +65,36 @@ export default function NesGain() {
     setMessage("");
   };
 
-  // === Kora ikibazo gishya ===
+  // === Kora ikibazo gishya (Division ÷) ===
   const generateQuestion = () => {
-    const random1 = Math.floor(Math.random() * (50000 - 2 + 1)) + 2;
-    const random2 = Math.floor(Math.random() * (50000 - 2 + 1)) + 2;
-    const correct = random1 * random2;
+    // Hitamo igisubizo gito kugirango division ibe integer
+    const divisor = Math.floor(Math.random() * 98) + 2; // hagati ya 2-100
+    const quotient = Math.floor(Math.random() * 98) + 2; // hagati ya 2-100
+    const dividend = divisor * quotient; // kugirango dividend ÷ divisor = quotient
+
+    const correct = quotient;
 
     const answers = [
       correct,
-      correct + Math.floor(Math.random() * 5000) + 10,
-      correct - Math.floor(Math.random() * 3000) - 10,
-      correct + Math.floor(Math.random() * 10000) + 100,
+      correct + Math.floor(Math.random() * 10) + 1,
+      correct - Math.floor(Math.random() * 10) - 1,
+      correct + Math.floor(Math.random() * 15) + 2,
     ].sort(() => Math.random() - 0.5);
 
-    setNum1(random1);
-    setNum2(random2);
+    setNum1(dividend);
+    setNum2(divisor);
     setChoices(answers);
     setTimeLeft(10);
   };
 
-  // === Timer logic (10 seconds) ===
+  // === Timer logic ===
   useEffect(() => {
     if (!playing) return;
 
     if (timeLeft <= 0) {
-      setMessage("⏰ Time out!");
-      setTimeout(() => generateQuestion(), 1000);
+      setMessage("⏰ Time out! -5 points");
+      setScore((prev) => (prev >= 5 ? prev - 5 : 0));
+      setTimeout(() => generateQuestion(), 1200);
       return;
     }
 
@@ -99,7 +104,7 @@ export default function NesGain() {
 
   // === Function yo gusubiza ===
   const handleAnswer = async (ans) => {
-    const correct = num1 * num2;
+    const correct = num1 / num2;
 
     if (ans === correct) {
       const newScore = score + 5;
@@ -112,7 +117,6 @@ export default function NesGain() {
         await updateFirestore(15);
         await fetchNes(username);
 
-        // Reset umukino nyuma y’igihe gito
         setTimeout(() => {
           setScore(0);
           localStorage.setItem("nesgain_score", "0");
@@ -123,13 +127,15 @@ export default function NesGain() {
       }
     } else {
       setScore((prev) => (prev >= 5 ? prev - 5 : 0));
-      setMessage("❌ Sibyo! -5 points");
+      setMessage("❌ Sibyo! -5 points na -5 nes");
+      await updateFirestore(-5);
+      await fetchNes(username);
     }
 
     setTimeout(() => {
       setMessage("");
       generateQuestion();
-    }, 1000);
+    }, 1200);
   };
 
   // === Firestore update logic ===
@@ -138,12 +144,13 @@ export default function NesGain() {
     try {
       const userRef = doc(db, "depositers", username);
       const snap = await getDoc(userRef);
-
       if (snap.exists()) {
         const current = snap.data().nes || 0;
-        await updateDoc(userRef, { nes: current + addAmount });
+        let newBalance = current + addAmount;
+        if (newBalance < 0) newBalance = 0;
+        await updateDoc(userRef, { nes: newBalance });
       } else {
-        await setDoc(userRef, { nes: addAmount });
+        await setDoc(userRef, { nes: addAmount > 0 ? addAmount : 0 });
       }
     } catch (error) {
       console.error("Error updating Firestore:", error);
@@ -155,23 +162,22 @@ export default function NesGain() {
       <Header />
 
       <div className={styles.container}>
-        <h1 className={styles.title}>🧮 NesGain Game</h1>
+        <h1 className={styles.title}>➗ NesGain Division Game</h1>
 
-        {/* === Amabwiriza mbere yo gutangira === */}
         {!playing && (
           <div className={styles.rules}>
             <h2>📜 Amabwiriza y&apos;Umukino</h2>
             <ol>
               <li>👉 Ukina ariko winjiye <b>kurubuga</b>.</li>
-              <li>👉 Uhabwa ikibazo cyo gukuba imibare ibiri (urugero: 12 × 45).</li>
+              <li>👉 Uhabwa ikibazo cyo kugabanya imibare (urugero: 144 ÷ 12).</li>
               <li>👉 Ufite amasegonda 10 yo gusubiza buri kibazo.</li>
-              <li>✅ Iyo usubije neza, wongererwa amanota 5.</li>
+              <li>✅ Usubije neza wongererwa amanota 5.</li>
+              <li>❌ Usubije nabi ugabanyirizwa amanota 5 na nes 5.</li>
               <li>🏆 Iyo ugeze ku manota 100, uhabwa <b>nes 15</b> kandi umukino utangire bushya.</li>
             </ol>
           </div>
         )}
 
-        {/* === Start Button cyangwa Game Box === */}
         {!playing ? (
           <button className={styles.startBtn} onClick={startGame}>
             🎮 Tangira Gukina
@@ -184,7 +190,7 @@ export default function NesGain() {
             <p className={styles.timer}>⏳ {timeLeft} sec</p>
 
             <h2 className={styles.question}>
-              {num1.toLocaleString()} × {num2.toLocaleString()} = ?
+              {num1.toLocaleString()} ÷ {num2.toLocaleString()} = ?
             </h2>
 
             <div className={styles.answers}>

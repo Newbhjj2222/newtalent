@@ -67,10 +67,10 @@ export default function NesGain() {
 
   // === Kora ikibazo gishya (Division ÷) ===
   const generateQuestion = () => {
-    // Hitamo igisubizo gito kugirango division ibe integer
-    const divisor = Math.floor(Math.random() * 98) + 2; // hagati ya 2-100
-    const quotient = Math.floor(Math.random() * 98) + 2; // hagati ya 2-100
-    const dividend = divisor * quotient; // kugirango dividend ÷ divisor = quotient
+    // Tanga division itanga integer igisubizo
+    const divisor = Math.floor(Math.random() * 98) + 2; // hagati ya 2–100
+    const quotient = Math.floor(Math.random() * 98) + 2; // hagati ya 2–100
+    const dividend = divisor * quotient; // kugira ngo dividend ÷ divisor = quotient
 
     const correct = quotient;
 
@@ -109,14 +109,15 @@ export default function NesGain() {
     if (ans === correct) {
       const newScore = score + 5;
       setScore(newScore);
-      setMessage("✅ Ni byo! +5 points");
+      setMessage("✅ Ni byo! +5 points na +5 nes");
+      await updateFirestore(5); // yongera nes 5 kuri balance
+      await fetchNes(username);
 
       // Iyo amanota ageze kuri 100 → ahawe nes 15
       if (newScore >= 100) {
         setMessage("🏆 Wujuje amanota 100! Uhawe nes 15!");
         await updateFirestore(15);
         await fetchNes(username);
-
         setTimeout(() => {
           setScore(0);
           localStorage.setItem("nesgain_score", "0");
@@ -127,9 +128,7 @@ export default function NesGain() {
       }
     } else {
       setScore((prev) => (prev >= 5 ? prev - 5 : 0));
-      setMessage("❌ Sibyo! -5 points na -5 nes");
-      await updateFirestore(-5);
-      await fetchNes(username);
+      setMessage("❌ Sibyo! -5 points");
     }
 
     setTimeout(() => {
@@ -138,7 +137,7 @@ export default function NesGain() {
     }, 1200);
   };
 
-  // === Firestore update logic ===
+  // === Firestore update logic (ijye iteranya kuri balance) ===
   const updateFirestore = async (addAmount) => {
     if (!username) return;
     try {
@@ -146,11 +145,10 @@ export default function NesGain() {
       const snap = await getDoc(userRef);
       if (snap.exists()) {
         const current = snap.data().nes || 0;
-        let newBalance = current + addAmount;
-        if (newBalance < 0) newBalance = 0;
+        const newBalance = current + addAmount;
         await updateDoc(userRef, { nes: newBalance });
       } else {
-        await setDoc(userRef, { nes: addAmount > 0 ? addAmount : 0 });
+        await setDoc(userRef, { nes: addAmount });
       }
     } catch (error) {
       console.error("Error updating Firestore:", error);
@@ -169,11 +167,11 @@ export default function NesGain() {
             <h2>📜 Amabwiriza y&apos;Umukino</h2>
             <ol>
               <li>👉 Ukina ariko winjiye <b>kurubuga</b>.</li>
-              <li>👉 Uhabwa ikibazo cyo kugabanya imibare (urugero: 144 ÷ 12).</li>
+              <li>👉 Uhabwa ikibazo cyo kugabanya (division) nk&apos;urugero: 144 ÷ 12.</li>
               <li>👉 Ufite amasegonda 10 yo gusubiza buri kibazo.</li>
-              <li>✅ Usubije neza wongererwa amanota 5.</li>
-              <li>❌ Usubije nabi ugabanyirizwa amanota 5 na nes 5.</li>
-              <li>🏆 Iyo ugeze ku manota 100, uhabwa <b>nes 15</b> kandi umukino utangire bushya.</li>
+              <li>✅ Usubije neza: +5 points na +5 nes.</li>
+              <li>❌ Usubije nabi: -5 points gusa.</li>
+              <li>🏆 Iyo ugeze ku manota 100: uhabwa nes 15, umukino utangire bushya.</li>
             </ol>
           </div>
         )}

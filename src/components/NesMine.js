@@ -12,60 +12,79 @@ const NesMineSSR = ({ username, initialNesTotal }) => {
   const [isMining, setIsMining] = useState(false);
   const miningInterval = useRef(null);
 
-  // Listen for updates (NES + plan)
+  // 🔹 Listen for updates (NES + plan)
   useEffect(() => {
     if (!username) return;
 
     const depositerRef = doc(db, "depositers", username);
-    const unsubscribe = onSnapshot(depositerRef, async (snap) => {
-      if (snap.exists()) {
-        const data = snap.data();
-        setNesTotal(Number(data.nes) || 0);
-        setUserPlan(data.plan || "free");
-      } else {
-        await setDoc(depositerRef, { nes: 0, plan: "free" });
-        setNesTotal(0);
-        setUserPlan("free");
+
+    const unsubscribe = onSnapshot(
+      depositerRef,
+      async (snap) => {
+        if (snap.exists()) {
+          // 📦 Document irahari — fata data isanzwe
+          const data = snap.data();
+          setNesTotal(Number(data.nes) || 0);
+          setUserPlan(data.plan || "free");
+        } else {
+          // 🧠 Reba niba koko user mushya (kugira ngo tudahindura abamaze kubaho)
+          const check = await getDoc(depositerRef);
+          if (!check.exists()) {
+            await setDoc(depositerRef, { nes: 0, plan: "free" });
+            setNesTotal(0);
+            setUserPlan("free");
+          } else {
+            const data = check.data();
+            setNesTotal(Number(data.nes) || 0);
+            setUserPlan(data.plan || "free");
+          }
+        }
+      },
+      (error) => {
+        console.error("🔥 Firestore snapshot error:", error);
       }
-    });
+    );
 
     return () => unsubscribe();
   }, [username]);
 
-  // Eligibility check
+  // 🔹 Check mining eligibility
   useEffect(() => {
-    const allowed = (userPlan === "bestreader") && nesTotal > 5;
+    const allowed = userPlan === "bestreader" && nesTotal > 5;
     setCanMine(allowed);
   }, [userPlan, nesTotal]);
 
-  // Add mined NES (whole number only)
+  // 🔹 Add mined NES
   const addNesToUser = async (amount = 1) => {
     if (!username) return;
-    const depositerRef = doc(db, "depositers", username);
-    const snap = await getDoc(depositerRef);
-    const current = snap.exists() ? Math.floor(Number(snap.data().nes) || 0) : 0;
-    const newTotal = current + amount;
-    await updateDoc(depositerRef, { nes: newTotal });
-    setNesTotal(newTotal);
+    try {
+      const depositerRef = doc(db, "depositers", username);
+      const snap = await getDoc(depositerRef);
+      const current = snap.exists() ? Math.floor(Number(snap.data().nes) || 0) : 0;
+      const newTotal = current + amount;
+      await updateDoc(depositerRef, { nes: newTotal });
+      setNesTotal(newTotal);
+    } catch (err) {
+      console.error("❌ Failed to update NES:", err);
+    }
   };
 
-  // Start mining logic
+  // 🔹 Start mining
   const startMining = async () => {
     if (!canMine) {
-      alert("⚠️ Ngura full plan y’ukwezi yi 1200 rwf kugira ngo wemererwe ku mininga 💳");
+      alert("⚠️ Ngura full plan y’ukwezi ya 1200 RWF kugira ngo wemererwe ku mininga 💳");
       return;
     }
 
     if (isMining || miningInterval.current) return;
 
     setIsMining(true);
-
     miningInterval.current = setInterval(async () => {
-      await addNesToUser(1); // increase NES by 1
-    }, 30000); // buri masegonda 5
+      await addNesToUser(1); // +1 NES buri gihe
+    }, 30000); // buri masegonda 30
   };
 
-  // Stop mining when user leaves or component unmounts
+  // 🔹 Stop mining
   useEffect(() => {
     return () => {
       if (miningInterval.current) clearInterval(miningInterval.current);
@@ -125,15 +144,19 @@ const NesMineSSR = ({ username, initialNesTotal }) => {
 
 export default NesMineSSR;
 
-// Optional: server-side fetch initial NES
+// 🔹 Server-side fetching initial NES
 export async function getServerSideProps(context) {
   const username = context.query.username || null;
   let nesTotal = 0;
 
   if (username) {
-    const depositerRef = doc(db, "depositers", username);
-    const snap = await getDoc(depositerRef);
-    if (snap.exists()) nesTotal = Math.floor(Number(snap.data().nes || 0));
+    try {
+      const depositerRef = doc(db, "depositers", username);
+      const snap = await getDoc(depositerRef);
+      if (snap.exists()) nesTotal = Math.floor(Number(snap.data().nes || 0));
+    } catch (err) {
+      console.error("❌ Server-side fetch failed:", err);
+    }
   }
 
   return { props: { username, initialNesTotal: nesTotal } };

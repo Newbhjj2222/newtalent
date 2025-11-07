@@ -8,12 +8,16 @@ const Channel = () => {
     <div className={styles.container}>
       <div className={styles.content}>
         <FaWhatsapp className={styles.iconLarge} />
-        <h2 className={styles.title}>
-          Dukurikirane kuri <span>WhatsApp Channel</span>
-        </h2>
-        <p className={styles.subtitle}>
-          Ujye ubona inkuru nshya namakuru mashya kugihe buri munsi.
-        </p>
+
+        <div className={styles.textBox}>
+          <h2 className={styles.title}>
+            Dukurikirane kuri <span>WhatsApp Channel</span>
+          </h2>
+          <p className={styles.subtitle}>
+            Ujye ubona inkuru nshya, amakuru n’amafilime mashya kugihe buri munsi.
+          </p>
+        </div>
+
         <a
           href="https://whatsapp.com/channel/0029Vb24TMfKLaHgsBDVUw3N"
           target="_blank"

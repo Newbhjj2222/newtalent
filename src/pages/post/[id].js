@@ -18,7 +18,7 @@ import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import Bible from "../../components/Bible";
 import NesMine from "../../components/NesMine";
-import channel from "../components/channel";
+import channel from "../../components/channel";
 import styles from "../../components/PostDetail.module.css";
 const extractSeriesAndEpisode = (head) => {
   if (!head) return { title: null, season: null, episode: null };

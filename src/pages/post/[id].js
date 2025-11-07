@@ -18,7 +18,7 @@ import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import Bible from "../../components/Bible";
 import NesMine from "../../components/NesMine";
-import channel from "../../components/channel";
+import Channel from "../../components/Channel";
 import styles from "../../components/PostDetail.module.css";
 const extractSeriesAndEpisode = (head) => {
   if (!head) return { title: null, season: null, episode: null };
@@ -236,7 +236,7 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
 
       <Header />
       <div className={styles.postContainer}>
-          <channel />
+          <Channel />
         {postData.imageUrl && (
           <img
             className={styles.postImage}
@@ -320,7 +320,7 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
 
         <NesMine username={currentUser} />
       </div>
-          <channel />
+          <Channel />
       <Footer />
     </>
   );

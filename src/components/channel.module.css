@@ -8,6 +8,7 @@
   padding: 40px 20px;
   margin: 69px auto;
   max-width: 700px;
+  height: 100px;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
   text-align: center;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -26,7 +27,7 @@
 }
 
 .iconLarge {
-  font-size: 60px;
+  font-size: 40px;
   color: #fff;
   background-color: rgba(255, 255, 255, 0.1);
   border-radius: 50%;

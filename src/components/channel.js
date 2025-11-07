@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import styles from "./channel.module.css";
 import { FaWhatsapp } from "react-icons/fa";
@@ -11,7 +12,7 @@ const Channel = () => {
           Dukurikirane kuri <span>WhatsApp Channel</span>
         </h2>
         <p className={styles.subtitle}>
-          Ujye ubona inkuru nshya n’amakuru mashya kugihe buri munsi.
+          Ujye ubona inkuru nshya namakuru mashya kugihe buri munsi.
         </p>
         <a
           href="https://whatsapp.com/channel/0029Vb24TMfKLaHgsBDVUw3N"

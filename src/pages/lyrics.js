@@ -4,33 +4,35 @@ import {
   collection,
   doc,
   getDocs,
+  getDoc,
   updateDoc,
   increment,
-  getDoc,
 } from "firebase/firestore";
 import { useRouter } from "next/router";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { FiDownload, FiShare2 } from "react-icons/fi";
 
-export default function LyricPage({ lyricsDataServer }) {
+export default function LyricPage({ lyricsDataServer, sharedId }) {
   const [lyricsData, setLyricsData] = useState(
-    lyricsDataServer.map((item) => ({ ...item, showLyrics: false }))
+    lyricsDataServer.map((item) => ({
+      ...item,
+      showLyrics: sharedId === item.id, // reveal only shared audio
+    }))
   );
   const audioRefs = useRef({});
   const router = useRouter();
-  const { id: shareId } = router.query;
 
-  // On mount, auto play shared audio
+  // Auto-play shared audio on mount
   useEffect(() => {
-    if (shareId && audioRefs.current[shareId]) {
-      handlePlay(shareId);
+    if (sharedId && audioRefs.current[sharedId]) {
+      audioRefs.current[sharedId].play();
     }
-  }, [shareId]);
+  }, [sharedId]);
 
-  // Play audio + show lyrics + increment views
+  // Handle play (one audio at a time) + reveal lyrics + increment views
   const handlePlay = async (id) => {
-    // Pause others
+    // Pause other audios
     Object.keys(audioRefs.current).forEach((key) => {
       if (key !== id && audioRefs.current[key]) {
         audioRefs.current[key].pause();
@@ -38,7 +40,7 @@ export default function LyricPage({ lyricsDataServer }) {
       }
     });
 
-    // Reveal lyrics
+    // Reveal lyrics for this audio
     setLyricsData((prev) =>
       prev.map((item) =>
         item.id === id ? { ...item, showLyrics: true } : { ...item, showLyrics: false }
@@ -50,10 +52,12 @@ export default function LyricPage({ lyricsDataServer }) {
       audioRefs.current[id].play();
     }
 
-    // Increment views
+    // Increment views in Firestore
     try {
       const docRef = doc(db, "lyrics", id);
       await updateDoc(docRef, { views: increment(1) });
+
+      // Update local state instantly
       setLyricsData((prev) =>
         prev.map((item) =>
           item.id === id ? { ...item, views: (item.views || 0) + 1 } : item
@@ -72,9 +76,9 @@ export default function LyricPage({ lyricsDataServer }) {
     link.click();
   };
 
-  // Share audio (copy domain link with query)
+  // Share audio (copy domain + id)
   const handleShare = (id) => {
-    const domain = window.location.origin; // get current domain
+    const domain = "https://www.newtalentsg.co.rw"; // replace with your domain
     const shareUrl = `${domain}/lyric?id=${id}`;
     navigator.clipboard.writeText(shareUrl);
     alert("Audio share link copied!");
@@ -83,14 +87,11 @@ export default function LyricPage({ lyricsDataServer }) {
   return (
     <>
       <Header />
-
       <div className="lyrics-page-container">
         {lyricsData.map((lyric) => (
           <div key={lyric.id} className="lyric-card">
-            <div className="header-row">
-              <h2 className="title">{lyric.title}</h2>
-              <p className="username">By: {lyric.username}</p>
-            </div>
+            <h2 className="title">{lyric.title}</h2>
+            <p className="username">By: {lyric.username}</p>
 
             {lyric.audioUrl && (
               <div className="audio-container">
@@ -99,8 +100,7 @@ export default function LyricPage({ lyricsDataServer }) {
                   controls
                   src={lyric.audioUrl}
                   onPlay={() => handlePlay(lyric.id)}
-                ></audio>
-
+                />
                 <div className="action-buttons">
                   <button
                     className="download-btn"
@@ -109,7 +109,6 @@ export default function LyricPage({ lyricsDataServer }) {
                   >
                     <FiDownload size={20} />
                   </button>
-
                   <button
                     className="share-btn"
                     onClick={() => handleShare(lyric.id)}
@@ -127,14 +126,13 @@ export default function LyricPage({ lyricsDataServer }) {
                 dangerouslySetInnerHTML={{
                   __html: lyric.lyrics.replace(/<\/?[^>]+(>|$)/g, ""),
                 }}
-              ></div>
+              />
             )}
 
             <p className="views">Views: {lyric.views || 0}</p>
           </div>
         ))}
       </div>
-
       <Footer />
 
       <style jsx>{`
@@ -155,10 +153,6 @@ export default function LyricPage({ lyricsDataServer }) {
           box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
         }
 
-        .header-row {
-          margin-bottom: 10px;
-        }
-
         .title {
           font-size: 1.8rem;
           font-weight: 700;
@@ -168,7 +162,7 @@ export default function LyricPage({ lyricsDataServer }) {
         .username {
           font-size: 0.95rem;
           color: #6b7280;
-          margin-top: 5px;
+          margin-bottom: 15px;
         }
 
         .audio-container {
@@ -176,8 +170,8 @@ export default function LyricPage({ lyricsDataServer }) {
           align-items: center;
           justify-content: center;
           gap: 10px;
-          margin: 15px 0;
           flex-wrap: wrap;
+          margin: 15px 0;
         }
 
         audio {
@@ -237,22 +231,38 @@ export default function LyricPage({ lyricsDataServer }) {
   );
 }
 
-// SSR: fetch lyrics before render
-export async function getServerSideProps() {
+// SSR: fetch lyrics (all or only shared audio)
+export async function getServerSideProps(context) {
+  const { id } = context.query;
   let lyricsData = [];
+  let sharedId = id || null;
+
   try {
-    const snapshot = await getDocs(collection(db, "lyrics"));
-    lyricsData = snapshot.docs.map((docItem) => ({
-      id: docItem.id,
-      ...docItem.data(),
-    }));
+    if (id) {
+      const docRef = doc(db, "lyrics", id);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        lyricsData = [{ id: docSnap.id, ...docSnap.data() }];
+      }
+    } else {
+      const snapshot = await getDocs(collection(db, "lyrics"));
+      lyricsData = snapshot.docs.map((docItem) => ({
+        id: docItem.id,
+        ...docItem.data(),
+      }));
+    }
   } catch (error) {
     console.error("Error fetching lyrics:", error);
+  }
+
+  if (!lyricsData.length) {
+    return { notFound: true };
   }
 
   return {
     props: {
       lyricsDataServer: lyricsData,
+      sharedId,
     },
   };
 }

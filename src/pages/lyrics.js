@@ -9,11 +9,11 @@ import {
 } from "firebase/firestore";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import { Download } from "lucide-react"; // Icon
+import { FiDownload } from "react-icons/fi"; // React icon for download
 
 export default function LyricPage({ lyricsDataServer }) {
   const [lyricsData, setLyricsData] = useState(lyricsDataServer);
-  const audioRefs = useRef({}); // Refs for each audio
+  const audioRefs = useRef({});
   const [playingId, setPlayingId] = useState(null);
 
   // Handle audio play (one at a time) + increment views
@@ -79,7 +79,7 @@ export default function LyricPage({ lyricsDataServer }) {
                   onClick={() => handleDownload(lyric.audioUrl, lyric.title)}
                   title="Download Audio"
                 >
-                  <Download size={20} />
+                  <FiDownload size={20} />
                 </button>
               </div>
             )}

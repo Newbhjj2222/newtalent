@@ -79,7 +79,7 @@ export default function LyricPage({ lyricsDataServer, sharedId }) {
   // Share audio (copy domain + id)
   const handleShare = (id) => {
     const domain = "https://www.newtalentsg.co.rw"; // replace with your domain
-    const shareUrl = `${domain}/lyric?id=${id}`;
+    const shareUrl = `${domain}/lyrics?id=${id}`;
     navigator.clipboard.writeText(shareUrl);
     alert("Audio share link copied!");
   };

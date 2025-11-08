@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { db } from "../components/firebase";
 import {
   collection,
@@ -6,19 +6,29 @@ import {
   getDocs,
   updateDoc,
   increment,
+  getDoc,
 } from "firebase/firestore";
+import { useRouter } from "next/router";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import { FiDownload, FiShare2 } from "react-icons/fi"; // React icons
+import { FiDownload, FiShare2 } from "react-icons/fi";
 
 export default function LyricPage({ lyricsDataServer }) {
   const [lyricsData, setLyricsData] = useState(
     lyricsDataServer.map((item) => ({ ...item, showLyrics: false }))
   );
   const audioRefs = useRef({});
-  const [playingId, setPlayingId] = useState(null);
+  const router = useRouter();
+  const { id: shareId } = router.query;
 
-  // Handle audio play and reveal lyrics
+  // On mount, auto play shared audio
+  useEffect(() => {
+    if (shareId && audioRefs.current[shareId]) {
+      handlePlay(shareId);
+    }
+  }, [shareId]);
+
+  // Play audio + show lyrics + increment views
   const handlePlay = async (id) => {
     // Pause others
     Object.keys(audioRefs.current).forEach((key) => {
@@ -28,7 +38,7 @@ export default function LyricPage({ lyricsDataServer }) {
       }
     });
 
-    // Reveal lyrics for this audio
+    // Reveal lyrics
     setLyricsData((prev) =>
       prev.map((item) =>
         item.id === id ? { ...item, showLyrics: true } : { ...item, showLyrics: false }
@@ -38,14 +48,12 @@ export default function LyricPage({ lyricsDataServer }) {
     // Play audio
     if (audioRefs.current[id]) {
       audioRefs.current[id].play();
-      setPlayingId(id);
     }
 
+    // Increment views
     try {
       const docRef = doc(db, "lyrics", id);
       await updateDoc(docRef, { views: increment(1) });
-
-      // Update local state instantly
       setLyricsData((prev) =>
         prev.map((item) =>
           item.id === id ? { ...item, views: (item.views || 0) + 1 } : item
@@ -64,10 +72,12 @@ export default function LyricPage({ lyricsDataServer }) {
     link.click();
   };
 
-  // Share audio (copy link)
-  const handleShare = (url) => {
-    navigator.clipboard.writeText(url);
-    alert("Audio link copied to clipboard!");
+  // Share audio (copy domain link with query)
+  const handleShare = (id) => {
+    const domain = window.location.origin; // get current domain
+    const shareUrl = `${domain}/lyric?id=${id}`;
+    navigator.clipboard.writeText(shareUrl);
+    alert("Audio share link copied!");
   };
 
   return (
@@ -102,7 +112,7 @@ export default function LyricPage({ lyricsDataServer }) {
 
                   <button
                     className="share-btn"
-                    onClick={() => handleShare(lyric.audioUrl)}
+                    onClick={() => handleShare(lyric.id)}
                     title="Share Audio"
                   >
                     <FiShare2 size={20} />

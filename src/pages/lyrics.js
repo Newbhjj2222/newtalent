@@ -9,14 +9,16 @@ import {
 } from "firebase/firestore";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import { FiDownload } from "react-icons/fi"; // React icon for download
+import { FiDownload, FiShare2 } from "react-icons/fi"; // React icons
 
 export default function LyricPage({ lyricsDataServer }) {
-  const [lyricsData, setLyricsData] = useState(lyricsDataServer);
+  const [lyricsData, setLyricsData] = useState(
+    lyricsDataServer.map((item) => ({ ...item, showLyrics: false }))
+  );
   const audioRefs = useRef({});
   const [playingId, setPlayingId] = useState(null);
 
-  // Handle audio play (one at a time) + increment views
+  // Handle audio play and reveal lyrics
   const handlePlay = async (id) => {
     // Pause others
     Object.keys(audioRefs.current).forEach((key) => {
@@ -26,7 +28,14 @@ export default function LyricPage({ lyricsDataServer }) {
       }
     });
 
-    // Play selected
+    // Reveal lyrics for this audio
+    setLyricsData((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, showLyrics: true } : { ...item, showLyrics: false }
+      )
+    );
+
+    // Play audio
     if (audioRefs.current[id]) {
       audioRefs.current[id].play();
       setPlayingId(id);
@@ -47,12 +56,18 @@ export default function LyricPage({ lyricsDataServer }) {
     }
   };
 
-  // Handle audio download
+  // Download audio
   const handleDownload = (url, title) => {
     const link = document.createElement("a");
     link.href = url;
     link.download = `${title || "audio"}.mp3`;
     link.click();
+  };
+
+  // Share audio (copy link)
+  const handleShare = (url) => {
+    navigator.clipboard.writeText(url);
+    alert("Audio link copied to clipboard!");
   };
 
   return (
@@ -62,8 +77,10 @@ export default function LyricPage({ lyricsDataServer }) {
       <div className="lyrics-page-container">
         {lyricsData.map((lyric) => (
           <div key={lyric.id} className="lyric-card">
-            <h2 className="title">{lyric.title}</h2>
-            <p className="username">By: {lyric.username}</p>
+            <div className="header-row">
+              <h2 className="title">{lyric.title}</h2>
+              <p className="username">By: {lyric.username}</p>
+            </div>
 
             {lyric.audioUrl && (
               <div className="audio-container">
@@ -74,22 +91,34 @@ export default function LyricPage({ lyricsDataServer }) {
                   onPlay={() => handlePlay(lyric.id)}
                 ></audio>
 
-                <button
-                  className="download-btn"
-                  onClick={() => handleDownload(lyric.audioUrl, lyric.title)}
-                  title="Download Audio"
-                >
-                  <FiDownload size={20} />
-                </button>
+                <div className="action-buttons">
+                  <button
+                    className="download-btn"
+                    onClick={() => handleDownload(lyric.audioUrl, lyric.title)}
+                    title="Download Audio"
+                  >
+                    <FiDownload size={20} />
+                  </button>
+
+                  <button
+                    className="share-btn"
+                    onClick={() => handleShare(lyric.audioUrl)}
+                    title="Share Audio"
+                  >
+                    <FiShare2 size={20} />
+                  </button>
+                </div>
               </div>
             )}
 
-            <div
-              className="lyrics-text"
-              dangerouslySetInnerHTML={{
-                __html: lyric.lyrics.replace(/<\/?[^>]+(>|$)/g, ""),
-              }}
-            ></div>
+            {lyric.showLyrics && (
+              <div
+                className="lyrics-text"
+                dangerouslySetInnerHTML={{
+                  __html: lyric.lyrics.replace(/<\/?[^>]+(>|$)/g, ""),
+                }}
+              ></div>
+            )}
 
             <p className="views">Views: {lyric.views || 0}</p>
           </div>
@@ -101,7 +130,7 @@ export default function LyricPage({ lyricsDataServer }) {
       <style jsx>{`
         .lyrics-page-container {
           max-width: 700px;
-          margin: 50px auto;
+          margin: 70px auto;
           display: flex;
           flex-direction: column;
           gap: 40px;
@@ -116,17 +145,20 @@ export default function LyricPage({ lyricsDataServer }) {
           box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
         }
 
+        .header-row {
+          margin-bottom: 10px;
+        }
+
         .title {
           font-size: 1.8rem;
           font-weight: 700;
-          margin-bottom: 10px;
           color: #111827;
         }
 
         .username {
           font-size: 0.95rem;
-          margin-bottom: 15px;
           color: #6b7280;
+          margin-top: 5px;
         }
 
         .audio-container {
@@ -135,13 +167,20 @@ export default function LyricPage({ lyricsDataServer }) {
           justify-content: center;
           gap: 10px;
           margin: 15px 0;
+          flex-wrap: wrap;
         }
 
         audio {
           width: 80%;
         }
 
-        .download-btn {
+        .action-buttons {
+          display: flex;
+          gap: 10px;
+        }
+
+        .download-btn,
+        .share-btn {
           background: #2563eb;
           border: none;
           color: white;
@@ -154,7 +193,8 @@ export default function LyricPage({ lyricsDataServer }) {
           transition: 0.2s;
         }
 
-        .download-btn:hover {
+        .download-btn:hover,
+        .share-btn:hover {
           background: #1e40af;
         }
 
@@ -164,6 +204,7 @@ export default function LyricPage({ lyricsDataServer }) {
           line-height: 1.6;
           white-space: pre-wrap;
           text-align: center;
+          margin-top: 15px;
         }
 
         .views {

@@ -73,7 +73,7 @@ export default function Balance() {
       );
 
       setMessage(
-        "Ubusabe bwawe bwo guhabwa NeS points bwakirwa neza! Mwishyure kuri 0780786300 (MTN) cyangwa 0722319367 (Airtel)."
+        "Ubusabe bwawe bwo guhabwa NeS points bwakirwa neza! Mwishyure kuri 0722319367 yaba ukoresha (MTN) cyangwa (Airtel)."
       );
 
       // Ohereza user kuri /home nyuma ya 30s

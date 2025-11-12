@@ -231,7 +231,7 @@ export default function LyricPage({ lyricsDataServer, sharedId }) {
   );
 }
 
-// SSR: fetch lyrics (all or only shared audio)
+// ✅ SSR: fetch lyrics and sort by newest first
 export async function getServerSideProps(context) {
   const { id } = context.query;
   let lyricsData = [];
@@ -246,10 +246,17 @@ export async function getServerSideProps(context) {
       }
     } else {
       const snapshot = await getDocs(collection(db, "lyrics"));
-      lyricsData = snapshot.docs.map((docItem) => ({
-        id: docItem.id,
-        ...docItem.data(),
-      }));
+      lyricsData = snapshot.docs
+        .map((docItem) => ({
+          id: docItem.id,
+          ...docItem.data(),
+        }))
+        // 🔽 Sort ihereye ku nshya
+        .sort((a, b) => {
+          const dateA = a.createdAt?.toMillis?.() || 0;
+          const dateB = b.createdAt?.toMillis?.() || 0;
+          return dateB - dateA; // newest first
+        });
     }
   } catch (error) {
     console.error("Error fetching lyrics:", error);

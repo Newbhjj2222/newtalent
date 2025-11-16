@@ -12,7 +12,6 @@ import {
   getDocs,
   query,
   orderBy,
-  getDoc
 } from "firebase/firestore";
 import { FiThumbsUp, FiMessageCircle, FiShare2 } from "react-icons/fi";
 import Head from "next/head";
@@ -44,19 +43,19 @@ export default function Daily({ initialFeeds }) {
           const ref = doc(db, "feeds", f.id);
           await updateDoc(ref, { views: firestoreIncrement(1) });
         }
-
         setFeeds(prev => prev.map(p => ({ ...p, views: (p.views || 0) + 1 })));
       } catch (err) {
-        console.warn("views increment failed", err);
+        console.error("Firestore Error (views):", err);
+        alert(`Habaye ikosa mu kongera views: ${err.message}`);
       }
     };
 
     if (feeds.length) incrementViews();
-  }, []);
+  }, [feeds]);
 
   const handlePost = async (e) => {
     e.preventDefault();
-    if (!text.trim()) return alert("Andika post mbere.");
+    if (!text.trim()) return alert("Andika post mbere yo gusubiza.");
     if (text.length > 500) return alert("Post ntigomba kurenza inyuguti 500.");
 
     setLoadingPost(true);
@@ -75,18 +74,13 @@ export default function Daily({ initialFeeds }) {
       const col = collection(db, "feeds");
       const docRef = await addDoc(col, newFeed);
 
-      const clientFeed = {
-        id: docRef.id,
-        ...newFeed,
-        createdAt: new Date().toISOString(),
-      };
-
+      const clientFeed = { id: docRef.id, ...newFeed, createdAt: new Date().toISOString() };
       setFeeds(prev => [clientFeed, ...prev]);
       setText("");
       alert("Post ibitswe!");
     } catch (err) {
-      console.error(err);
-      alert("Habaye ikosa.");
+      console.error("Firestore Error (post):", err);
+      alert(`Habaye ikosa muri Firestore: ${err.message}`);
     } finally {
       setLoadingPost(false);
     }
@@ -96,12 +90,10 @@ export default function Daily({ initialFeeds }) {
     try {
       const ref = doc(db, "feeds", feedId);
       await updateDoc(ref, { likes: firestoreIncrement(1) });
-
-      setFeeds(prev =>
-        prev.map(f => f.id === feedId ? { ...f, likes: (f.likes || 0) + 1 } : f)
-      );
+      setFeeds(prev => prev.map(f => f.id === feedId ? { ...f, likes: (f.likes || 0) + 1 } : f));
     } catch (err) {
-      console.error(err);
+      console.error("Firestore Error (like):", err);
+      alert(`Habaye ikosa mu kongera like: ${err.message}`);
     }
   };
 
@@ -112,15 +104,12 @@ export default function Daily({ initialFeeds }) {
 
       const ref = doc(db, "feeds", feed.id);
       await updateDoc(ref, { shares: firestoreIncrement(1) });
-
-      setFeeds(prev =>
-        prev.map(f => f.id === feed.id ? { ...f, shares: (f.shares || 0) + 1 } : f)
-      );
+      setFeeds(prev => prev.map(f => f.id === feed.id ? { ...f, shares: (f.shares || 0) + 1 } : f));
 
       alert("Summary copied!");
     } catch (err) {
-      console.error(err);
-      alert("Share failed");
+      console.error("Firestore Error (share):", err);
+      alert(`Habaye ikosa mu gusangiza: ${err.message}`);
     }
   };
 
@@ -131,7 +120,7 @@ export default function Daily({ initialFeeds }) {
   const submitComment = async (fid) => {
     const c = (commentText[fid] || "").trim();
     if (!c) return;
-    if (c.length > 500) return alert("Comment max 500 chars");
+    if (c.length > 500) return alert("Comment ntigomba kurenza 500 chars");
 
     try {
       await addDoc(collection(db, `feeds/${fid}/comments`), {
@@ -143,14 +132,12 @@ export default function Daily({ initialFeeds }) {
       const ref = doc(db, "feeds", fid);
       await updateDoc(ref, { commentsCount: firestoreIncrement(1) });
 
-      setFeeds(prev =>
-        prev.map(f => f.id === fid ? { ...f, commentsCount: (f.commentsCount || 0) + 1 } : f)
-      );
-
+      setFeeds(prev => prev.map(f => f.id === fid ? { ...f, commentsCount: (f.commentsCount || 0) + 1 } : f));
       setCommentText(prev => ({ ...prev, [fid]: "" }));
       alert("Comment saved!");
     } catch (err) {
-      console.error(err);
+      console.error("Firestore Error (comment):", err);
+      alert(`Habaye ikosa mu kubika comment: ${err.message}`);
     }
   };
 
@@ -203,6 +190,7 @@ export default function Daily({ initialFeeds }) {
           </section>
 
           <section className={styles.feedsList}>
+            {feeds.length === 0 && <div className={styles.empty}>Nta feeds ziboneka.</div>}
             {feeds.map(feed => (
               <article key={feed.id} className={styles.feedCard} style={{ background: feed.bg }}>
                 <div className={styles.feedHeader}>
@@ -261,6 +249,7 @@ export default function Daily({ initialFeeds }) {
   );
 }
 
+// SSR to fetch feeds
 export async function getServerSideProps() {
   try {
     const feedsCol = collection(db, "feeds");
@@ -279,13 +268,13 @@ export async function getServerSideProps() {
         commentsCount: data.commentsCount || 0,
         shares: data.shares || 0,
         views: data.views || 0,
-        createdAt: data.createdAt?.toDate().toISOString() || new Date().toISOString(),
+        createdAt: data.createdAt?.toDate?.().toISOString() || new Date().toISOString(),
       };
     });
 
     return { props: { initialFeeds: feeds } };
   } catch (err) {
-    console.error("SSR error", err);
+    console.error("SSR Firestore Error:", err);
     return { props: { initialFeeds: [] } };
   }
 }

@@ -1,191 +1,239 @@
-/* styles/daily.module.css */
+/* Container & Page */
 .pageWrap {
+  background-color: #ffffff; /* background yose y’umweru */
   min-height: 100vh;
-  background: #f6f7fb;
   display: flex;
   flex-direction: column;
-  align-items: stretch;
 }
 
 .container {
-  width: 100%;
-  max-width: 880px;
-  margin: 86px auto;
-  padding: 0 16px;
-  box-sizing: border-box;
+  flex: 1;
+  width: 95%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px 0;
 }
 
+/* Post Box */
 .postBox {
-  background: white;
-  padding: 16px;
-  border-radius: 10px;
-  box-shadow: 0 6px 18px rgba(10,10,10,0.04);
-  margin-bottom: 18px;
-}
-
-.textarea {
-  width: 100%;
-  min-height: 80px;
-  resize: vertical;
-  padding: 10px;
+  background-color: #fefefe;
+  border: 1px solid #ddd;
   border-radius: 8px;
-  border: 1px solid #e6e7eb;
-  font-size: 14px;
-  box-sizing: border-box;
+  padding: 16px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
 
+.postBox h2 {
+  margin-bottom: 10px;
+  font-size: 20px;
+}
+
+/* Editable Div Wrapper */
+.textareaWrap {
+  max-height: 150px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 4px;
+  margin-bottom: 10px;
+  background-color: #fff;
+}
+
+.editableDiv {
+  min-height: 100px;
+  outline: none;
+  padding: 6px;
+  font-size: 14px;
+  white-space: pre-wrap;
+}
+
+/* Controls (Background color, username, submit) */
 .controls {
-  margin-top: 10px;
   display: flex;
-  gap: 12px;
-  align-items: center;
   flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.controls label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
 }
 
 .colorInput {
-  margin-left: 8px;
   width: 36px;
-  height: 28px;
+  height: 36px;
   border: none;
-  padding: 0;
-  background: none;
   cursor: pointer;
 }
 
 .usernameWrap {
-  display:flex;
-  align-items:center;
-  gap:8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .usernameInput {
-  padding: 6px 8px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
+  padding: 4px 6px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
   font-size: 14px;
+  width: 120px;
 }
 
 .submitBtn {
-  background: #2563eb;
-  color: white;
-  padding: 8px 12px;
+  background-color: #0070f3;
+  color: #fff;
   border: none;
-  border-radius: 8px;
+  padding: 8px 16px;
+  border-radius: 6px;
   cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s ease;
 }
 
+.submitBtn:disabled {
+  background-color: #aaa;
+  cursor: not-allowed;
+}
+
+.submitBtn:hover:not(:disabled) {
+  background-color: #005bb5;
+}
+
+/* Feeds List */
 .feedsList {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 
+.empty {
+  text-align: center;
+  color: #555;
+  font-size: 16px;
+  padding: 20px 0;
+}
+
+/* Feed Card */
 .feedCard {
-  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
   padding: 12px;
-  border-radius: 10px;
-  box-shadow: 0 6px 16px rgba(10,10,10,0.03);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
+  background-color: #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
 }
 
 .feedHeader {
-  display:flex;
+  display: flex;
   justify-content: space-between;
-  align-items: center;
   margin-bottom: 8px;
+}
+
+.feedHeader strong {
+  font-size: 16px;
 }
 
 .meta {
   font-size: 12px;
-  color: #444;
-  opacity: 0.7;
+  color: #777;
 }
 
 .feedBody {
-  display: block;
+  margin-bottom: 10px;
 }
 
 .feedText {
-  max-height: 150px; /* user requirement */
-  overflow: auto;
-  padding: 8px;
-  border-radius: 6px;
+  white-space: pre-wrap;
   font-size: 14px;
   line-height: 1.4;
 }
 
+/* Feed Footer & Metrics */
 .feedFoot {
-  margin-top: 10px;
-  display:flex;
+  display: flex;
   justify-content: space-between;
-  align-items:center;
+  align-items: center;
 }
 
 .metrics {
-  display:flex;
-  gap:8px;
-  align-items:center;
-  flex-wrap:wrap;
+  display: flex;
+  gap: 10px;
+  align-items: center;
 }
 
 .iconBtn {
-  display:flex;
-  gap:6px;
-  align-items:center;
-  padding:6px 8px;
-  border-radius:8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background-color: transparent;
   border: none;
-  background: rgba(0,0,0,0.03);
   cursor: pointer;
+  font-size: 14px;
+  color: #333;
+  transition: color 0.2s ease;
 }
 
-.iconBtn span {
-  font-size: 13px;
+.iconBtn:hover {
+  color: #0070f3;
 }
 
 .viewsBadge {
-  font-size: 13px;
-  color: #333;
-  padding: 6px 8px;
-  border-radius: 8px;
-  background: rgba(0,0,0,0.03);
+  font-size: 12px;
+  color: #555;
 }
 
+/* Comments Area */
 .commentArea {
-  margin-top: 10px;
-  display:flex;
-  gap:8px;
-  align-items:flex-start;
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .commentInput {
-  flex: 1;
-  min-height: 56px;
-  padding:8px;
-  border-radius:8px;
-  border:1px solid #e6e7eb;
+  width: 100%;
+  min-height: 60px;
+  max-height: 120px;
+  padding: 6px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  resize: vertical;
+  font-size: 14px;
 }
 
 .commentBtn {
-  background: #10b981;
-  color: white;
-  padding: 8px 12px;
-  border-radius:8px;
-  border:none;
-  cursor:pointer;
+  align-self: flex-end;
+  background-color: #0070f3;
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
 }
 
-.empty {
-  text-align:center;
-  padding: 28px;
-  color: #666;
+.commentBtn:hover {
+  background-color: #005bb5;
 }
 
 /* Responsive */
-@media (max-width: 640px) {
-  .container { padding: 0 12px; }
-  .controls { flex-direction: column; align-items: stretch; }
-  .iconBtn { padding: 8px; }
+@media (max-width: 600px) {
+  .controls {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .usernameInput {
+    width: 100%;
+  }
+
+  .metrics {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
 }

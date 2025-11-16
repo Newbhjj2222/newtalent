@@ -1,8 +1,8 @@
 // pages/daily.js
 import React, { useEffect, useState } from "react";
 import styles from "../styles/daily.module.css";
-import Header from "../components/header";
-import Footer from "../components/footer";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
 import { db, serverTimestamp, firestoreIncrement } from "../components/firebase";
 import {
   collection,

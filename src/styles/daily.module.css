@@ -1,4 +1,4 @@
-/* Container & Page */
+/* ===== Page & Container ===== */
 .pageWrap {
   background-color: #ffffff; /* background yose y’umweru */
   min-height: 100vh;
@@ -10,31 +10,27 @@
   flex: 1;
   width: 95%;
   max-width: 900px;
-  margin: 80px auto;
-  background: black;
+  margin: 64px auto;
   padding: 20px 0;
 }
 
-/* Post Box */
+/* ===== Post Box ===== */
 .postBox {
   background-color: #fefefe;
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 16px;
   margin-bottom: 20px;
-  color: black;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
 .postBox h2 {
   margin-bottom: 10px;
-  text-align: center;
-  color: blue;
-  font-weight: bold;
   font-size: 20px;
+  color: #333;
 }
 
-/* Editable Div Wrapper */
+/* ===== Editable Div Wrapper ===== */
 .textareaWrap {
   max-height: 150px;
   overflow-y: auto;
@@ -51,9 +47,10 @@
   padding: 6px;
   font-size: 14px;
   white-space: pre-wrap;
+  color: #111;
 }
 
-/* Controls (Background color, username, submit) */
+/* ===== Controls ===== */
 .controls {
   display: flex;
   flex-wrap: wrap;
@@ -67,6 +64,7 @@
   align-items: center;
   gap: 4px;
   font-size: 14px;
+  color: #333;
 }
 
 .colorInput {
@@ -79,7 +77,6 @@
 .usernameWrap {
   display: flex;
   align-items: center;
-  color: green;
   gap: 4px;
 }
 
@@ -111,12 +108,10 @@
   background-color: #005bb5;
 }
 
-/* Feeds List */
+/* ===== Feeds List ===== */
 .feedsList {
   display: flex;
   flex-direction: column;
-  text-align: center;
-  color: black;
   gap: 16px;
 }
 
@@ -127,27 +122,31 @@
   padding: 20px 0;
 }
 
-/* Feed Card */
+/* ===== Feed Card ===== */
 .feedCard {
   border: 1px solid #ddd;
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 12px;
-  text-align: center;
-  color: black;
   background-color: #fff;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.feedCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
 }
 
 .feedHeader {
   display: flex;
   justify-content: space-between;
-  text-align: center;
-  color: blue;
+  align-items: center;
   margin-bottom: 8px;
 }
 
 .feedHeader strong {
   font-size: 16px;
+  color: #111;
 }
 
 .meta {
@@ -155,17 +154,20 @@
   color: #777;
 }
 
+/* Feed body */
 .feedBody {
   margin-bottom: 10px;
+  text-align: center; /* Center text */
 }
 
 .feedText {
   white-space: pre-wrap;
   font-size: 14px;
   line-height: 1.4;
+  color: #111;
 }
 
-/* Feed Footer & Metrics */
+/* ===== Feed Footer & Metrics ===== */
 .feedFoot {
   display: flex;
   justify-content: space-between;
@@ -199,12 +201,23 @@
   color: #555;
 }
 
-/* Comments Area */
+/* ===== Comments Area ===== */
 .commentArea {
   margin-top: 8px;
   display: flex;
   flex-direction: column;
   gap: 6px;
+  border-top: 1px solid #eee;
+  padding-top: 8px;
+}
+
+.commentItem {
+  font-size: 13px;
+  padding: 4px 6px;
+  background: #f9f9f9;
+  border-radius: 6px;
+  word-break: break-word;
+  color: #111;
 }
 
 .commentInput {
@@ -216,6 +229,7 @@
   border: 1px solid #ccc;
   resize: vertical;
   font-size: 14px;
+  color: #111;
 }
 
 .commentBtn {
@@ -233,7 +247,7 @@
   background-color: #005bb5;
 }
 
-/* Responsive */
+/* ===== Responsive ===== */
 @media (max-width: 600px) {
   .controls {
     flex-direction: column;

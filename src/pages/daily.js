@@ -1,5 +1,5 @@
 // pages/daily.js
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import styles from "../styles/daily.module.css";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -22,10 +22,11 @@ export default function Daily({ initialFeeds }) {
   const [bg, setBg] = useState("#ffffff");
   const [username, setUsername] = useState("");
   const [loadingPost, setLoadingPost] = useState(false);
-
   const [commentInputsOpen, setCommentInputsOpen] = useState({});
   const [commentText, setCommentText] = useState({});
+  const editableDivRef = useRef(null);
 
+  // Load username from localStorage
   useEffect(() => {
     const u = typeof window !== "undefined" ? localStorage.getItem("username") : null;
     if (u) setUsername(u);
@@ -36,6 +37,7 @@ export default function Daily({ initialFeeds }) {
     }
   }, []);
 
+  // Increment views when feeds load
   useEffect(() => {
     const incrementViews = async () => {
       try {
@@ -43,7 +45,7 @@ export default function Daily({ initialFeeds }) {
           const ref = doc(db, "feeds", f.id);
           await updateDoc(ref, { views: firestoreIncrement(1) });
         }
-        setFeeds(prev => prev.map(p => ({ ...p, views: (p.views || 0) + 1 })));
+        setFeeds(prev => prev.map(f => ({ ...f, views: (f.views || 0) + 1 })));
       } catch (err) {
         console.error("Firestore Error (views):", err);
         alert(`Habaye ikosa mu kongera views: ${err.message}`);
@@ -53,8 +55,8 @@ export default function Daily({ initialFeeds }) {
     if (feeds.length) incrementViews();
   }, [feeds]);
 
-  const handlePost = async (e) => {
-    e.preventDefault();
+  // Handle post submit
+  const handlePost = async () => {
     if (!text.trim()) return alert("Andika post mbere yo gusubiza.");
     if (text.length > 500) return alert("Post ntigomba kurenza inyuguti 500.");
 
@@ -76,6 +78,9 @@ export default function Daily({ initialFeeds }) {
 
       const clientFeed = { id: docRef.id, ...newFeed, createdAt: new Date().toISOString() };
       setFeeds(prev => [clientFeed, ...prev]);
+
+      // Clear div content
+      if (editableDivRef.current) editableDivRef.current.textContent = "";
       setText("");
       alert("Post ibitswe!");
     } catch (err) {
@@ -144,21 +149,27 @@ export default function Daily({ initialFeeds }) {
   return (
     <>
       <Head><title>Daily Feed</title></Head>
-
       <div className={styles.pageWrap}>
         <Header />
 
         <main className={styles.container}>
+          {/* Post Box */}
           <section className={styles.postBox}>
             <h2>Andika Post</h2>
-
-            <textarea
-              className={styles.textarea}
-              placeholder="Andika hano..."
-              value={text}
-              maxLength={500}
-              onChange={(e) => setText(e.target.value)}
-            />
+            <div className={styles.textareaWrap}>
+              <div
+                className={styles.editableDiv}
+                ref={editableDivRef}
+                contentEditable
+                suppressContentEditableWarning={true}
+                onInput={(e) => {
+                  const t = e.currentTarget.textContent || "";
+                  if (t.length > 500) e.currentTarget.textContent = t.slice(0, 500);
+                  setText(e.currentTarget.textContent);
+                }}
+                style={{ backgroundColor: bg }}
+              />
+            </div>
 
             <div className={styles.controls}>
               <label>
@@ -189,6 +200,7 @@ export default function Daily({ initialFeeds }) {
             </div>
           </section>
 
+          {/* Feeds List */}
           <section className={styles.feedsList}>
             {feeds.length === 0 && <div className={styles.empty}>Nta feeds ziboneka.</div>}
             {feeds.map(feed => (
@@ -249,7 +261,7 @@ export default function Daily({ initialFeeds }) {
   );
 }
 
-// SSR to fetch feeds
+// SSR fetch feeds
 export async function getServerSideProps() {
   try {
     const feedsCol = collection(db, "feeds");
@@ -258,7 +270,6 @@ export async function getServerSideProps() {
 
     const feeds = snap.docs.map(d => {
       const data = d.data();
-
       return {
         id: d.id,
         username: data.username,

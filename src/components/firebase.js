@@ -1,6 +1,6 @@
 // src/components/firebase.js
 import { initializeApp, getApps } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, serverTimestamp, increment } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
 // Your Firebase configuration
@@ -21,3 +21,6 @@ export const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()
 // Export Firestore and Auth
 export const db = getFirestore(app);
 export const auth = getAuth(app);
+
+// 🔹 Export helpers for serverTimestamp and increment
+export { serverTimestamp, increment as firestoreIncrement };

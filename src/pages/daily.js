@@ -79,7 +79,6 @@ export default function Daily({ initialFeeds }) {
       const clientFeed = { id: docRef.id, ...newFeed, createdAt: new Date().toISOString() };
       setFeeds(prev => [clientFeed, ...prev]);
 
-      // Clear div content
       if (editableDivRef.current) editableDivRef.current.textContent = "";
       setText("");
       alert("Post ibitswe!");
@@ -148,9 +147,10 @@ export default function Daily({ initialFeeds }) {
 
   return (
     <>
-      <Head><title>Daily Feed</title></Head>
+    <Header />
+      <Head><title>Daily Feeds</title></Head>
       <div className={styles.pageWrap}>
-        <Header />
+        
 
         <main className={styles.container}>
           {/* Post Box */}
@@ -254,9 +254,10 @@ export default function Daily({ initialFeeds }) {
             ))}
           </section>
 
-          <Footer />
+          
         </main>
       </div>
+              <Footer />
     </>
   );
 }

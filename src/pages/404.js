@@ -10,22 +10,30 @@ export default function Custom404() {
     <>
       <Header />
 
-      <div style={styles.container}>
-        <FaSearch size={60} style={{ marginBottom: 20, color: "#555" }} />
+      <div style={styles.wrapper}>
+        <div style={styles.container}>
+          <FaSearch size={65} style={{ marginBottom: 25, color: "#4a4a4a" }} />
 
-        <h1 style={styles.title}>Mutubabarire 🙏</h1>
-        <p style={styles.text}>
-          Ntitubashije kubona ibyo mwashakaga.
-          <br />
-          <span style={{ fontWeight: "bold" }}>
-            Subira inyuma ujye gushaka ibindi.
-          </span>
-        </p>
+          <h1 style={styles.title}>Mutubabarire 🙏</h1>
 
-        <Link href="/" style={styles.backBtn}>
-          <FaArrowLeft style={{ marginRight: 8 }} />
-          Subira ku rubuga rukuru
-        </Link>
+          <p style={styles.text}>
+            Ntitubashije kubona ibyo mwashakaga kuri uru rubuga.
+            Birashoboka ko byimuwe, byasibwe cyangwa ko mwanditse link ituzuye neza.
+            <br /><br />
+            <span style={{ fontWeight: "bold" }}>
+              Mwabishatse, mushobora kugerageza kongera gushaka ibindi.
+            </span>
+          </p>
+
+          <Link href="/" style={styles.backBtn}>
+            <FaArrowLeft style={{ marginRight: 8 }} />
+            Subira ku rubuga rukuru
+          </Link>
+
+          <p style={styles.smallNote}>
+            Ntimucikwe n’ibindi bishya! Dukomeje kubaka platform irushijeho kuba nziza.
+          </p>
+        </div>
       </div>
 
       <Footer />
@@ -34,16 +42,21 @@ export default function Custom404() {
 }
 
 const styles = {
-  container: {
-    textAlign: "center",
-    padding: "80px 20px",
+  wrapper: {
+    background: "#ffffff",
     minHeight: "70vh",
     display: "flex",
-    flexDirection: "column",
     justifyContent: "center",
+    alignItems: "center",
+    padding: "20px",
+  },
+  container: {
+    textAlign: "center",
+    maxWidth: "600px",
+    padding: "20px",
   },
   title: {
-    fontSize: "32px",
+    fontSize: "34px",
     fontWeight: "bold",
     color: "#222",
     marginBottom: "10px",
@@ -51,18 +64,25 @@ const styles = {
   text: {
     fontSize: "18px",
     color: "#555",
-    marginBottom: "25px",
-    lineHeight: 1.6,
+    marginBottom: "28px",
+    lineHeight: 1.7,
   },
   backBtn: {
     display: "inline-flex",
     alignItems: "center",
-    padding: "10px 18px",
+    padding: "12px 22px",
     background: "#0070f3",
     color: "#fff",
     borderRadius: "8px",
     textDecoration: "none",
     fontWeight: "500",
     cursor: "pointer",
+    fontSize: "16px",
+  },
+  smallNote: {
+    marginTop: "25px",
+    fontSize: "15px",
+    color: "#777",
+    fontStyle: "italic",
   },
 };

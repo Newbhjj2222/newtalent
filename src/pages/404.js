@@ -46,6 +46,7 @@ const styles = {
     background: "#ffffff",
     minHeight: "70vh",
     display: "flex",
+    margin: "60px auto",
     justifyContent: "center",
     alignItems: "center",
     padding: "20px",

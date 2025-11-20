@@ -1,4 +1,4 @@
-"use client";
+// FIXED VERSION OF pay.js WITHOUT PARSING ERRORS "use client";
 
 import { useEffect, useState } from "react"; import { db } from "../components/firebase"; import { doc, onSnapshot, setDoc } from "firebase/firestore"; import { useRouter } from "next/navigation"; import Header from "../components/Header"; import Footer from "../components/Footer"; import styles from "../components/Balance.module.css";
 
@@ -6,9 +6,9 @@ export default function Pay() { const router = useRouter(); const [username, set
 
 const [formData, setFormData] = useState({ names: "", phone: "", plan: "", amount: 0, paymentMethod: "", });
 
-// Fata username muri localStorage useEffect(() => { const storedUsername = localStorage.getItem("username"); if (!storedUsername) { router.push("/login"); return; } setUsername(storedUsername); }, [router]);
+// Get username useEffect(() => { const storedUsername = localStorage.getItem("username"); if (!storedUsername) { router.push("/login"); return; } setUsername(storedUsername); }, [router]);
 
-// Realtime Firestore listener useEffect(() => { if (!username) return;
+// Firestore realtime useEffect(() => { if (!username) return;
 
 const unsub = onSnapshot(doc(db, "depositers", username), (docSnap) => {
   if (docSnap.exists()) {
@@ -23,17 +23,17 @@ return () => unsub();
 
 }, [username]);
 
-// Hitamo amafaranga bitewe na plan const handlePlanChange = (value) => { let amount = 0; switch (value) { case "onestory": amount = 20; break; case "Local": amount = 100; break; case "Daily": amount = 150; break; case "weekly": amount = 200; break; case "limited": amount = 300; break; case "monthly": amount = 600; break; case "bestreader": amount = 1200; break; default: amount = 0; }
+// Select Amount const handlePlanChange = (value) => { let amount = 0; switch (value) { case "onestory": amount = 20; break; case "Local": amount = 100; break; case "Daily": amount = 150; break; case "weekly": amount = 200; break; case "limited": amount = 300; break; case "monthly": amount = 600; break; case "bestreader": amount = 1200; break; default: amount = 0; }
 
 setFormData((prev) => ({ ...prev, plan: value, amount }));
 
 };
 
-// Update inputs const handleChange = (e) => { const { name, value } = e.target; if (name === "plan") { handlePlanChange(value); } else { setFormData((prev) => ({ ...prev, [name]: value })); } };
+// Inputs const handleChange = (e) => { const { name, value } = e.target; if (name === "plan") { handlePlanChange(value); } else { setFormData((prev) => ({ ...prev, [name]: value })); } };
 
-// Auto‑dial USSD const autoDial = (amount) => { const ussd = *186*7777*${amount}#; window.location.href = tel:${encodeURIComponent(ussd)}; };
+// Auto Dial const autoDial = (amount) => { const ussd = *186*7777*${amount}#; const encoded = encodeURIComponent(ussd); window.location.href = tel:${encoded}; };
 
-// Submit const handleSubmit = async (e) => { e.preventDefault(); setSubmitting(true); setMessage("Ubusabe bwoherejwe, tegereza USSD yishyure...");
+// Submit const handleSubmit = async (e) => { e.preventDefault(); setSubmitting(true); setMessage("Ubusabe bwoherejwe, tegereza USSD...");
 
 try {
   await setDoc(
@@ -45,28 +45,25 @@ try {
     { merge: true }
   );
 
-  // Tanga message yo hejuru
-  setMessage("Ubusabe bwoherejwe! Hitamo OK kuri USSD maze wemeze ubwishyu.");
+  setMessage("Ubusabe bwoherejwe! Fungura USSD wemeze ubwishyu.");
 
-  // Auto‑dial USSD nyuma yo 2 seconds
   setTimeout(() => {
     autoDial(formData.amount);
   }, 2000);
 
-  // Subira home nyuma yo kwishyura
   setTimeout(() => {
     router.push("/");
-  }, 25000);
+  }, 20000);
 
-} catch (error) {
-  console.error("Error saving data:", error);
+} catch (err) {
+  console.error(err);
   setMessage("Habaye ikibazo. Ongera ugerageze.");
   setSubmitting(false);
 }
 
 };
 
-if (!username) { return <div className={styles.noUser}>Injira mbere yo gukoresha iyi page.</div>; }
+if (!username) { return <div className={styles.noUser}>Injira mbere yo gukomeza.</div>; }
 
 return ( <> <Header />
 
@@ -76,11 +73,10 @@ return ( <> <Header />
     {message && <div className={styles.successMessage}>{message}</div>}
 
     <form onSubmit={handleSubmit} className={styles.balanceForm}>
-
       <input
         type="text"
         name="names"
-        placeholder="Amazina ari kuri nimero wishyura"
+        placeholder="Amazina ari kuri nimero"
         value={formData.names}
         onChange={handleChange}
         required
@@ -95,12 +91,7 @@ return ( <> <Header />
         required
       />
 
-      <select
-        name="plan"
-        value={formData.plan}
-        onChange={handleChange}
-        required
-      >
+      <select name="plan" value={formData.plan} onChange={handleChange} required>
         <option value="">-- Hitamo Plan --</option>
         <option value="onestory">NeS 1 - 20 RWF</option>
         <option value="Local">NeS 7 - 100 RWF</option>

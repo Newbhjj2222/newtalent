@@ -105,12 +105,12 @@ export default function Pay() {
         setSubmitting(true);
 
         if (!isRwandaPhone(formData.phone)) {
-            setMessage("💢 Nimero ya telefone igomba kuba iy’u Rwanda (itangira na 07, ikaba 10 digits).");
+            setMessage("💢 Nimero ya telefone igomba kuba ari iyo mu Rwanda (itangira na 07, ikaba 10 digits).");
             setSubmitting(false);
             return;
         }
 
-        setMessage("Ubusabe bwoherejwe, tegereza USSD...");
+        setMessage("Ubusabe bwoherejwe, tegereza USSD kugira ngo wemeze ubwishyu");
 
         try {
             await setDoc(
@@ -121,7 +121,7 @@ export default function Pay() {
 
             setMessage("Ubusabe bwoherejwe! Fungura USSD wemeze ubwishyu.");
             setTimeout(() => { autoDial(formData.amount); }, 2000);
-            setTimeout(() => { router.push("/"); }, 20000);
+            setTimeout(() => { router.push("/"); }, 30000);
 
         } catch (err) {
             console.error(err);
@@ -137,6 +137,7 @@ export default function Pay() {
 
     return (
         <>
+        <Header />
             <div className={styles.formContainer}>
                 <div className={styles.nesCard}>
                     Your NeS Points: <span>{nes}</span>
@@ -166,7 +167,7 @@ export default function Pay() {
                     </select>
 
                     <button type="submit" disabled={submitting}>
-                        {submitting ? "Kohereza..." : "Ohereza"}
+                        {submitting ? "Kohereza..." : "ishyura"}
                     </button>
                 </form>
             </div>

@@ -1,4 +1,4 @@
-// Updated Balance page with USSD dial: 1867777*amount# // Includes automatic plan-to-amount mapping
+// FULL UPDATED BALANCE PAGE WITH AUTO USSD DIAL // Auto-submit → Save to Firestore → Auto-dial 1867777*amount# immediately
 
 'use client';
 
@@ -10,19 +10,19 @@ import Header from "../components/Header";
 import Footer from "../components/Footer"; 
 import styles from "../components/Balance.module.css";
 
-export default function Balance() { const router = useRouter(); const [username, setUsername] = useState(null); const [nes, setNes] = useState(0); const [message, setMessage] = useState(""); const [amount, setAmount] = useState(0); const [copied, setCopied] = useState(false); const [submitting, setSubmitting] = useState(false);
+export default function Balance() { const router = useRouter(); const [username, setUsername] = useState(null); const [nes, setNes] = useState(0); const [message, setMessage] = useState(""); const [amount, setAmount] = useState(0); const [submitting, setSubmitting] = useState(false); const [copied, setCopied] = useState(false);
 
 const [formData, setFormData] = useState({ names: "", phone: "", plan: "", paymentMethod: "", });
 
-const planPrices = { onestory: 20, Local: 100, Daily: 150, weekly: 200, limited: 300, monthly: 600, bestreader: 1200, };
+// PRICE MAP const planPrices = { onestory: 20, Local: 100, Daily: 150, weekly: 200, limited: 300, monthly: 600, bestreader: 1200, };
 
-const baseUSSD = "1867777";
+const baseUSSD = "*182*1*1*0780786300";
 
 const isMobile = () => { if (typeof navigator === "undefined") return false; return /Mobi|Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(navigator.userAgent); };
 
 const makeTelHref = (ussd) => ussd.replace(/#/g, "%23");
 
-const dialUSSD = async () => { if (!amount) return alert("Hitamo plan kugira ngo amafaranga agaragare.");
+const dialUSSD = async () => { if (!amount) return;
 
 const ussd = `${baseUSSD}*${amount}#`;
 const telHref = `tel:${makeTelHref(ussd)}`;
@@ -39,15 +39,15 @@ try {
     await navigator.clipboard.writeText(ussd);
     setCopied(true);
   } catch (e) {
-    alert("Ongera ugerageze. USSD ni: " + ussd);
+    alert("USSD ni: " + ussd);
   }
 }
 
 };
 
-useEffect(() => { const storedUsername = localStorage.getItem("username"); if (!storedUsername) { router.push("/login"); return; } setUsername(storedUsername); }, [router]);
+// Get username useEffect(() => { const storedUsername = localStorage.getItem("username"); if (!storedUsername) { router.push("/login"); return; } setUsername(storedUsername); }, [router]);
 
-useEffect(() => { if (!username) return;
+// Listen to Firestore useEffect(() => { if (!username) return;
 
 const unsub = onSnapshot(doc(db, "depositers", username), (docSnap) => {
   if (docSnap.exists()) {
@@ -62,12 +62,9 @@ return () => unsub();
 
 }, [username]);
 
-const handleChange = (e) => { const { name, value } = e.target;
+// Handle form changes const handleChange = (e) => { const { name, value } = e.target;
 
-setFormData((prev) => ({
-  ...prev,
-  [name]: value,
-}));
+setFormData((prev) => ({ ...prev, [name]: value }));
 
 if (name === "plan") {
   setAmount(planPrices[value] || 0);
@@ -75,7 +72,10 @@ if (name === "plan") {
 
 };
 
-const handleSubmit = async (e) => { e.preventDefault(); setSubmitting(true); setMessage("Kohereza ubusabe...");
+// Handle form submit const handleSubmit = async (e) => { e.preventDefault();
+
+setSubmitting(true);
+setMessage("Kohereza ubusabe...");
 
 try {
   await setDoc(
@@ -88,7 +88,12 @@ try {
     { merge: true }
   );
 
-  setMessage("Ubusabe bwawe bwo kwishyura bwakiriwe. Hitamo USSD hepfo.");
+  setMessage("Ubusabe bwawe bwakiriwe! Turimo gufungura USSD ngo wemeze ubwishyu...");
+
+  // AUTO DIAL
+  setTimeout(() => {
+    dialUSSD();
+  }, 1200);
 } catch (error) {
   setMessage("Habaye ikibazo, ongera ugerageze.");
 } finally {
@@ -99,7 +104,7 @@ try {
 
 if (!username) { return <div className={styles.noUser}>Ntutangiye session. Injira mbere yo gukoresha Balance.</div>; }
 
-return ( <> <Header /> <div className={styles.formContainer}> <div className={styles.nesCard}> Your NeS Points: <span>{nes}</span> </div>
+return ( <> <Header /> <div className={styles.formContainer}> <div className={styles.nesCard}>Your NeS Points: <span>{nes}</span></div>
 
 {message && <div className={styles.successMessage}>{message}</div>}
 
@@ -148,16 +153,8 @@ return ( <> <Header /> <div className={styles.formContainer}> <div className={st
       </button>
     </form>
 
-    {amount > 0 && (
-      <div className={styles.ussdBox}>
-        <p>Nyuma yo kohereza ubusabe, Kanda hano ukore USSD:</p>
-
-        <button className={styles.ussdButton} onClick={dialUSSD}>
-          Dial *186*7777*{amount}#
-        </button>
-
-        {copied && <div className={styles.copied}>USSD Copied: *186*7777*{amount}#</div>}
-      </div>
+    {copied && (
+      <div className={styles.copied}>USSD Copied: *182*1*1*0780786300*{amount}#</div>
     )}
   </div>
   <Footer />

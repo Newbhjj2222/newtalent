@@ -8,14 +8,14 @@ export async function getServerSideProps() {
   const API_KEY = "232c41c0d1b940c1b8e6c7ae5798b77b";
 
   try {
-    // Matches: past, live, future
+    // Matches: today (past, live, future)
     const matchesRes = await fetch(
       `https://api.football-data.org/v4/matches?dateFrom=${today}&dateTo=${today}`,
       { headers: { "X-Auth-Token": API_KEY } }
     );
     const matchesData = await matchesRes.json();
 
-    // Standings: example for Premier League (competition code: PL)
+    // Standings: example for Premier League
     const standingsRes = await fetch(
       "https://api.football-data.org/v4/competitions/PL/standings",
       { headers: { "X-Auth-Token": API_KEY } }
@@ -56,12 +56,8 @@ export default function Live({ matches, standings }) {
                 </span>{" "}
                 {match.awayTeam.name}
               </div>
-              <div className={styles.time}>
-                Status: {match.status}
-              </div>
-              <div className={styles.league}>
-                Competition: {match.competition.name}
-              </div>
+              <div className={styles.time}>{`Status: ${match.status}`}</div>
+              <div className={styles.league}>{`Competition: ${match.competition.name}`}</div>
             </li>
           ))}
         </ul>
@@ -70,7 +66,7 @@ export default function Live({ matches, standings }) {
       <div className={styles.standings}>
         <h2>League Standings (Premier League)</h2>
         {standings.length === 0 ? (
-          <p className={styles.noData}>No standings data available.</p>
+          <p className={styles.noData}>{`No standings data available.`}</p>
         ) : (
           <table>
             <thead>

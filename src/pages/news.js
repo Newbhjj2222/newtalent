@@ -11,7 +11,8 @@ import {
     updateDoc, 
     increment, 
     setDoc, 
-    serverTimestamp 
+    serverTimestamp, 
+    onSnapshot 
 } from "firebase/firestore";
 import { FiHeart, FiMessageCircle, FiShare2 } from "react-icons/fi";
 
@@ -20,23 +21,42 @@ export default function NewsPage({ initialNews }) {
     const [activeCommentId, setActiveCommentId] = useState(null);
     const [commentText, setCommentText] = useState("");
 
-    // Increment views on mount and update local state
+    // Realtime updates for likes, commentsCount, views
+    useEffect(() => {
+        const unsubscribers = newsList.map(news => {
+            const newsRef = doc(db, "news", news.id);
+            return onSnapshot(newsRef, snapshot => {
+                const updatedData = snapshot.data();
+                setNewsList(prev =>
+                    prev.map(n =>
+                        n.id === news.id
+                            ? {
+                                  ...n,
+                                  likes: updatedData.likes || 0,
+                                  commentsCount: updatedData.commentsCount || 0,
+                                  views: updatedData.views || 0
+                              }
+                            : n
+                    )
+                );
+            });
+        });
+
+        return () => unsubscribers.forEach(unsub => unsub());
+    }, [newsList.map(n => n.id).join(",")]); // dependency: list of ids
+
+    // Increment views once per user session
     useEffect(() => {
         const incrementViews = async () => {
-            const updatedNews = await Promise.all(
-                newsList.map(async (news) => {
-                    const newsRef = doc(db, "news", news.id);
-                    await updateDoc(newsRef, { views: increment(1) });
-                    return { ...news, views: (news.views || 0) + 1 };
-                })
-            );
-            setNewsList(updatedNews);
+            newsList.forEach(async news => {
+                const newsRef = doc(db, "news", news.id);
+                await updateDoc(newsRef, { views: increment(1) });
+            });
         };
         incrementViews();
     }, []);
 
-    // Expand/Collapse content
-    const toggleExpand = (index) => {
+    const toggleExpand = index => {
         setNewsList(prev =>
             prev.map((news, i) =>
                 i === index ? { ...news, expanded: !news.expanded } : news
@@ -44,17 +64,13 @@ export default function NewsPage({ initialNews }) {
         );
     };
 
-    // Handle likes
-    const handleLike = async (id) => {
+    const handleLike = async id => {
         const newsRef = doc(db, "news", id);
         await updateDoc(newsRef, { likes: increment(1) });
-        setNewsList(prev => 
-            prev.map(n => n.id === id ? { ...n, likes: (n.likes || 0) + 1 } : n)
-        );
+        // State will auto-update via onSnapshot
     };
 
-    // Handle comments
-    const handleComment = async (id) => {
+    const handleComment = async id => {
         if (!commentText.trim()) return;
 
         const commentsRef = collection(db, "news", id, "comments");
@@ -67,18 +83,12 @@ export default function NewsPage({ initialNews }) {
         const newsRef = doc(db, "news", id);
         await updateDoc(newsRef, { commentsCount: increment(1) });
 
-        setNewsList(prev =>
-            prev.map(n => n.id === id 
-                ? { ...n, commentsCount: (n.commentsCount || 0) + 1 } 
-                : n
-            )
-        );
         setCommentText("");
         setActiveCommentId(null);
+        // commentsCount auto-update via onSnapshot
     };
 
-    // Handle share
-    const handleShare = (news) => {
+    const handleShare = news => {
         const summary = news.content.substring(0, 200);
         const textToCopy = `${news.title}\n${summary}\n${window.location.href}`;
         navigator.clipboard.writeText(textToCopy);
@@ -98,8 +108,8 @@ export default function NewsPage({ initialNews }) {
                         )}
                         <div className={styles.content}>
                             <p>
-                                {news.expanded 
-                                    ? news.content 
+                                {news.expanded
+                                    ? news.content
                                     : `${news.content.substring(0, 200)}...`}
                             </p>
                             {news.content.length > 200 && (
@@ -121,7 +131,6 @@ export default function NewsPage({ initialNews }) {
                             <span className={styles.views}>{news.views || 0} views</span>
                         </div>
 
-                        {/* Comment input */}
                         {activeCommentId === news.id && (
                             <div className={styles.commentBox}>
                                 <input
@@ -144,6 +153,7 @@ export default function NewsPage({ initialNews }) {
     );
 }
 
+// SSR
 export async function getServerSideProps() {
     const snapshot = await getDocs(collection(db, "news"));
     const newsData = snapshot.docs.map(doc => ({

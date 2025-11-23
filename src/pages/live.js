@@ -1,45 +1,19 @@
-"use client";
-import React, { useEffect, useState } from "react";
+// pages/live.js
+import React from "react";
 import styles from "../styles/live.module.css";
 
 const API_KEY = "af2aa3a86b48c0b3e4ea990982a03c8138256a2b53b7c9a672baf1fc85770461";
 
-// Leagues/competitions codes (API-Football ids)
+// Leagues/competitions codes
 const COMPETITIONS = [
-  352, // Rwanda Premier League (example id)
+  352, // Rwanda Premier League (example)
   1,   // FIFA World Cup
   2,   // UEFA Champions League
   3,   // CAF Champions League
-  39, 140, 78, 135, 61, 2, // Top 6 European leagues + UEFA CL
+  39, 140, 78, 135, 61, 2  // Top European leagues + UEFA CL
 ];
 
-export default function Live() {
-  const [matches, setMatches] = useState([]);
-
-  const fetchMatches = async () => {
-    try {
-      let allMatches = [];
-      for (let i = 0; i < COMPETITIONS.length; i++) {
-        const res = await fetch(`https://v3.football.api-sports.io/fixtures?league=${COMPETITIONS[i]}&season=2025`, {
-          headers: { "x-apisports-key": API_KEY }
-        });
-        const data = await res.json();
-        if (data.response) {
-          allMatches = allMatches.concat(data.response);
-        }
-      }
-      setMatches(allMatches);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  useEffect(() => {
-    fetchMatches();
-    const interval = setInterval(fetchMatches, 5000); // Refresh every 5s
-    return () => clearInterval(interval);
-  }, []);
-
+export default function Live({ matches }) {
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>Global Football Live Matches</h1>
@@ -76,4 +50,24 @@ export default function Live() {
       )}
     </div>
   );
+}
+
+// SSR fetch
+export async function getServerSideProps() {
+  const currentYear = new Date().getFullYear();
+  let allMatches = [];
+
+  for (const league of COMPETITIONS) {
+    try {
+      const res = await fetch(`https://v3.football.api-sports.io/fixtures?league=${league}&season=${currentYear}`, {
+        headers: { "x-apisports-key": API_KEY }
+      });
+      const data = await res.json();
+      if (data.response) allMatches = allMatches.concat(data.response);
+    } catch (err) {
+      console.error(`Error fetching league ${league}:`, err);
+    }
+  }
+
+  return { props: { matches: allMatches } };
 }

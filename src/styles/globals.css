@@ -2,22 +2,22 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --primary: #0070f3;
+  --secondary: #f1f1f1;
+  --accent: #ff4081;
+  --button-text: #ffffff;
+  --border-color: #d1d1d1;
+  --hover-bg: #e0e0e0;
+  --font-family: "Times New Roman", Times, serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-html,
-body {
+/* ===== GLOBAL BASE STYLES ===== */
+html, body {
   max-width: 100vw;
   overflow-x: hidden;
   color: var(--foreground);
   background: var(--background);
-  font-family: "Times New Roman", Times, serif;
+  font-family: var(--font-family);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
@@ -27,12 +27,11 @@ body {
   -ms-user-select: none;
   -webkit-touch-callout: none;
 
-  /* 👇 Hindura ibi bibiri */
-  touch-action: pan-x pan-y;            /* reba niba bikenewe, byibuze ureke defaults */
-  overscroll-behavior-y: auto;   /* wakuyeho none, ibuza pull-to-refresh */
+  touch-action: pan-x pan-y;
+  overscroll-behavior-y: auto;
 }
 
-/* ===== RESET & BOX-SIZING ===== */
+/* Reset box-sizing and margin/padding */
 * {
   box-sizing: border-box;
   padding: 0;
@@ -43,7 +42,87 @@ a {
   color: inherit;
   text-decoration: none;
 }
-/* ======= GOOGLE TRANSLATE CUSTOM STYLING ======= */
+
+/* ===== BUTTON STYLES ===== */
+button {
+  background-color: var(--primary);
+  color: var(--button-text);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: var(--font-family);
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  background-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+/* Optional secondary button */
+button.secondary {
+  background-color: var(--secondary);
+  color: var(--foreground);
+  border: 1px solid var(--border-color);
+}
+
+button.secondary:hover {
+  background-color: var(--hover-bg);
+}
+
+/* ===== HEADERS & TEXT ===== */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-family);
+  color: var(--foreground);
+  margin-bottom: 8px;
+}
+
+p {
+  line-height: 1.6;
+  color: var(--foreground);
+  font-size: 1rem;
+  margin-bottom: 10px;
+}
+
+/* ===== LAYOUT ===== */
+.container {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 20px;
+  flex-wrap: wrap;
+}
+
+.sidebarWrapper {
+  flex: 0 0 300px;
+  margin-left: auto;
+}
+
+.mainContent {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+    padding: 15px;
+  }
+
+  .sidebarWrapper {
+    flex: 1 1 100%;
+    margin-left: 0;
+  }
+
+  .mainContent {
+    flex: 1 1 100%;
+  }
+}
+
+/* ===== GOOGLE TRANSLATE CUSTOM STYLING ===== */
 #google_translate_container {
   position: fixed;
   top: 10px;
@@ -53,7 +132,7 @@ a {
   backdrop-filter: blur(6px);
   padding: 8px 12px;
   border-radius: 12px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.2);
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
@@ -64,16 +143,12 @@ a {
   transform: scale(1.05);
 }
 
-/* Guhisha banner ya Google Translate hejuru */
+/* Hide Google Translate banner */
 .goog-te-banner-frame.skiptranslate {
   display: none !important;
 }
+body { top: 0px !important; }
 
-body {
-  top: 0px !important;
-}
-
-/* Dropdown style */
 .goog-te-gadget {
   font-family: "Poppins", sans-serif !important;
   font-size: 13px !important;
@@ -93,70 +168,22 @@ body {
 }
 
 .goog-te-gadget .goog-te-combo:hover {
-  border-color: #0070f3 !important;
-  box-shadow: 0 0 4px rgba(0, 112, 243, 0.3);
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 4px rgba(0,112,243,0.3);
 }
 
-/* Guhisha “Powered by Google” */
-.goog-logo-link {
-  display: none !important;
-}
-.goog-te-gadget span {
-  display: none !important;
-}
-/* Dark mode color scheme */
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
-}
+.goog-logo-link { display: none !important; }
+.goog-te-gadget span { display: none !important; }
 
-/* ===== Layout for Home Page ===== */
-.container {
-  display: flex;
-  align-items: flex-start;
-  gap: 20px;
-  padding: 20px;
-  flex-wrap: wrap;
-}
-
-.sidebarWrapper {
-  flex: 0 0 300px; 
-  margin-left: auto; 
-}
-
-.mainContent {
-  flex: 1;
-  min-width: 0;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .container {
-    flex-direction: column;
-    padding: 15px;
-  }
-
-  .sidebarWrapper {
-    flex: 1 1 100%;
-    margin-left: 0;
-  }
-
-  .mainContent {
-    flex: 1 1 100%;
-  }
-}
-
-/* ===== Allow selection on header and buttons only ===== */
-header,
-button {
+/* ===== HEADER & BUTTON USER-SELECT ===== */
+header, button {
   user-select: text !important;
   -webkit-user-select: text !important;
   -moz-user-select: text !important;
   -ms-user-select: text !important;
 }
 
-/* ===== Optional: disable drag on images only ===== */
+/* ===== IMAGE DRAG ===== */
 img {
   user-drag: none;
   -webkit-user-drag: none;

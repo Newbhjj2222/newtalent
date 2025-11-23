@@ -28,6 +28,9 @@ const Footer = () => {
             <Link href="/About">About</Link>
           </li>
           <li>
+            <Link href="/news">Amakuru</Link>
+          </li>
+          <li>
             <Link href="/contact">Contact</Link>
           </li>
           <li>

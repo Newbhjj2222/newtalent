@@ -58,11 +58,13 @@
   margin-bottom: 6px;
   flex-wrap: wrap;
   gap: 10px;
+  color: blue;
 }
 
 .score {
   margin: 0 5px;
   font-weight: bold;
+  color: red;
 }
 
 /* Match info row */
@@ -95,6 +97,7 @@
 .leagueTable h3 {
   margin-bottom: 10px;
   font-size: 1.2rem;
+  background: blue;
 }
 
 /* Table styles */
@@ -127,6 +130,10 @@
   .table {
     min-width: 100%;
     font-size: 0.8rem;
+  }
+  .matchCard{
+    width: 100%;
+    flex-direction: row;
   }
 }
 

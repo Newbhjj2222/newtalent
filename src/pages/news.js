@@ -19,6 +19,17 @@ export default function NewsPage({ initialNews }) {
     const [newsList, setNewsList] = useState(initialNews);
     const [activeCommentId, setActiveCommentId] = useState(null);
     const [commentText, setCommentText] = useState("");
+    const [username, setUsername] = useState("");
+
+    // Get or set username in localStorage
+    useEffect(() => {
+        let storedUsername = localStorage.getItem("username");
+        if (!storedUsername) {
+            storedUsername = prompt("Andika izina ryawe") || "Anonymous";
+            localStorage.setItem("username", storedUsername);
+        }
+        setUsername(storedUsername);
+    }, []);
 
     // Realtime updates for likes, commentsCount, views and comments
     useEffect(() => {
@@ -80,7 +91,6 @@ export default function NewsPage({ initialNews }) {
     const handleLike = async id => {
         const newsRef = doc(db, "news", id);
         await updateDoc(newsRef, { likes: increment(1) });
-        // Realtime will update state
     };
 
     const handleComment = async id => {
@@ -90,6 +100,7 @@ export default function NewsPage({ initialNews }) {
         const commentDocRef = doc(commentsRef);
         await setDoc(commentDocRef, {
             text: commentText,
+            author: username,
             timestamp: serverTimestamp()
         });
 
@@ -98,7 +109,6 @@ export default function NewsPage({ initialNews }) {
 
         setCommentText("");
         setActiveCommentId(null);
-        // Realtime updates commentsCount and comments list
     };
 
     const handleShare = news => {
@@ -167,7 +177,7 @@ export default function NewsPage({ initialNews }) {
                             <div className={styles.commentsList}>
                                 {news.comments.map((c, idx) => (
                                     <div key={idx} className={styles.commentItem}>
-                                        {c.text}
+                                        <strong>{c.author}:</strong> {c.text}
                                     </div>
                                 ))}
                             </div>

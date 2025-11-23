@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { db } from "@/components/firebase";
 import Header from "@/components/Header";
+import Channel from "@/components/Channel";
 import Footer from "@/components/Footer";
 import styles from "@/styles/news.module.css";
 import { 
@@ -121,14 +122,13 @@ export default function NewsPage({ initialNews }) {
     return (
         <>
             <Header />
+        <Channel/>
             <div className={styles.container}>
                 {newsList.map((news, index) => (
                     <div key={news.id} className={styles.newsCard}>
                         <p className={styles.author}>{news.author}</p>
                         <h2 className={styles.title}>{news.title}</h2>
-                        {news.imageUrl && (
-                            <img src={news.imageUrl} alt={news.title} className={styles.image} />
-                        )}
+                        
                         <div className={styles.content}>
                             <p>
                                 {news.expanded
@@ -140,6 +140,9 @@ export default function NewsPage({ initialNews }) {
                                     {news.expanded ? "Show Less" : "Read More"}
                                 </button>
                             )}
+                         {news.imageUrl && (
+                            <img src={news.imageUrl} alt={news.title} className={styles.image} />
+                        )}
                         </div>
 
                         {/* Actions row */}

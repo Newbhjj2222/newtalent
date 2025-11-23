@@ -16,13 +16,29 @@ import {
 } from "firebase/firestore";
 import { FiHeart, FiMessageCircle, FiShare2 } from "react-icons/fi";
 
+// REMOVE HTML + COLORS + EXTRA SPACES
+function cleanContent(text) {
+    if (!text) return "";
+    const noHTML = text.replace(/<[^>]*>/g, "");
+    const noColors = noHTML.replace(
+        /(#[0-9A-Fa-f]{3,6})|(rgb\([^)]+\))|(rgba\([^)]+\))/g,
+        ""
+    );
+    return noColors.replace(/\s+/g, " ").trim();
+}
+
 export default function NewsPage({ initialNews }) {
-    const [newsList, setNewsList] = useState(initialNews);
+    const [newsList, setNewsList] = useState(
+        initialNews.map(n => ({
+            ...n,
+            cleanContent: cleanContent(n.content)
+        }))
+    );
+
     const [activeCommentId, setActiveCommentId] = useState(null);
     const [commentText, setCommentText] = useState("");
     const [username, setUsername] = useState("");
 
-    // Get or set username in localStorage
     useEffect(() => {
         let storedUsername = localStorage.getItem("username");
         if (!storedUsername) {
@@ -32,12 +48,10 @@ export default function NewsPage({ initialNews }) {
         setUsername(storedUsername);
     }, []);
 
-    // Realtime updates for likes, commentsCount, views and comments
     useEffect(() => {
         const unsubscribers = newsList.map(news => {
             const newsRef = doc(db, "news", news.id);
 
-            // Listen for main news changes
             const unsubNews = onSnapshot(newsRef, snapshot => {
                 const updatedData = snapshot.data();
                 setNewsList(prev => prev.map(n =>
@@ -47,12 +61,11 @@ export default function NewsPage({ initialNews }) {
                             likes: updatedData.likes || 0,
                             commentsCount: updatedData.commentsCount || 0,
                             views: updatedData.views || 0
-                          }
+                        }
                         : n
                 ));
             });
 
-            // Listen for comments subcollection
             const commentsRef = collection(db, "news", news.id, "comments");
             const unsubComments = onSnapshot(commentsRef, snapshot => {
                 const comments = snapshot.docs.map(doc => doc.data());
@@ -70,7 +83,6 @@ export default function NewsPage({ initialNews }) {
         return () => unsubscribers.forEach(unsub => unsub());
     }, [newsList.map(n => n.id).join(",")]);
 
-    // Increment views once per user session
     useEffect(() => {
         const incrementViews = async () => {
             newsList.forEach(async news => {
@@ -113,7 +125,7 @@ export default function NewsPage({ initialNews }) {
     };
 
     const handleShare = news => {
-        const summary = news.content.substring(0, 200);
+        const summary = news.cleanContent.substring(0, 200);
         const textToCopy = `${news.title}\n${summary}\n${window.location.href}`;
         navigator.clipboard.writeText(textToCopy);
         alert("News copied to clipboard!");
@@ -122,44 +134,58 @@ export default function NewsPage({ initialNews }) {
     return (
         <>
             <Header />
-        <Channel/>
+            <Channel/>
+
             <div className={styles.container}>
                 {newsList.map((news, index) => (
                     <div key={news.id} className={styles.newsCard}>
+                        
                         <p className={styles.author}>{news.author}</p>
                         <h2 className={styles.title}>{news.title}</h2>
-                        
+
                         <div className={styles.content}>
                             <p>
                                 {news.expanded
-                                    ? news.content
-                                    : `${news.content.substring(0, 200)}...`}
+                                    ? news.cleanContent
+                                    : `${news.cleanContent.substring(0, 200)}...`}
                             </p>
-                            {news.content.length > 200 && (
-                                <button className={styles.expandBtn} onClick={() => toggleExpand(index)}>
+
+                            {news.cleanContent.length > 200 && (
+                                <button
+                                    className={styles.expandBtn}
+                                    onClick={() => toggleExpand(index)}
+                                >
                                     {news.expanded ? "Show Less" : "Read More"}
                                 </button>
                             )}
-                         {news.imageUrl && (
-                            <img src={news.imageUrl} alt={news.title} className={styles.image} />
-                        )}
+
+                            {news.imageUrl && (
+                                <img
+                                    src={news.imageUrl}
+                                    alt={news.title}
+                                    className={styles.image}
+                                />
+                            )}
                         </div>
 
-                        {/* Actions row */}
                         <div className={styles.actions}>
                             <button onClick={() => handleLike(news.id)}>
                                 <FiHeart /> {news.likes || 0}
                             </button>
+
                             <button onClick={() => setActiveCommentId(news.id)}>
                                 <FiMessageCircle /> {news.commentsCount || 0}
                             </button>
+
                             <button onClick={() => handleShare(news)}>
                                 <FiShare2 />
                             </button>
-                            <span className={styles.views}>{news.views || 0} views</span>
+
+                            <span className={styles.views}>
+                                {news.views || 0} views
+                            </span>
                         </div>
 
-                        {/* Comment input */}
                         {activeCommentId === news.id && (
                             <div className={styles.commentBox}>
                                 <input
@@ -171,11 +197,12 @@ export default function NewsPage({ initialNews }) {
                                         if (e.key === "Enter") handleComment(news.id);
                                     }}
                                 />
-                                <button onClick={() => handleComment(news.id)}>Send</button>
+                                <button onClick={() => handleComment(news.id)}>
+                                    Send
+                                </button>
                             </div>
                         )}
 
-                        {/* Comments list */}
                         {news.comments && news.comments.length > 0 && (
                             <div className={styles.commentsList}>
                                 {news.comments.map((c, idx) => (
@@ -188,12 +215,12 @@ export default function NewsPage({ initialNews }) {
                     </div>
                 ))}
             </div>
+
             <Footer />
         </>
     );
 }
 
-// SSR
 export async function getServerSideProps() {
     const snapshot = await getDocs(collection(db, "news"));
     const newsData = snapshot.docs.map(doc => ({

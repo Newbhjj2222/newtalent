@@ -48,32 +48,45 @@
   flex-direction: column;
 }
 
-/* Teams row */
+/* Teams row (ALWAYS SIDE-BY-SIDE) */
 .teams {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-weight: bold;
-  font-size: 1rem;
-  margin-bottom: 6px;
-  flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
+  width: 100%;
+  flex-wrap: nowrap;   /* ← prevents wrapping on small screens */
+  overflow: hidden;
   color: blue;
 }
 
-.score {
-  margin: 0 5px;
+/* Team names */
+.teamName {
+  flex: 1;
   font-weight: bold;
+  font-size: 1rem;
+  white-space: nowrap;    /* ← prevents breaking into 2 lines */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Score between */
+.score {
+  flex: 0 0 auto;
+  margin: 0 8px;
+  font-weight: bold;
+  font-size: 1.1rem;
   color: red;
 }
 
-/* Match info row */
+/* Match info below */
 .matchInfo {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
   font-size: 0.9rem;
   color: #555;
+  margin-top: 6px;
 }
 
 /* No data */
@@ -97,7 +110,6 @@
 .leagueTable h3 {
   margin-bottom: 10px;
   font-size: 1.2rem;
-  background: blue;
 }
 
 /* Table styles */
@@ -119,41 +131,21 @@
   font-weight: bold;
 }
 
-/* Responsive styles */
-@media screen and (max-width: 768px) {
-  .teams {
-    font-size: 0.9rem;
-  }
-  .matchInfo {
-    font-size: 0.8rem;
-  }
-  .table {
-    min-width: 100%;
-    font-size: 0.8rem;
-  }
-  .matchCard{
-    width: 100%;
-    flex-direction: row;
-  }
-}
-
+/* Responsive */
 @media screen and (max-width: 480px) {
   .teams {
-    flex-direction: column;
-    align-items: flex-start;
+    gap: 5px;
+  }
+  .teamName {
+    font-size: 0.85rem;
   }
   .score {
-    margin: 0;
+    font-size: 1rem;
   }
   .matchInfo {
     font-size: 0.75rem;
   }
   .table th, .table td {
     padding: 4px 6px;
-  }
-  .filter {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 5px;
   }
 }

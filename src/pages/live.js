@@ -3,53 +3,46 @@ import styles from "../styles/live.module.css";
 
 const today = new Date().toISOString().split("T")[0];
 
+// Leagues supported by free tier (example)
+const LEAGUE_CODES = ["PL", "PD", "SA", "BL1", "FL1"]; // Premier, La Liga, Serie A, Bundesliga, Ligue 1
+
 export async function getServerSideProps() {
   const API_KEY = "232c41c0d1b940c1b8e6c7ae5798b77b";
 
+  let allMatches = [];
+  let allStandings = [];
+
   try {
-    // Matches: zose z'umunsi w'uyu munsi
-    const matchesRes = await fetch(
-      "https://api.football-data.org/v4/matches?dateFrom=" + today + "&dateTo=" + today,
-      { headers: { "X-Auth-Token": API_KEY } }
-    );
-    const matchesData = await matchesRes.json();
+    // Fetch matches for each league
+    for (let i = 0; i < LEAGUE_CODES.length; i++) {
+      const res = await fetch(
+        "https://api.football-data.org/v4/competitions/" + LEAGUE_CODES[i] + "/matches?dateFrom=" + today + "&dateTo=" + today,
+        { headers: { "X-Auth-Token": API_KEY } }
+      );
+      const data = await res.json();
+      if (data.matches) {
+        allMatches = allMatches.concat(data.matches);
+      }
 
-    // Standings: competitions zose (free tier ishobora kutuzanira zimwe gusa)
-    const competitionsRes = await fetch(
-      "https://api.football-data.org/v4/competitions",
-      { headers: { "X-Auth-Token": API_KEY } }
-    );
-    const competitionsData = await competitionsRes.json();
-
-    // Fetch standings for each competition
-    let allStandings = [];
-    if (competitionsData.competitions) {
-      for (let i = 0; i < competitionsData.competitions.length; i++) {
-        const code = competitionsData.competitions[i].code;
-        try {
-          const res = await fetch(
-            "https://api.football-data.org/v4/competitions/" + code + "/standings",
-            { headers: { "X-Auth-Token": API_KEY } }
-          );
-          const data = await res.json();
-          if (data.standings && data.standings[0]) {
-            allStandings.push({
-              competition: competitionsData.competitions[i].name,
-              table: data.standings[0].table
-            });
-          }
-        } catch (err) {
-          console.error("Failed to fetch standings for", code);
+      // Fetch standings
+      try {
+        const standingsRes = await fetch(
+          "https://api.football-data.org/v4/competitions/" + LEAGUE_CODES[i] + "/standings",
+          { headers: { "X-Auth-Token": API_KEY } }
+        );
+        const standingsData = await standingsRes.json();
+        if (standingsData.standings && standingsData.standings[0]) {
+          allStandings.push({
+            competition: standingsData.competition.name,
+            table: standingsData.standings[0].table
+          });
         }
+      } catch (err) {
+        console.error("Standings fetch failed for", LEAGUE_CODES[i]);
       }
     }
 
-    return {
-      props: {
-        matches: matchesData.matches || [],
-        standings: allStandings
-      }
-    };
+    return { props: { matches: allMatches, standings: allStandings } };
   } catch (error) {
     console.error(error);
     return { props: { matches: [], standings: [] } };
@@ -88,7 +81,7 @@ export default function Live({ matches, standings }) {
       )}
 
       <div className={styles.standings}>
-        <h2>League Standings from All Competitions</h2>
+        <h2>League Standings</h2>
         {standings.length === 0 ? (
           <p className={styles.noData}>No standings data available</p>
         ) : (

@@ -35,6 +35,7 @@ const Header = () => {
         <li><Link href="/balance">your Balance</Link></li>
         <li><Link href="/tv">NewtalentsG Tv</Link></li>
         <li><Link href="/login">Login</Link></li>
+        <li><Link href="/news">Amakuru</Link></li>
         <li><Link href="/lyrics">Songs and lyrics</Link></li>
         <li><Link href="/Nesgain">Nesgain game</Link></li>
         <li><Link href="/profile">Profile</Link></li>

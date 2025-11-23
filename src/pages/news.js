@@ -1,4 +1,3 @@
-// pages/news.js
 import { useState, useEffect } from "react";
 import { db } from "@/components/firebase";
 import Header from "@/components/Header";
@@ -21,29 +20,43 @@ export default function NewsPage({ initialNews }) {
     const [activeCommentId, setActiveCommentId] = useState(null);
     const [commentText, setCommentText] = useState("");
 
-    // Realtime updates for likes, commentsCount, views
+    // Realtime updates for likes, commentsCount, views and comments
     useEffect(() => {
         const unsubscribers = newsList.map(news => {
             const newsRef = doc(db, "news", news.id);
-            return onSnapshot(newsRef, snapshot => {
+
+            // Listen for main news changes
+            const unsubNews = onSnapshot(newsRef, snapshot => {
                 const updatedData = snapshot.data();
+                setNewsList(prev => prev.map(n =>
+                    n.id === news.id
+                        ? {
+                            ...n,
+                            likes: updatedData.likes || 0,
+                            commentsCount: updatedData.commentsCount || 0,
+                            views: updatedData.views || 0
+                          }
+                        : n
+                ));
+            });
+
+            // Listen for comments subcollection
+            const commentsRef = collection(db, "news", news.id, "comments");
+            const unsubComments = onSnapshot(commentsRef, snapshot => {
+                const comments = snapshot.docs.map(doc => doc.data());
                 setNewsList(prev =>
-                    prev.map(n =>
-                        n.id === news.id
-                            ? {
-                                  ...n,
-                                  likes: updatedData.likes || 0,
-                                  commentsCount: updatedData.commentsCount || 0,
-                                  views: updatedData.views || 0
-                              }
-                            : n
-                    )
+                    prev.map(n => n.id === news.id ? { ...n, comments } : n)
                 );
             });
+
+            return () => {
+                unsubNews();
+                unsubComments();
+            };
         });
 
         return () => unsubscribers.forEach(unsub => unsub());
-    }, [newsList.map(n => n.id).join(",")]); // dependency: list of ids
+    }, [newsList.map(n => n.id).join(",")]);
 
     // Increment views once per user session
     useEffect(() => {
@@ -67,7 +80,7 @@ export default function NewsPage({ initialNews }) {
     const handleLike = async id => {
         const newsRef = doc(db, "news", id);
         await updateDoc(newsRef, { likes: increment(1) });
-        // State will auto-update via onSnapshot
+        // Realtime will update state
     };
 
     const handleComment = async id => {
@@ -85,7 +98,7 @@ export default function NewsPage({ initialNews }) {
 
         setCommentText("");
         setActiveCommentId(null);
-        // commentsCount auto-update via onSnapshot
+        // Realtime updates commentsCount and comments list
     };
 
     const handleShare = news => {
@@ -118,6 +131,8 @@ export default function NewsPage({ initialNews }) {
                                 </button>
                             )}
                         </div>
+
+                        {/* Actions row */}
                         <div className={styles.actions}>
                             <button onClick={() => handleLike(news.id)}>
                                 <FiHeart /> {news.likes || 0}
@@ -131,6 +146,7 @@ export default function NewsPage({ initialNews }) {
                             <span className={styles.views}>{news.views || 0} views</span>
                         </div>
 
+                        {/* Comment input */}
                         {activeCommentId === news.id && (
                             <div className={styles.commentBox}>
                                 <input
@@ -143,6 +159,17 @@ export default function NewsPage({ initialNews }) {
                                     }}
                                 />
                                 <button onClick={() => handleComment(news.id)}>Send</button>
+                            </div>
+                        )}
+
+                        {/* Comments list */}
+                        {news.comments && news.comments.length > 0 && (
+                            <div className={styles.commentsList}>
+                                {news.comments.map((c, idx) => (
+                                    <div key={idx} className={styles.commentItem}>
+                                        {c.text}
+                                    </div>
+                                ))}
                             </div>
                         )}
                     </div>

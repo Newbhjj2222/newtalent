@@ -71,14 +71,16 @@
     padding: 8px 12px;
     border-radius: 8px;
     border: 1px solid #ddd;
-    background: #f9f9f9;
+    background: green;
     cursor: pointer;
+    color: black;
     transition: 0.2s;
     font-size: 14px;
 }
 
 .actions button:hover {
     background: #e0f0ff;
+    color: white;
 }
 
 .views {

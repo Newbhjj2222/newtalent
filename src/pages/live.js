@@ -1,131 +1,79 @@
-import React from "react";
+"use client";
+import React, { useEffect, useState } from "react";
 import styles from "../styles/live.module.css";
 
-const today = new Date().toISOString().split("T")[0];
+const API_KEY = "af2aa3a86b48c0b3e4ea990982a03c8138256a2b53b7c9a672baf1fc85770461";
 
-// Leagues supported by free tier (example)
-const LEAGUE_CODES = ["PL", "PD", "SA", "BL1", "FL1"]; // Premier, La Liga, Serie A, Bundesliga, Ligue 1
+// Leagues/competitions codes (API-Football ids)
+const COMPETITIONS = [
+  352, // Rwanda Premier League (example id)
+  1,   // FIFA World Cup
+  2,   // UEFA Champions League
+  3,   // CAF Champions League
+  39, 140, 78, 135, 61, 2, // Top 6 European leagues + UEFA CL
+];
 
-export async function getServerSideProps() {
-  const API_KEY = "232c41c0d1b940c1b8e6c7ae5798b77b";
+export default function Live() {
+  const [matches, setMatches] = useState([]);
 
-  let allMatches = [];
-  let allStandings = [];
-
-  try {
-    // Fetch matches for each league
-    for (let i = 0; i < LEAGUE_CODES.length; i++) {
-      const res = await fetch(
-        "https://api.football-data.org/v4/competitions/" + LEAGUE_CODES[i] + "/matches?dateFrom=" + today + "&dateTo=" + today,
-        { headers: { "X-Auth-Token": API_KEY } }
-      );
-      const data = await res.json();
-      if (data.matches) {
-        allMatches = allMatches.concat(data.matches);
-      }
-
-      // Fetch standings
-      try {
-        const standingsRes = await fetch(
-          "https://api.football-data.org/v4/competitions/" + LEAGUE_CODES[i] + "/standings",
-          { headers: { "X-Auth-Token": API_KEY } }
-        );
-        const standingsData = await standingsRes.json();
-        if (standingsData.standings && standingsData.standings[0]) {
-          allStandings.push({
-            competition: standingsData.competition.name,
-            table: standingsData.standings[0].table
-          });
+  const fetchMatches = async () => {
+    try {
+      let allMatches = [];
+      for (let i = 0; i < COMPETITIONS.length; i++) {
+        const res = await fetch(`https://v3.football.api-sports.io/fixtures?league=${COMPETITIONS[i]}&season=2025`, {
+          headers: { "x-apisports-key": API_KEY }
+        });
+        const data = await res.json();
+        if (data.response) {
+          allMatches = allMatches.concat(data.response);
         }
-      } catch (err) {
-        console.error("Standings fetch failed for", LEAGUE_CODES[i]);
       }
+      setMatches(allMatches);
+    } catch (err) {
+      console.error(err);
     }
+  };
 
-    return { props: { matches: allMatches, standings: allStandings } };
-  } catch (error) {
-    console.error(error);
-    return { props: { matches: [], standings: [] } };
-  }
-}
+  useEffect(() => {
+    fetchMatches();
+    const interval = setInterval(fetchMatches, 5000); // Refresh every 5s
+    return () => clearInterval(interval);
+  }, []);
 
-export default function Live({ matches, standings }) {
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>Football Matches for Today</h1>
-
+      <h1 className={styles.title}>Global Football Live Matches</h1>
       {matches.length === 0 ? (
-        <p className={styles.noData}>No matches are scheduled for today</p>
+        <p className={styles.noData}>No matches available</p>
       ) : (
         <ul className={styles.matchList}>
-          {matches.map(function(match) {
+          {matches.map((item) => {
+            const match = item.fixture;
+            const home = item.teams.home.name;
+            const away = item.teams.away.name;
+            const scoreHome = item.goals.home;
+            const scoreAway = item.goals.away;
+            const status = item.fixture.status.short;
+            const league = item.league.name;
+            const lineupHome = item.lineups?.home?.map(p => p.player.name).join(", ") || "No lineup";
+            const lineupAway = item.lineups?.away?.map(p => p.player.name).join(", ") || "No lineup";
+
             return (
               <li key={match.id} className={styles.matchCard}>
                 <div className={styles.teams}>
-                  {match.homeTeam.name} 
-                  <span className={styles.score}>
-                    {match.score.fullTime.home != null ? match.score.fullTime.home : match.score.halfTime.home != null ? match.score.halfTime.home : 0}
-                  </span>
-                  - 
-                  <span className={styles.score}>
-                    {match.score.fullTime.away != null ? match.score.fullTime.away : match.score.halfTime.away != null ? match.score.halfTime.away : 0}
-                  </span>
-                  {match.awayTeam.name}
+                  {home} <span className={styles.score}>{scoreHome != null ? scoreHome : 0}</span> - <span className={styles.score}>{scoreAway != null ? scoreAway : 0}</span> {away}
                 </div>
-                <div className={styles.time}>Status: {match.status}</div>
-                <div className={styles.league}>Competition: {match.competition.name}</div>
+                <div className={styles.time}>Status: {status} | Date: {match.date}</div>
+                <div className={styles.league}>Competition: {league}</div>
+                <div className={styles.lineup}>
+                  Home lineup: {lineupHome} <br />
+                  Away lineup: {lineupAway}
+                </div>
               </li>
-            )
+            );
           })}
         </ul>
       )}
-
-      <div className={styles.standings}>
-        <h2>League Standings</h2>
-        {standings.length === 0 ? (
-          <p className={styles.noData}>No standings data available</p>
-        ) : (
-          standings.map(function(league) {
-            return (
-              <div key={league.competition}>
-                <h3>{league.competition}</h3>
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Position</th>
-                      <th>Team</th>
-                      <th>MP</th>
-                      <th>W</th>
-                      <th>D</th>
-                      <th>L</th>
-                      <th>GF</th>
-                      <th>GA</th>
-                      <th>Points</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {league.table.map(function(team) {
-                      return (
-                        <tr key={team.team.id}>
-                          <td>{team.position}</td>
-                          <td>{team.team.name}</td>
-                          <td>{team.playedGames}</td>
-                          <td>{team.won}</td>
-                          <td>{team.draw}</td>
-                          <td>{team.lost}</td>
-                          <td>{team.goalsFor}</td>
-                          <td>{team.goalsAgainst}</td>
-                          <td>{team.points}</td>
-                        </tr>
-                      )
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )
-          })
-        )}
-      </div>
     </div>
   );
 }

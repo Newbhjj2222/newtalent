@@ -1,41 +1,54 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
+import styles from "../styles/live.module.css";
 
-export default function Live() {
-  const [matches, setMatches] = useState([]);
-  const [loading, setLoading] = useState(true);
+export async function getServerSideProps() {
+  try {
+    const res = await fetch("https://v3.football.api-sports.io/fixtures?live=all", {
+      headers: {
+        "x-apisports-key": "af2aa3a86b48c0b3e4ea990982a03c8138256a2b53b7c9a672baf1fc85770461"
+      }
+    });
 
-  const fetchLiveMatches = async () => {
-    try {
-      const res = await fetch("/api/live");
-      const data = await res.json();
-      setMatches(data.response || []);
-      setLoading(false);
-    } catch (error) {
-      console.error(error);
-      setLoading(false);
-    }
-  };
+    const data = await res.json();
 
-  useEffect(() => {
-    fetchLiveMatches();
-    const interval = setInterval(fetchLiveMatches, 15000); // refresh buri 15 seconds
-    return () => clearInterval(interval);
-  }, []);
+    return {
+      props: {
+        matches: data.response || []
+      }
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      props: {
+        matches: []
+      }
+    };
+  }
+}
+
+export default function Live({ matches }) {
 
   return (
-    <div style={{ padding: "20px", fontFamily: "sans-serif" }}>
-      <h1>Live Football Scores</h1>
-      {loading && <p>Loading...</p>}
-      {matches.length === 0 && !loading && <p>No live matches currently.</p>}
-      <ul>
-        {matches.map((match) => (
-          <li key={match.fixture.id} style={{ margin: "15px 0", borderBottom: "1px solid #ddd", paddingBottom: "10px" }}>
-            <strong>{match.teams.home.name}</strong> {match.goals.home} - {match.goals.away} <strong>{match.teams.away.name}</strong>
-            <p>Time: {match.fixture.status.elapsed}'</p>
-            <p>League: {match.league.name}</p>
-          </li>
-        ))}
-      </ul>
+    <div className={styles.container}>
+      <h1 className={styles.title}>Live Football Scores</h1>
+
+      {matches.length === 0 ? (
+        <p className={styles.noMatches}>No live matches currently.</p>
+      ) : (
+        <ul className={styles.matchList}>
+          {matches.map((match) => (
+            <li key={match.fixture.id} className={styles.matchCard}>
+              <div className={styles.teams}>
+                {match.teams.home.name} <span className={styles.score}>{match.goals.home}</span>
+                {" - "}
+                <span className={styles.score}>{match.goals.away}</span> {match.teams.away.name}
+              </div>
+              <div className={styles.time}>Time: {match.fixture.status.elapsed}'</div>
+              <div className={styles.league}>League: {match.league.name}</div>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

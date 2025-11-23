@@ -94,7 +94,7 @@ export default function Live({ matches, standings }) {
           standings.map(league => (
             <div key={league.competition} className={styles.leagueTable}>
               <h3>{league.competition}</h3>
-              <table>
+              <table className={styles.table}>
                 <thead>
                   <tr>
                     <th>Pos</th>

@@ -1,3 +1,4 @@
+"use client";
 import { useState, useEffect } from "react";
 import { db } from "@/components/firebase";
 import Header from "@/components/Header";
@@ -16,15 +17,49 @@ import {
 } from "firebase/firestore";
 import { FiHeart, FiMessageCircle, FiShare2 } from "react-icons/fi";
 
-// REMOVE HTML + COLORS + EXTRA SPACES
+// ---- Function to clean HTML tags but keep formatting ----
 function cleanContent(text) {
     if (!text) return "";
-    const noHTML = text.replace(/<[^>]*>/g, "");
-    const noColors = noHTML.replace(
-        /(#[0-9A-Fa-f]{3,6})|(rgb\([^)]+\))|(rgba\([^)]+\))/g,
-        ""
+
+    let t = text;
+
+    // BR & NEW LINES
+    t = t.replace(/<br\s*\/?>/gi, "\n");
+
+    // Paragraphs
+    t = t.replace(/<\/p>/gi, "\n\n");
+    t = t.replace(/<p[^>]*>/gi, "");
+
+    // Bold
+    t = t.replace(/<b[^>]*>(.*?)<\/b>/gi, "**$1**");
+    t = t.replace(/<strong[^>]*>(.*?)<\/strong>/gi, "**$1**");
+
+    // Italic
+    t = t.replace(/<i[^>]*>(.*?)<\/i>/gi, "*$1*");
+    t = t.replace(/<em[^>]*>(.*?)<\/em>/gi, "*$1*");
+
+    // Underline
+    t = t.replace(/<u[^>]*>(.*?)<\/u>/gi, "__$1__");
+
+    // Colors (strip tags, keep text)
+    t = t.replace(
+        /<span[^>]*style="[^"]*color:\s*([^;"]+)[^"]*"[^>]*>(.*?)<\/span>/gi,
+        "$2"
     );
-    return noColors.replace(/\s+/g, " ").trim();
+
+    // Headers
+    t = t.replace(/<h1[^>]*>(.*?)<\/h1>/gi, "\n\n## $1\n\n");
+    t = t.replace(/<h2[^>]*>(.*?)<\/h2>/gi, "\n\n### $1\n\n");
+    t = t.replace(/<h3[^>]*>(.*?)<\/h3>/gi, "\n\n#### $1\n\n");
+
+    // Remove any other tags
+    t = t.replace(/<[^>]+>/g, "");
+
+    // Normalize multiple line breaks and spaces
+    t = t.replace(/\n{3,}/g, "\n\n");
+    t = t.replace(/[ \t]{2,}/g, " ");
+
+    return t.trim();
 }
 
 export default function NewsPage({ initialNews }) {
@@ -39,6 +74,7 @@ export default function NewsPage({ initialNews }) {
     const [commentText, setCommentText] = useState("");
     const [username, setUsername] = useState("");
 
+    // Get or set username
     useEffect(() => {
         let storedUsername = localStorage.getItem("username");
         if (!storedUsername) {
@@ -48,6 +84,7 @@ export default function NewsPage({ initialNews }) {
         setUsername(storedUsername);
     }, []);
 
+    // Realtime updates
     useEffect(() => {
         const unsubscribers = newsList.map(news => {
             const newsRef = doc(db, "news", news.id);
@@ -83,6 +120,7 @@ export default function NewsPage({ initialNews }) {
         return () => unsubscribers.forEach(unsub => unsub());
     }, [newsList.map(n => n.id).join(",")]);
 
+    // Increment views
     useEffect(() => {
         const incrementViews = async () => {
             newsList.forEach(async news => {

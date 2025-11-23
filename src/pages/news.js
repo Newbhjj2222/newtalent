@@ -17,43 +17,31 @@ import {
 } from "firebase/firestore";
 import { FiHeart, FiMessageCircle, FiShare2 } from "react-icons/fi";
 
-// ---- Function to clean HTML tags but keep formatting ----
+// ---- Function to clean HTML and keep formatting ----
 function cleanContent(text) {
     if (!text) return "";
 
     let t = text;
 
-    // BR & NEW LINES
+    // <br> and new lines
     t = t.replace(/<br\s*\/?>/gi, "\n");
 
     // Paragraphs
     t = t.replace(/<\/p>/gi, "\n\n");
     t = t.replace(/<p[^>]*>/gi, "");
 
-    // Bold
-    t = t.replace(/<b[^>]*>(.*?)<\/b>/gi, "**$1**");
-    t = t.replace(/<strong[^>]*>(.*?)<\/strong>/gi, "**$1**");
+    // Bold / Italic / Underline
+    t = t.replace(/<b[^>]*>(.*?)<\/b>/gi, '<span style="font-weight:bold">$1</span>');
+    t = t.replace(/<strong[^>]*>(.*?)<\/strong>/gi, '<span style="font-weight:bold">$1</span>');
+    t = t.replace(/<i[^>]*>(.*?)<\/i>/gi, '<span style="font-style:italic">$1</span>');
+    t = t.replace(/<em[^>]*>(.*?)<\/em>/gi, '<span style="font-style:italic">$1</span>');
+    t = t.replace(/<u[^>]*>(.*?)<\/u>/gi, '<span style="text-decoration:underline">$1</span>');
 
-    // Italic
-    t = t.replace(/<i[^>]*>(.*?)<\/i>/gi, "*$1*");
-    t = t.replace(/<em[^>]*>(.*?)<\/em>/gi, "*$1*");
+    // Colors
+    t = t.replace(/<span[^>]*style="[^"]*color:\s*([^;"]+)[^"]*"[^>]*>(.*?)<\/span>/gi, '<span style="color:$1">$2</span>');
 
-    // Underline
-    t = t.replace(/<u[^>]*>(.*?)<\/u>/gi, "__$1__");
-
-    // Colors (strip tags, keep text)
-    t = t.replace(
-        /<span[^>]*style="[^"]*color:\s*([^;"]+)[^"]*"[^>]*>(.*?)<\/span>/gi,
-        "$2"
-    );
-
-    // Headers
-    t = t.replace(/<h1[^>]*>(.*?)<\/h1>/gi, "\n\n## $1\n\n");
-    t = t.replace(/<h2[^>]*>(.*?)<\/h2>/gi, "\n\n### $1\n\n");
-    t = t.replace(/<h3[^>]*>(.*?)<\/h3>/gi, "\n\n#### $1\n\n");
-
-    // Remove any other tags
-    t = t.replace(/<[^>]+>/g, "");
+    // Remove other tags
+    t = t.replace(/<(?!\/?span)[^>]+>/g, "");
 
     // Normalize multiple line breaks and spaces
     t = t.replace(/\n{3,}/g, "\n\n");
@@ -182,12 +170,10 @@ export default function NewsPage({ initialNews }) {
                         <h2 className={styles.title}>{news.title}</h2>
 
                         <div className={styles.content}>
-                            <p>
-                                {news.expanded
-                                    ? news.cleanContent
-                                    : `${news.cleanContent.substring(0, 200)}...`}
-                            </p>
-
+                            <div
+                                style={{ whiteSpace: "pre-wrap" }}
+                                dangerouslySetInnerHTML={{ __html: news.cleanContent }}
+                            />
                             {news.cleanContent.length > 200 && (
                                 <button
                                     className={styles.expandBtn}
@@ -230,8 +216,8 @@ export default function NewsPage({ initialNews }) {
                                     type="text"
                                     placeholder="Andika comment..."
                                     value={commentText}
-                                    onChange={e => setCommentText(e.target.value)}
-                                    onKeyDown={e => {
+                                    onChange={(e) => setCommentText(e.target.value)}
+                                    onKeyDown={(e) => {
                                         if (e.key === "Enter") handleComment(news.id);
                                     }}
                                 />

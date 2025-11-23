@@ -1,9 +1,6 @@
 import React, { useState } from "react";
 import styles from "../styles/live.module.css";
 
-const today = new Date().toISOString().split("T")[0];
-
-// Amarushanwa (competitions) free tier zimenyerewe na football‑data.org
 const COMPETITIONS = [
   { code: "PL", name: "Premier League" },
   { code: "SA", name: "Serie A" },
@@ -24,15 +21,19 @@ export async function getServerSideProps() {
   let allStandings = [];
 
   try {
+    const today = new Date();
+    const dateFrom = today.toISOString().split("T")[0];
+    const dateTo = new Date(today.getTime() + 2*24*60*60*1000) // next 2 days
+                    .toISOString().split("T")[0];
+
     for (const comp of COMPETITIONS) {
-      // Fetch imikino y'irushanwa (competition) kuri uyu munsi
+      // Fetch matches
       const resMatches = await fetch(
-        `https://api.football-data.org/v4/competitions/${comp.code}/matches?dateFrom=${today}&dateTo=${today}`,
+        `https://api.football-data.org/v4/competitions/${comp.code}/matches?dateFrom=${dateFrom}&dateTo=${dateTo}`,
         { headers: { "X-Auth-Token": API_KEY } }
       );
       const dataMatches = await resMatches.json();
       if (dataMatches.matches) {
-        // Tanga n'irushanwa buri mukino (competition) ni byiza
         const matchesWithComp = dataMatches.matches.map(m => ({
           ...m,
           competition: { code: comp.code, name: comp.name },
@@ -40,7 +41,7 @@ export async function getServerSideProps() {
         allMatches = allMatches.concat(matchesWithComp);
       }
 
-      // Fetch standings (urukurikirane) rw’irushanwa
+      // Fetch standings
       try {
         const resStand = await fetch(
           `https://api.football-data.org/v4/competitions/${comp.code}/standings`,
@@ -58,12 +59,7 @@ export async function getServerSideProps() {
       }
     }
 
-    return {
-      props: {
-        matches: allMatches || [],
-        standings: allStandings || [],
-      },
-    };
+    return { props: { matches: allMatches || [], standings: allStandings || [] } };
   } catch (error) {
     console.error("getServerSideProps error:", error);
     return { props: { matches: [], standings: [] } };
@@ -73,14 +69,13 @@ export async function getServerSideProps() {
 export default function Live({ matches = [], standings = [] }) {
   const [selectedCompetition, setSelectedCompetition] = useState("");
 
-  // Safety: matches cyangwa standings zishobora kuba array y'ubusa
   const filteredMatches = matches.filter(
     m => !selectedCompetition || m.competition?.code === selectedCompetition
   );
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>Football Matches for Today</h1>
+      <h1 className={styles.title}>Football Matches (Next 3 Days)</h1>
 
       <div className={styles.filter}>
         <label htmlFor="competition">Select Competition: </label>
@@ -92,24 +87,19 @@ export default function Live({ matches = [], standings = [] }) {
         >
           <option value="">All</option>
           {COMPETITIONS.map(c => (
-            <option key={c.code} value={c.code}>
-              {c.name}
-            </option>
+            <option key={c.code} value={c.code}>{c.name}</option>
           ))}
         </select>
       </div>
 
       {filteredMatches.length === 0 ? (
-        <p className={styles.noData}>No matches scheduled for selected competition (or today).</p>
+        <p className={styles.noData}>No matches scheduled for selected competition.</p>
       ) : (
         <ul className={styles.matchList}>
           {filteredMatches.map(match => {
             const matchDate = new Date(match.utcDate);
             const localDate = matchDate.toLocaleDateString();
-            const localTime = matchDate.toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-            });
+            const localTime = matchDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
             return (
               <li key={match.id} className={styles.matchCard}>
@@ -137,7 +127,7 @@ export default function Live({ matches = [], standings = [] }) {
       )}
 
       <div className={styles.standings}>
-        <h2>Standings</h2>
+        <h2>League Standings</h2>
         {standings.length === 0 ? (
           <p className={styles.noData}>No standings data available</p>
         ) : (

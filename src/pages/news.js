@@ -9,36 +9,75 @@ import {
     doc, 
     getDocs, 
     updateDoc, 
-    increment 
+    increment, 
+    setDoc, 
+    serverTimestamp 
 } from "firebase/firestore";
 import { FiHeart, FiMessageCircle, FiShare2 } from "react-icons/fi";
 
 export default function NewsPage({ initialNews }) {
     const [newsList, setNewsList] = useState(initialNews);
+    const [activeCommentId, setActiveCommentId] = useState(null);
+    const [commentText, setCommentText] = useState("");
 
+    // Increment views on mount and update local state
     useEffect(() => {
-        // Increment views when the component mounts
-        newsList.forEach(async (news) => {
-            const newsRef = doc(db, "news", news.id);
-            await updateDoc(newsRef, { views: increment(1) });
-        });
+        const incrementViews = async () => {
+            const updatedNews = await Promise.all(
+                newsList.map(async (news) => {
+                    const newsRef = doc(db, "news", news.id);
+                    await updateDoc(newsRef, { views: increment(1) });
+                    return { ...news, views: (news.views || 0) + 1 };
+                })
+            );
+            setNewsList(updatedNews);
+        };
+        incrementViews();
     }, []);
 
+    // Expand/Collapse content
     const toggleExpand = (index) => {
-        const updated = [...newsList];
-        updated[index].expanded = !updated[index].expanded;
-        setNewsList(updated);
+        setNewsList(prev =>
+            prev.map((news, i) =>
+                i === index ? { ...news, expanded: !news.expanded } : news
+            )
+        );
     };
 
+    // Handle likes
     const handleLike = async (id) => {
         const newsRef = doc(db, "news", id);
         await updateDoc(newsRef, { likes: increment(1) });
-        const updated = newsList.map((n) =>
-            n.id === id ? { ...n, likes: n.likes + 1 } : n
+        setNewsList(prev => 
+            prev.map(n => n.id === id ? { ...n, likes: (n.likes || 0) + 1 } : n)
         );
-        setNewsList(updated);
     };
 
+    // Handle comments
+    const handleComment = async (id) => {
+        if (!commentText.trim()) return;
+
+        const commentsRef = collection(db, "news", id, "comments");
+        const commentDocRef = doc(commentsRef);
+        await setDoc(commentDocRef, {
+            text: commentText,
+            timestamp: serverTimestamp()
+        });
+
+        const newsRef = doc(db, "news", id);
+        await updateDoc(newsRef, { commentsCount: increment(1) });
+
+        setNewsList(prev =>
+            prev.map(n => n.id === id 
+                ? { ...n, commentsCount: (n.commentsCount || 0) + 1 } 
+                : n
+            )
+        );
+        setCommentText("");
+        setActiveCommentId(null);
+    };
+
+    // Handle share
     const handleShare = (news) => {
         const summary = news.content.substring(0, 200);
         const textToCopy = `${news.title}\n${summary}\n${window.location.href}`;
@@ -59,7 +98,9 @@ export default function NewsPage({ initialNews }) {
                         )}
                         <div className={styles.content}>
                             <p>
-                                {news.expanded ? news.content : `${news.content.substring(0, 200)}...`}
+                                {news.expanded 
+                                    ? news.content 
+                                    : `${news.content.substring(0, 200)}...`}
                             </p>
                             {news.content.length > 200 && (
                                 <button className={styles.expandBtn} onClick={() => toggleExpand(index)}>
@@ -71,7 +112,7 @@ export default function NewsPage({ initialNews }) {
                             <button onClick={() => handleLike(news.id)}>
                                 <FiHeart /> {news.likes || 0}
                             </button>
-                            <button>
+                            <button onClick={() => setActiveCommentId(news.id)}>
                                 <FiMessageCircle /> {news.commentsCount || 0}
                             </button>
                             <button onClick={() => handleShare(news)}>
@@ -79,6 +120,22 @@ export default function NewsPage({ initialNews }) {
                             </button>
                             <span className={styles.views}>{news.views || 0} views</span>
                         </div>
+
+                        {/* Comment input */}
+                        {activeCommentId === news.id && (
+                            <div className={styles.commentBox}>
+                                <input
+                                    type="text"
+                                    placeholder="Andika comment..."
+                                    value={commentText}
+                                    onChange={e => setCommentText(e.target.value)}
+                                    onKeyDown={e => {
+                                        if (e.key === "Enter") handleComment(news.id);
+                                    }}
+                                />
+                                <button onClick={() => handleComment(news.id)}>Send</button>
+                            </div>
+                        )}
                     </div>
                 ))}
             </div>

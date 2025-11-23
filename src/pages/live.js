@@ -5,42 +5,42 @@ import styles from "../styles/live.module.css";
 const today = new Date().toISOString().split("T")[0];
 
 export async function getServerSideProps() {
-  try {
-    const res = await fetch(
-      `https://api.football-data.org/v4/matches?dateFrom=${today}&dateTo=${today}`,
-      {
-        headers: {
-          "X-Auth-Token": "232c41c0d1b940c1b8e6c7ae5798b77b"
-        }
-      }
-    );
+  const API_KEY = "232c41c0d1b940c1b8e6c7ae5798b77b";
 
-    const data = await res.json();
+  try {
+    // Matches: past, live, future
+    const matchesRes = await fetch(
+      `https://api.football-data.org/v4/matches?dateFrom=${today}&dateTo=${today}`,
+      { headers: { "X-Auth-Token": API_KEY } }
+    );
+    const matchesData = await matchesRes.json();
+
+    // Standings: example for Premier League (competition code: PL)
+    const standingsRes = await fetch(
+      "https://api.football-data.org/v4/competitions/PL/standings",
+      { headers: { "X-Auth-Token": API_KEY } }
+    );
+    const standingsData = await standingsRes.json();
 
     return {
       props: {
-        matches: data.matches || []
+        matches: matchesData.matches || [],
+        standings: standingsData.standings?.[0]?.table || []
       }
     };
   } catch (error) {
     console.error(error);
-    return {
-      props: {
-        matches: []
-      }
-    };
+    return { props: { matches: [], standings: [] } };
   }
 }
 
-export default function Live({ matches }) {
+export default function Live({ matches, standings }) {
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>Today's Football Matches</h1>
 
       {matches.length === 0 ? (
-        <p className={styles.noMatches}>
-          There are no matches scheduled for today.
-        </p>
+        <p className={styles.noData}>{`There are no matches scheduled for today.`}</p>
       ) : (
         <ul className={styles.matchList}>
           {matches.map((match) => (
@@ -66,6 +66,44 @@ export default function Live({ matches }) {
           ))}
         </ul>
       )}
+
+      <div className={styles.standings}>
+        <h2>League Standings (Premier League)</h2>
+        {standings.length === 0 ? (
+          <p className={styles.noData}>No standings data available.</p>
+        ) : (
+          <table>
+            <thead>
+              <tr>
+                <th>Pos</th>
+                <th>Team</th>
+                <th>MP</th>
+                <th>W</th>
+                <th>D</th>
+                <th>L</th>
+                <th>GF</th>
+                <th>GA</th>
+                <th>Pts</th>
+              </tr>
+            </thead>
+            <tbody>
+              {standings.map((team) => (
+                <tr key={team.team.id}>
+                  <td>{team.position}</td>
+                  <td>{team.team.name}</td>
+                  <td>{team.playedGames}</td>
+                  <td>{team.won}</td>
+                  <td>{team.draw}</td>
+                  <td>{team.lost}</td>
+                  <td>{team.goalsFor}</td>
+                  <td>{team.goalsAgainst}</td>
+                  <td>{team.points}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
     </div>
   );
 }

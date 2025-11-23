@@ -1,47 +1,33 @@
-/* styles/news.module.css */
-
-/* General container */
 .container {
   max-width: 900px;
   margin: 65px auto;
   padding: 20px;
-  background-color: #ffffff; /* white background */
+  background-color: #ffffff;
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-/* News card */
 .newsCard {
   border: 1px solid #e0e0e0;
   border-radius: 12px;
   padding: 20px;
   background-color: #fafafa;
   box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.newsCard:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
-}
-
-/* Author */
 .author {
   font-size: 0.9rem;
   color: #555555;
   margin-bottom: 8px;
 }
 
-/* Title */
 .title {
   font-size: 1.5rem;
   color: #222222;
   margin-bottom: 12px;
-  line-height: 1.3;
 }
 
-/* Image */
 .image {
   width: 100%;
   max-height: 400px;
@@ -50,7 +36,6 @@
   margin-bottom: 12px;
 }
 
-/* Content */
 .content p {
   font-size: 1rem;
   color: #333333;
@@ -58,7 +43,6 @@
   margin-bottom: 10px;
 }
 
-/* Expand button */
 .expandBtn {
   background-color: #007bff;
   color: #fff;
@@ -67,14 +51,12 @@
   border-radius: 6px;
   cursor: pointer;
   font-size: 0.9rem;
-  transition: background-color 0.2s ease;
 }
 
 .expandBtn:hover {
   background-color: #0056b3;
 }
 
-/* Actions row */
 .actions {
   display: flex;
   align-items: center;
@@ -83,7 +65,6 @@
   flex-wrap: wrap;
 }
 
-/* Buttons inside actions */
 .actions button {
   display: flex;
   align-items: center;
@@ -94,23 +75,17 @@
   padding: 6px 12px;
   cursor: pointer;
   font-size: 0.95rem;
-  color: #333;
-  transition: all 0.2s ease;
 }
 
 .actions button:hover {
   background-color: #e0e0e0;
-  border-color: #c0c0c0;
 }
 
-/* Views */
 .views {
-  margin-left: auto;
   font-size: 0.85rem;
   color: #777;
 }
 
-/* Comment box */
 .commentBox {
   display: flex;
   gap: 8px;
@@ -123,8 +98,6 @@
   border-radius: 8px;
   border: 1px solid #ccc;
   font-size: 0.95rem;
-  outline: none;
-  transition: border-color 0.2s ease;
 }
 
 .commentBox input:focus {
@@ -137,16 +110,25 @@
   border: none;
   background-color: #007bff;
   color: #fff;
-  font-size: 0.95rem;
   cursor: pointer;
-  transition: background-color 0.2s ease;
 }
 
 .commentBox button:hover {
   background-color: #0056b3;
 }
 
-/* Responsive */
+.commentsList {
+  margin-top: 10px;
+  padding-left: 10px;
+  border-left: 2px solid #ddd;
+}
+
+.commentItem {
+  margin-bottom: 6px;
+  font-size: 0.95rem;
+  color: #333;
+}
+
 @media (max-width: 768px) {
   .container {
     padding: 15px;
@@ -157,12 +139,8 @@
   }
 
   .actions {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .views {
-    margin-left: 0;
+    flex-direction: row;
+    flex-wrap: wrap;
   }
 }
 

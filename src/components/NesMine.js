@@ -72,7 +72,7 @@ const NesMineSSR = ({ username, initialNesTotal }) => {
   // 🔹 Start mining
   const startMining = async () => {
     if (!canMine) {
-      alert("⚠️ Ngura full plan y’ukwezi ya 1200 RWF kugira ngo wemererwe ku mininga 💳");
+      alert("⚠️ Ngura full plan y’ukwezi ya 800 RWF kugira ngo wemererwe ku mininga 💳");
       return;
     }
 

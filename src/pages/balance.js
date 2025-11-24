@@ -59,13 +59,11 @@ export default function Pay() {
     const handlePlanChange = (value) => {
         let amount = 0;
         switch (value) {
-            case "onestory": amount = 20; break;
-            case "Local": amount = 100; break;
+            case "onestory": amount = 10; break;
             case "Daily": amount = 150; break;
-            case "weekly": amount = 200; break;
-            case "limited": amount = 300; break;
-            case "monthly": amount = 600; break;
-            case "bestreader": amount = 1200; break;
+            case "weekly": amount = 250; break;
+            case "monthly": amount = 500; break;
+            case "bestreader": amount = 800; break;
             default: amount = 0;
         }
         setFormData((prev) => ({ ...prev, plan: value, amount }));
@@ -151,13 +149,11 @@ export default function Pay() {
 
                     <select name="plan" value={formData.plan} onChange={handleChange} required>
                         <option value="">-- Hitamo Plan --</option>
-                        <option value="onestory">NeS 1 - 20 RWF</option>
-                        <option value="Local">NeS 7 - 100 RWF</option>
-                        <option value="Daily">NeS 10 - 150 RWF</option>
-                        <option value="weekly">NeS 15 - 200 RWF</option>
-                        <option value="limited">NeS 25 - 300 RWF</option>
-                        <option value="monthly">NeS 60 - 600 RWF</option>
-                        <option value="bestreader">Ukwezi kose - 1200 RWF</option>
+                        <option value="onestory">NeS 1 - 10 RWF</option>
+                        <option value="Daily">NeS 15 umunsi- 150 RWF</option>
+                        <option value="weekly">NeS 25 icyumweru- 250 RWF</option>
+                        <option value="monthly">NeS 60 ukwezi- 500 RWF</option>
+                        <option value="bestreader">bestreader - 800 RWF</option>
                     </select>
 
                     <select name="paymentMethod" value={formData.paymentMethod} onChange={handleChange} required>

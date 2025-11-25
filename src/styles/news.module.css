@@ -33,11 +33,11 @@
   max-height: 400px;
   object-fit: cover;
   border-radius: 10px;
-  margin: 12px;
+  margin-top: 12px;
 }
 .pblock {
   display: block;
-  margin: 14px 0; /* Big spacing like Facebook */
+  margin: 18px 0; /* Big spacing like Facebook */
   line-height: 1.7;
 }
 .content p {
@@ -55,6 +55,7 @@
   border-radius: 6px;
   cursor: pointer;
   font-size: 0.9rem;
+  margin: 15px;
 }
 
 .expandBtn:hover {

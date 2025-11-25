@@ -20,37 +20,53 @@ import {
 
 import { FiHeart, FiMessageCircle, FiShare2 } from "react-icons/fi";
 
-
 // ------------------ CLEAN CONTENT FUNCTION (FACEBOOK STYLE) ------------------
 function cleanContent(html) {
     if (!html) return "";
 
     let t = html;
 
-    // Keep <p> and style it later
     t = t.replace(/<p[^>]*>/gi, "<p class='fbParagraph'>");
     t = t.replace(/<\/p>/gi, "</p>");
-
-    // Convert <br> to line breaks
     t = t.replace(/<br\s*\/?>/gi, "<br />");
 
-    // Text styling
     t = t.replace(/<b[^>]*>(.*?)<\/b>/gi, "<strong>$1</strong>");
     t = t.replace(/<strong[^>]*>(.*?)<\/strong>/gi, "<strong>$1</strong>");
     t = t.replace(/<i[^>]*>(.*?)<\/i>/gi, "<em>$1</em>");
     t = t.replace(/<em[^>]*>(.*?)<\/em>/gi, "<em>$1</em>");
     t = t.replace(/<u[^>]*>(.*?)<\/u>/gi, "<span style='text-decoration:underline'>$1</span>");
 
-    // Remove unknown tags
     t = t.replace(/<(?!\/?(p|br|strong|em|span)[> ])[^>]+>/g, "");
-
-    // Convert double line breaks to real paragraphs if needed
     t = t.replace(/\n{2,}/g, "</p><p class='fbParagraph'>");
 
     return t.trim();
 }
 
+// ------------------ CLEAN TEXT FUNCTION FOR SHARE ------------------
+function cleanText(html) {
+    if (!html) return "";
 
+    let text = html;
+
+    // Convert HTML entities
+    text = text.replace(/&nbsp;/gi, " ");
+    text = text.replace(/&amp;/gi, "&");
+    text = text.replace(/&quot;/gi, '"');
+    text = text.replace(/&lt;/gi, "<");
+    text = text.replace(/&gt;/gi, ">");
+    text = text.replace(/&#39;/gi, "'");
+
+    // Remove any remaining entities like &#123;
+    text = text.replace(/&[#A-Za-z0-9]+;/g, " ");
+
+    // Remove HTML tags
+    text = text.replace(/<[^>]+>/g, " ");
+
+    // Normalize spaces
+    text = text.replace(/\s+/g, " ").trim();
+
+    return text;
+}
 
 // ------------------ COMPONENT ------------------
 export default function NewsPage({ initialNews }) {
@@ -67,7 +83,6 @@ export default function NewsPage({ initialNews }) {
     const [commentText, setCommentText] = useState("");
     const [username, setUsername] = useState("");
 
-
     // Username
     useEffect(() => {
         let saved = localStorage.getItem("username");
@@ -78,13 +93,11 @@ export default function NewsPage({ initialNews }) {
         setUsername(saved);
     }, []);
 
-
     // Real-time Firestore updates
     useEffect(() => {
         const unsubscribes = initialNews.map(news => {
             const ref = doc(db, "news", news.id);
 
-            // Listen to post updates
             const unsub1 = onSnapshot(ref, snap => {
                 const data = snap.data();
                 setNewsList(prev =>
@@ -92,7 +105,6 @@ export default function NewsPage({ initialNews }) {
                 );
             });
 
-            // Listen to comments
             const comRef = collection(db, "news", news.id, "comments");
             const unsub2 = onSnapshot(comRef, shoots => {
                 const cs = shoots.docs.map(d => d.data());
@@ -110,7 +122,6 @@ export default function NewsPage({ initialNews }) {
         return () => unsubscribes.forEach(u => u());
     }, []);
 
-
     // Increment views once
     useEffect(() => {
         initialNews.forEach(async n => {
@@ -119,7 +130,6 @@ export default function NewsPage({ initialNews }) {
             });
         });
     }, []);
-
 
     const toggleExpand = index => {
         setNewsList(prev =>
@@ -152,17 +162,14 @@ export default function NewsPage({ initialNews }) {
     };
 
     // Share post function
-const sharePost = n => {
-    // Clean summary from HTML
-    const summary = cleanText(n.cleanContent).slice(0, 350); // first 200 characters
-    const textToCopy = `${n.title}\n\n${summary}${n.cleanContent.length > 200 ? "..." : ""}\n${window.location.href}`;
+    const sharePost = n => {
+        const summary = cleanText(n.cleanContent).slice(0, 350);
+        const textToCopy = `${n.title}\n\n${summary}${n.cleanContent.length > 350 ? "..." : ""}\n${window.location.href}`;
 
-    navigator.clipboard.writeText(textToCopy);
-    alert("News copied to clipboard!");
-};
+        navigator.clipboard.writeText(textToCopy);
+        alert("News copied to clipboard!");
+    };
 
-
-    // ------------------ UI ------------------
     return (
         <>
             <Header />
@@ -171,14 +178,9 @@ const sharePost = n => {
             <div className={styles.container}>
                 {newsList.map((n, index) => (
                     <div key={n.id} className={styles.card}>
-
-                        {/* AUTHOR */}
                         <p className={styles.author}>{n.author}</p>
-
-                        {/* TITLE */}
                         <h2 className={styles.title}>{n.title}</h2>
 
-                        {/* CONTENT */}
                         <div className={styles.textBox}>
                             <div
                                 className="fbText"
@@ -186,7 +188,7 @@ const sharePost = n => {
                                     __html: n.expanded
                                         ? n.cleanContent
                                         : n.cleanContent.slice(0, 300) +
-                                        (n.cleanContent.length > 300 ? "..." : "")
+                                          (n.cleanContent.length > 300 ? "..." : "")
                                 }}
                             />
 
@@ -201,7 +203,6 @@ const sharePost = n => {
                             )}
                         </div>
 
-                        {/* ACTION BUTTONS */}
                         <div className={styles.actions}>
                             <button onClick={() => likePost(n.id)}>
                                 <FiHeart /> {n.likes || 0}
@@ -218,7 +219,6 @@ const sharePost = n => {
                             <span className={styles.views}>{n.views || 0} views</span>
                         </div>
 
-                        {/* COMMENT INPUT */}
                         {activeCommentId === n.id && (
                             <div className={styles.commentBox}>
                                 <input
@@ -232,7 +232,6 @@ const sharePost = n => {
                             </div>
                         )}
 
-                        {/* COMMENTS */}
                         {n.comments && n.comments.length > 0 && (
                             <div className={styles.commentsList}>
                                 {n.comments.map((c, i) => (
@@ -242,7 +241,6 @@ const sharePost = n => {
                                 ))}
                             </div>
                         )}
-
                     </div>
                 ))}
             </div>
@@ -251,7 +249,6 @@ const sharePost = n => {
         </>
     );
 }
-
 
 // ------------------ SERVER SIDE ------------------
 export async function getServerSideProps() {

@@ -33,9 +33,13 @@
   max-height: 400px;
   object-fit: cover;
   border-radius: 10px;
-  margin-bottom: 12px;
+  margin: 12px;
 }
-
+.pblock {
+  display: block;
+  margin: 14px 0; /* Big spacing like Facebook */
+  line-height: 1.7;
+}
 .content p {
   font-size: 1rem;
   color: #333333;

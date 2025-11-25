@@ -151,11 +151,15 @@ export default function NewsPage({ initialNews }) {
         setActiveCommentId(null);
     };
 
-    const sharePost = n => {
-        const txt = `${n.title}\n\n${n.cleanContent.slice(0, 200)}...\n${window.location.href}`;
-        navigator.clipboard.writeText(txt);
-        alert("Copied to clipboard!");
-    };
+    // Share post function
+const sharePost = n => {
+    // Clean summary from HTML
+    const summary = cleanText(n.cleanContent).slice(0, 350); // first 200 characters
+    const textToCopy = `${n.title}\n\n${summary}${n.cleanContent.length > 200 ? "..." : ""}\n${window.location.href}`;
+
+    navigator.clipboard.writeText(textToCopy);
+    alert("News copied to clipboard!");
+};
 
 
     // ------------------ UI ------------------

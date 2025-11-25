@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import { db } from "@/components/firebase";
 import Header from "@/components/Header";
@@ -19,37 +20,46 @@ import {
 
 import { FiHeart, FiMessageCircle, FiShare2 } from "react-icons/fi";
 
-// ---- Clean HTML Function ----
-function cleanContent(text) {
-    if (!text) return "";
 
-    let t = text;
+// ------------------ CLEAN CONTENT FUNCTION (FACEBOOK STYLE) ------------------
+function cleanContent(html) {
+    if (!html) return "";
 
-    // keep line breaks
-    t = t.replace(/<br\s*\/?>/gi, "\n");
-    t = t.replace(/<\/p>/gi, "\n\n");
-    t = t.replace(/<p[^>]*>/gi, "");
+    let t = html;
 
-    // Bold / italic / underline
-    t = t.replace(/<b[^>]*>(.*?)<\/b>/gi, "<span style='font-weight:bold'>$1</span>");
-    t = t.replace(/<strong[^>]*>(.*?)<\/strong>/gi, "<span style='font-weight:bold'>$1</span>");
-    t = t.replace(/<i[^>]*>(.*?)<\/i>/gi, "<span style='font-style:italic'>$1</span>");
-    t = t.replace(/<em[^>]*>(.*?)<\/em>/gi, "<span style='font-style:italic'>$1</span>");
+    // Keep <p> and style it later
+    t = t.replace(/<p[^>]*>/gi, "<p class='fbParagraph'>");
+    t = t.replace(/<\/p>/gi, "</p>");
+
+    // Convert <br> to line breaks
+    t = t.replace(/<br\s*\/?>/gi, "<br />");
+
+    // Text styling
+    t = t.replace(/<b[^>]*>(.*?)<\/b>/gi, "<strong>$1</strong>");
+    t = t.replace(/<strong[^>]*>(.*?)<\/strong>/gi, "<strong>$1</strong>");
+    t = t.replace(/<i[^>]*>(.*?)<\/i>/gi, "<em>$1</em>");
+    t = t.replace(/<em[^>]*>(.*?)<\/em>/gi, "<em>$1</em>");
     t = t.replace(/<u[^>]*>(.*?)<\/u>/gi, "<span style='text-decoration:underline'>$1</span>");
 
-    // Remove unwanted tags
-    t = t.replace(/<(?!\/?span)[^>]+>/g, "");
+    // Remove unknown tags
+    t = t.replace(/<(?!\/?(p|br|strong|em|span)[> ])[^>]+>/g, "");
+
+    // Convert double line breaks to real paragraphs if needed
+    t = t.replace(/\n{2,}/g, "</p><p class='fbParagraph'>");
 
     return t.trim();
 }
 
+
+
+// ------------------ COMPONENT ------------------
 export default function NewsPage({ initialNews }) {
     const [newsList, setNewsList] = useState(
         initialNews.map(n => ({
             ...n,
             cleanContent: cleanContent(n.content),
-            comments: n.comments || [],
-            expanded: false
+            expanded: false,
+            comments: []
         }))
     );
 
@@ -57,35 +67,37 @@ export default function NewsPage({ initialNews }) {
     const [commentText, setCommentText] = useState("");
     const [username, setUsername] = useState("");
 
-    // Get or set username
+
+    // Username
     useEffect(() => {
-        let storedUsername = localStorage.getItem("username");
-        if (!storedUsername) {
-            storedUsername = prompt("Andika izina ryawe") || "Anonymous";
-            localStorage.setItem("username", storedUsername);
+        let saved = localStorage.getItem("username");
+        if (!saved) {
+            saved = prompt("Andika izina ryawe") || "Anonymous";
+            localStorage.setItem("username", saved);
         }
-        setUsername(storedUsername);
+        setUsername(saved);
     }, []);
 
-    // Real-time listeners (run ONCE)
+
+    // Real-time Firestore updates
     useEffect(() => {
         const unsubscribes = initialNews.map(news => {
-            const newsRef = doc(db, "news", news.id);
+            const ref = doc(db, "news", news.id);
 
-            // Listen to likes, commentsCount, views
-            const unsub1 = onSnapshot(newsRef, snapshot => {
-                const updated = snapshot.data();
+            // Listen to post updates
+            const unsub1 = onSnapshot(ref, snap => {
+                const data = snap.data();
                 setNewsList(prev =>
-                    prev.map(n => (n.id === news.id ? { ...n, ...updated } : n))
+                    prev.map(n => (n.id === news.id ? { ...n, ...data } : n))
                 );
             });
 
             // Listen to comments
-            const commentsRef = collection(db, "news", news.id, "comments");
-            const unsub2 = onSnapshot(commentsRef, snapshot => {
-                const comments = snapshot.docs.map(doc => doc.data());
+            const comRef = collection(db, "news", news.id, "comments");
+            const unsub2 = onSnapshot(comRef, shoots => {
+                const cs = shoots.docs.map(d => d.data());
                 setNewsList(prev =>
-                    prev.map(n => (n.id === news.id ? { ...n, comments } : n))
+                    prev.map(n => (n.id === news.id ? { ...n, comments: cs } : n))
                 );
             });
 
@@ -95,134 +107,138 @@ export default function NewsPage({ initialNews }) {
             };
         });
 
-        return () => unsubscribes.forEach(unsub => unsub());
-    }, []); // no dependency loop
+        return () => unsubscribes.forEach(u => u());
+    }, []);
 
-    // Increment views ONCE
+
+    // Increment views once
     useEffect(() => {
-        initialNews.forEach(async news => {
-            const ref = doc(db, "news", news.id);
-            await updateDoc(ref, { views: increment(1) });
+        initialNews.forEach(async n => {
+            await updateDoc(doc(db, "news", n.id), {
+                views: increment(1)
+            });
         });
     }, []);
 
+
     const toggleExpand = index => {
         setNewsList(prev =>
-            prev.map((n, i) =>
-                i === index ? { ...n, expanded: !n.expanded } : n
-            )
+            prev.map((n, i) => (i === index ? { ...n, expanded: !n.expanded } : n))
         );
     };
 
-    const handleLike = async id => {
-        const ref = doc(db, "news", id);
-        await updateDoc(ref, { likes: increment(1) });
+    const likePost = async id => {
+        await updateDoc(doc(db, "news", id), { likes: increment(1) });
     };
 
-    const handleComment = async id => {
+    const sendComment = async id => {
         if (!commentText.trim()) return;
 
-        const commentsRef = collection(db, "news", id, "comments");
-        const commentDoc = doc(commentsRef);
+        const cRef = collection(db, "news", id, "comments");
+        const cDoc = doc(cRef);
 
-        await setDoc(commentDoc, {
-            text: commentText,
+        await setDoc(cDoc, {
             author: username,
+            text: commentText,
             timestamp: serverTimestamp()
         });
 
-        const ref = doc(db, "news", id);
-        await updateDoc(ref, { commentsCount: increment(1) });
+        await updateDoc(doc(db, "news", id), {
+            commentsCount: increment(1)
+        });
 
         setCommentText("");
         setActiveCommentId(null);
     };
 
-    const handleShare = news => {
-        const summary = news.cleanContent.substring(0, 200);
-        const textToCopy = `${news.title}\n${summary}\n${window.location.href}`;
-        navigator.clipboard.writeText(textToCopy);
-        alert("Copied!");
+    const sharePost = n => {
+        const txt = `${n.title}\n\n${n.cleanContent.slice(0, 200)}...\n${window.location.href}`;
+        navigator.clipboard.writeText(txt);
+        alert("Copied to clipboard!");
     };
 
+
+    // ------------------ UI ------------------
     return (
         <>
             <Header />
             <Channel />
 
             <div className={styles.container}>
-                {newsList.map((news, index) => (
-                    <div key={news.id} className={styles.newsCard}>
+                {newsList.map((n, index) => (
+                    <div key={n.id} className={styles.card}>
 
-                        <p className={styles.author}>{news.author}</p>
-                        <h2 className={styles.title}>{news.title}</h2>
+                        {/* AUTHOR */}
+                        <p className={styles.author}>{n.author}</p>
 
-                        <div className={styles.content}>
+                        {/* TITLE */}
+                        <h2 className={styles.title}>{n.title}</h2>
+
+                        {/* CONTENT */}
+                        <div className={styles.textBox}>
                             <div
-                                style={{ whiteSpace: "pre-wrap" }}
+                                className="fbText"
                                 dangerouslySetInnerHTML={{
-                                    __html: news.expanded
-                                        ? news.cleanContent
-                                        : news.cleanContent.slice(0, 200) + (news.cleanContent.length > 200 ? "..." : "")
+                                    __html: n.expanded
+                                        ? n.cleanContent
+                                        : n.cleanContent.slice(0, 300) +
+                                        (n.cleanContent.length > 300 ? "..." : "")
                                 }}
                             />
 
-                            {news.cleanContent.length > 200 && (
-                                <button
-                                    className={styles.expandBtn}
-                                    onClick={() => toggleExpand(index)}
-                                >
-                                    {news.expanded ? "Show Less" : "Read More"}
+                            {n.cleanContent.length > 300 && (
+                                <button className={styles.readMoreBtn} onClick={() => toggleExpand(index)}>
+                                    {n.expanded ? "Show Less" : "Read More"}
                                 </button>
                             )}
 
-                            {news.imageUrl && (
-                                <img
-                                    src={news.imageUrl}
-                                    alt={news.title}
-                                    className={styles.image}
-                                />
+                            {n.imageUrl && (
+                                <img src={n.imageUrl} alt="" className={styles.image} />
                             )}
                         </div>
 
+                        {/* ACTION BUTTONS */}
                         <div className={styles.actions}>
-                            <button onClick={() => handleLike(news.id)}>
-                                <FiHeart /> {news.likes || 0}
+                            <button onClick={() => likePost(n.id)}>
+                                <FiHeart /> {n.likes || 0}
                             </button>
 
-                            <button onClick={() => setActiveCommentId(news.id)}>
-                                <FiMessageCircle /> {news.commentsCount || 0}
+                            <button onClick={() => setActiveCommentId(n.id)}>
+                                <FiMessageCircle /> {n.commentsCount || 0}
                             </button>
 
-                            <button onClick={() => handleShare(news)}>
+                            <button onClick={() => sharePost(n)}>
                                 <FiShare2 />
                             </button>
 
-                            <span className={styles.views}>{news.views || 0} views</span>
+                            <span className={styles.views}>{n.views || 0} views</span>
                         </div>
 
-                        {activeCommentId === news.id && (
+                        {/* COMMENT INPUT */}
+                        {activeCommentId === n.id && (
                             <div className={styles.commentBox}>
                                 <input
                                     type="text"
                                     placeholder="Andika comment..."
                                     value={commentText}
                                     onChange={e => setCommentText(e.target.value)}
-                                    onKeyDown={e => e.key === "Enter" && handleComment(news.id)}
+                                    onKeyDown={e => e.key === "Enter" && sendComment(n.id)}
                                 />
-                                <button onClick={() => handleComment(news.id)}>Send</button>
+                                <button onClick={() => sendComment(n.id)}>Send</button>
                             </div>
                         )}
 
-                        {news.comments && news.comments.length > 0 && (
+                        {/* COMMENTS */}
+                        {n.comments && n.comments.length > 0 && (
                             <div className={styles.commentsList}>
-                                {news.comments.map((c, i) => (
+                                {n.comments.map((c, i) => (
                                     <div key={i} className={styles.commentItem}>
-                                        <strong>{c.author}:</strong> {c.text}
+                                        <strong>{c.author}</strong> {c.text}
                                     </div>
                                 ))}
                             </div>
                         )}
+
                     </div>
                 ))}
             </div>
@@ -232,15 +248,16 @@ export default function NewsPage({ initialNews }) {
     );
 }
 
-// SERVER SIDE
+
+// ------------------ SERVER SIDE ------------------
 export async function getServerSideProps() {
     const snap = await getDocs(collection(db, "news"));
 
-    const newsData = snap.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
+    const data = snap.docs.map(d => ({
+        id: d.id,
+        ...d.data(),
         comments: []
     }));
 
-    return { props: { initialNews: newsData } };
+    return { props: { initialNews: data } };
 }

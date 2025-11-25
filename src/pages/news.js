@@ -5,47 +5,40 @@ import Header from "@/components/Header";
 import Channel from "@/components/Channel";
 import Footer from "@/components/Footer";
 import styles from "@/styles/news.module.css";
-import { 
-    collection, 
-    doc, 
-    getDocs, 
-    updateDoc, 
-    increment, 
-    setDoc, 
-    serverTimestamp, 
-    onSnapshot 
+
+import {
+    collection,
+    doc,
+    getDocs,
+    updateDoc,
+    increment,
+    setDoc,
+    serverTimestamp,
+    onSnapshot
 } from "firebase/firestore";
+
 import { FiHeart, FiMessageCircle, FiShare2 } from "react-icons/fi";
 
-// ---- Function to clean HTML and keep formatting ----
+// ---- Clean HTML Function ----
 function cleanContent(text) {
     if (!text) return "";
 
     let t = text;
 
-    // <br> and new lines
+    // keep line breaks
     t = t.replace(/<br\s*\/?>/gi, "\n");
-
-    // Paragraphs
     t = t.replace(/<\/p>/gi, "\n\n");
     t = t.replace(/<p[^>]*>/gi, "");
 
-    // Bold / Italic / Underline
-    t = t.replace(/<b[^>]*>(.*?)<\/b>/gi, '<span style="font-weight:bold">$1</span>');
-    t = t.replace(/<strong[^>]*>(.*?)<\/strong>/gi, '<span style="font-weight:bold">$1</span>');
-    t = t.replace(/<i[^>]*>(.*?)<\/i>/gi, '<span style="font-style:italic">$1</span>');
-    t = t.replace(/<em[^>]*>(.*?)<\/em>/gi, '<span style="font-style:italic">$1</span>');
-    t = t.replace(/<u[^>]*>(.*?)<\/u>/gi, '<span style="text-decoration:underline">$1</span>');
+    // Bold / italic / underline
+    t = t.replace(/<b[^>]*>(.*?)<\/b>/gi, "<span style='font-weight:bold'>$1</span>");
+    t = t.replace(/<strong[^>]*>(.*?)<\/strong>/gi, "<span style='font-weight:bold'>$1</span>");
+    t = t.replace(/<i[^>]*>(.*?)<\/i>/gi, "<span style='font-style:italic'>$1</span>");
+    t = t.replace(/<em[^>]*>(.*?)<\/em>/gi, "<span style='font-style:italic'>$1</span>");
+    t = t.replace(/<u[^>]*>(.*?)<\/u>/gi, "<span style='text-decoration:underline'>$1</span>");
 
-    // Colors
-    t = t.replace(/<span[^>]*style="[^"]*color:\s*([^;"]+)[^"]*"[^>]*>(.*?)<\/span>/gi, '<span style="color:$1">$2</span>');
-
-    // Remove other tags
+    // Remove unwanted tags
     t = t.replace(/<(?!\/?span)[^>]+>/g, "");
-
-    // Normalize multiple line breaks and spaces
-    t = t.replace(/\n{3,}/g, "\n\n");
-    t = t.replace(/[ \t]{2,}/g, " ");
 
     return t.trim();
 }
@@ -54,7 +47,9 @@ export default function NewsPage({ initialNews }) {
     const [newsList, setNewsList] = useState(
         initialNews.map(n => ({
             ...n,
-            cleanContent: cleanContent(n.content)
+            cleanContent: cleanContent(n.content),
+            comments: n.comments || [],
+            expanded: false
         }))
     );
 
@@ -72,79 +67,72 @@ export default function NewsPage({ initialNews }) {
         setUsername(storedUsername);
     }, []);
 
-    // Realtime updates
+    // Real-time listeners (run ONCE)
     useEffect(() => {
-        const unsubscribers = newsList.map(news => {
+        const unsubscribes = initialNews.map(news => {
             const newsRef = doc(db, "news", news.id);
 
-            const unsubNews = onSnapshot(newsRef, snapshot => {
-                const updatedData = snapshot.data();
-                setNewsList(prev => prev.map(n =>
-                    n.id === news.id
-                        ? {
-                            ...n,
-                            likes: updatedData.likes || 0,
-                            commentsCount: updatedData.commentsCount || 0,
-                            views: updatedData.views || 0
-                        }
-                        : n
-                ));
+            // Listen to likes, commentsCount, views
+            const unsub1 = onSnapshot(newsRef, snapshot => {
+                const updated = snapshot.data();
+                setNewsList(prev =>
+                    prev.map(n => (n.id === news.id ? { ...n, ...updated } : n))
+                );
             });
 
+            // Listen to comments
             const commentsRef = collection(db, "news", news.id, "comments");
-            const unsubComments = onSnapshot(commentsRef, snapshot => {
+            const unsub2 = onSnapshot(commentsRef, snapshot => {
                 const comments = snapshot.docs.map(doc => doc.data());
                 setNewsList(prev =>
-                    prev.map(n => n.id === news.id ? { ...n, comments } : n)
+                    prev.map(n => (n.id === news.id ? { ...n, comments } : n))
                 );
             });
 
             return () => {
-                unsubNews();
-                unsubComments();
+                unsub1();
+                unsub2();
             };
         });
 
-        return () => unsubscribers.forEach(unsub => unsub());
-    }, [newsList.map(n => n.id).join(",")]);
+        return () => unsubscribes.forEach(unsub => unsub());
+    }, []); // no dependency loop
 
-    // Increment views
+    // Increment views ONCE
     useEffect(() => {
-        const incrementViews = async () => {
-            newsList.forEach(async news => {
-                const newsRef = doc(db, "news", news.id);
-                await updateDoc(newsRef, { views: increment(1) });
-            });
-        };
-        incrementViews();
+        initialNews.forEach(async news => {
+            const ref = doc(db, "news", news.id);
+            await updateDoc(ref, { views: increment(1) });
+        });
     }, []);
 
     const toggleExpand = index => {
         setNewsList(prev =>
-            prev.map((news, i) =>
-                i === index ? { ...news, expanded: !news.expanded } : news
+            prev.map((n, i) =>
+                i === index ? { ...n, expanded: !n.expanded } : n
             )
         );
     };
 
     const handleLike = async id => {
-        const newsRef = doc(db, "news", id);
-        await updateDoc(newsRef, { likes: increment(1) });
+        const ref = doc(db, "news", id);
+        await updateDoc(ref, { likes: increment(1) });
     };
 
     const handleComment = async id => {
         if (!commentText.trim()) return;
 
         const commentsRef = collection(db, "news", id, "comments");
-        const commentDocRef = doc(commentsRef);
-        await setDoc(commentDocRef, {
+        const commentDoc = doc(commentsRef);
+
+        await setDoc(commentDoc, {
             text: commentText,
             author: username,
             timestamp: serverTimestamp()
         });
 
-        const newsRef = doc(db, "news", id);
-        await updateDoc(newsRef, { commentsCount: increment(1) });
+        const ref = doc(db, "news", id);
+        await updateDoc(ref, { commentsCount: increment(1) });
 
         setCommentText("");
         setActiveCommentId(null);
@@ -154,26 +142,31 @@ export default function NewsPage({ initialNews }) {
         const summary = news.cleanContent.substring(0, 200);
         const textToCopy = `${news.title}\n${summary}\n${window.location.href}`;
         navigator.clipboard.writeText(textToCopy);
-        alert("News copied to clipboard!");
+        alert("Copied!");
     };
 
     return (
         <>
             <Header />
-            <Channel/>
+            <Channel />
 
             <div className={styles.container}>
                 {newsList.map((news, index) => (
                     <div key={news.id} className={styles.newsCard}>
-                        
+
                         <p className={styles.author}>{news.author}</p>
                         <h2 className={styles.title}>{news.title}</h2>
 
                         <div className={styles.content}>
                             <div
                                 style={{ whiteSpace: "pre-wrap" }}
-                                dangerouslySetInnerHTML={{ __html: news.cleanContent }}
+                                dangerouslySetInnerHTML={{
+                                    __html: news.expanded
+                                        ? news.cleanContent
+                                        : news.cleanContent.slice(0, 200) + (news.cleanContent.length > 200 ? "..." : "")
+                                }}
                             />
+
                             {news.cleanContent.length > 200 && (
                                 <button
                                     className={styles.expandBtn}
@@ -205,9 +198,7 @@ export default function NewsPage({ initialNews }) {
                                 <FiShare2 />
                             </button>
 
-                            <span className={styles.views}>
-                                {news.views || 0} views
-                            </span>
+                            <span className={styles.views}>{news.views || 0} views</span>
                         </div>
 
                         {activeCommentId === news.id && (
@@ -216,21 +207,17 @@ export default function NewsPage({ initialNews }) {
                                     type="text"
                                     placeholder="Andika comment..."
                                     value={commentText}
-                                    onChange={(e) => setCommentText(e.target.value)}
-                                    onKeyDown={(e) => {
-                                        if (e.key === "Enter") handleComment(news.id);
-                                    }}
+                                    onChange={e => setCommentText(e.target.value)}
+                                    onKeyDown={e => e.key === "Enter" && handleComment(news.id)}
                                 />
-                                <button onClick={() => handleComment(news.id)}>
-                                    Send
-                                </button>
+                                <button onClick={() => handleComment(news.id)}>Send</button>
                             </div>
                         )}
 
                         {news.comments && news.comments.length > 0 && (
                             <div className={styles.commentsList}>
-                                {news.comments.map((c, idx) => (
-                                    <div key={idx} className={styles.commentItem}>
+                                {news.comments.map((c, i) => (
+                                    <div key={i} className={styles.commentItem}>
                                         <strong>{c.author}:</strong> {c.text}
                                     </div>
                                 ))}
@@ -245,12 +232,14 @@ export default function NewsPage({ initialNews }) {
     );
 }
 
+// SERVER SIDE
 export async function getServerSideProps() {
-    const snapshot = await getDocs(collection(db, "news"));
-    const newsData = snapshot.docs.map(doc => ({
+    const snap = await getDocs(collection(db, "news"));
+
+    const newsData = snap.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
-        expanded: false
+        comments: []
     }));
 
     return { props: { initialNews: newsData } };

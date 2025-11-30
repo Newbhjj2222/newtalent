@@ -69,7 +69,7 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
   const domain = "https://www.newtalentsg.co.rw"; // ✅ Domain yawe
 
   // --- Ureba user na views ---
-  u// --- Ureba user na views ---
+  // --- Ureba user na views ---
 useEffect(() => {
   if (typeof window !== "undefined" && postData?.id) {
 

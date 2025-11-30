@@ -68,8 +68,7 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
   const [views, setViews] = useState(postData?.views || 0);
   const domain = "https://www.newtalentsg.co.rw"; // ✅ Domain yawe
 
-  // --- Ureba user na views ---
-  // --- Ureba user na views ---
+// --- Ureba user na views ---
 useEffect(() => {
   if (typeof window !== "undefined" && postData?.id) {
 
@@ -155,9 +154,13 @@ useEffect(() => {
           console.error("NES update failed:", err);
         }
       };
+
       handleNES();
-    }
-  }, [postData, router]);
+    };
+
+    checkUser();
+  }
+}, [postData, router]);
 
   // --- Comments ---
   const handleCommentSubmit = async () => {

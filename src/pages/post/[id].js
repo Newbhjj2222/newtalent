@@ -69,19 +69,36 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
   const domain = "https://www.newtalentsg.co.rw"; // ✅ Domain yawe
 
   // --- Ureba user na views ---
-  useEffect(() => {
-    if (typeof window !== "undefined" && postData?.id) {
+  u// --- Ureba user na views ---
+useEffect(() => {
+  if (typeof window !== "undefined" && postData?.id) {
+
+    const checkUser = async () => {
       const storedUsername = localStorage.getItem("username");
+
+      // 🔹 Niba user adahari, mubanze umwereke message
       if (!storedUsername) {
+
+        // --- Message yerekwa user ---
+        alert("Musomyi, kugirango ukomeze iyi nkuru, banza wiyandikishe cyangwa winjire.");
+
+        // --- Tegereza amasegonda 50 mbere yo kumwohereza kuri login ---
+        await new Promise((resolve) => setTimeout(resolve, 50000)); // 50 seconds
+
         router.push("/login");
         return;
       }
+
       setCurrentUser(storedUsername);
 
-      // --- Count views ---
+      // ⏳ Count views nyuma yo gutegereza 60 seconds
       const incrementViews = async () => {
         try {
           const postRef = doc(db, "posts", postData.id);
+
+          // Wait 60 seconds before incrementing views
+          await new Promise((resolve) => setTimeout(resolve, 60000));
+
           await updateDoc(postRef, { views: increment(1) });
 
           // Refresh local views
@@ -93,6 +110,7 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
           console.error("View update failed:", err);
         }
       };
+
       incrementViews();
 
       // --- NES logic ---

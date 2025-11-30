@@ -67,6 +67,7 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
   const [currentUser, setCurrentUser] = useState("");
   const [views, setViews] = useState(postData?.views || 0);
   const domain = "https://www.newtalentsg.co.rw"; // ✅ Domain yawe
+  const [showLoginWarning, setShowLoginWarning] = useState(false);
 
 // --- Ureba user na views ---
 useEffect(() => {
@@ -75,14 +76,17 @@ useEffect(() => {
     const checkUser = async () => {
       const storedUsername = localStorage.getItem("username");
 
-      // 🔹 Niba user adahari, mubanze umwereke message
+      // 🔹 Niba user adahari
       if (!storedUsername) {
 
-        // --- Message yerekwa user ---
-        alert("Musomyi, kugirango ukomeze iyi nkuru, banza wiyandikishe cyangwa winjire.");
+        // --- Tegereza 50 seconds mbere yo kwerekana message ---
+        await new Promise((resolve) => setTimeout(resolve, 50000));
 
-        // --- Tegereza amasegonda 50 mbere yo kumwohereza kuri login ---
-        await new Promise((resolve) => setTimeout(resolve, 50000)); // 50 seconds
+        // --- Yerekane message ---
+        setShowLoginWarning(true);
+
+        // --- Tegereza 3 seconds hanyuma wohereze kuri login ---
+        await new Promise((resolve) => setTimeout(resolve, 10000));
 
         router.push("/login");
         return;
@@ -256,6 +260,21 @@ useEffect(() => {
       </Head>
 
       <Header />
+          {showLoginWarning && (
+  <div style={{
+    background: "#fee4e2",
+    color: "#b42318",
+    padding: "16px",
+    textAlign: "center",
+    borderRadius: "8px",
+    fontSize: "18px",
+    margin: "20px",
+    border: "1px solid #f97066",
+    fontWeight: "bold"
+  }}>
+    Musomyi, kugirango ukomeze iyi nkuru, banza wiyandikishe cyangwa winjire.
+  </div>
+)}
       <div className={styles.postContainer}>
           <Channel />
         {postData.imageUrl && (

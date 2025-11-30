@@ -262,15 +262,22 @@ useEffect(() => {
       <Header />
           {showLoginWarning && (
   <div style={{
+    position: "fixed",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
     background: "#fee4e2",
     color: "#b42318",
-    padding: "16px",
+    padding: "20px",
+    borderRadius: "10px",
+    fontSize: "20px",
+    fontWeight: "bold",
+    border: "2px solid #f97066",
+    zIndex: 9999,
+    width: "90%",
+    maxWidth: "400px",
     textAlign: "center",
-    borderRadius: "8px",
-    fontSize: "18px",
-    margin: "20px",
-    border: "1px solid #f97066",
-    fontWeight: "bold"
+    boxShadow: "0 4px 20px rgba(0,0,0,0.2)"
   }}>
     Musomyi, kugirango ukomeze iyi nkuru, banza wiyandikishe cyangwa winjire.
   </div>

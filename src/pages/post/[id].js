@@ -241,23 +241,68 @@ useEffect(() => {
   return (
     <>
       <Head>
-        <title>{postData.head}</title>
-        <meta property="og:title" content={postData.head} />
-        <meta
-          property="og:description"
-          content={postData.story.replace(/<[^>]+>/g, "").slice(0, 800)}
-        />
-        <meta property="og:image" content={`${domain}${postData.imageUrl}`} />
-        <meta property="og:url" content={`${domain}/post/${postData.id}`} />
-        <meta property="og:type" content="article" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={postData.head} />
-        <meta
-          name="twitter:description"
-          content={postData.story.replace(/<[^>]+>/g, "").slice(0, 800)}
-        />
-        <meta name="twitter:image" content={`${domain}${postData.imageUrl}`} />
-      </Head>
+  <title>{postData.head} - New Talents Stories Group</title>
+
+  <meta
+    name="description"
+    content={postData.story.replace(/<[^>]+>/g, "").slice(0, 160)}
+  />
+  <meta
+    name="keywords"
+    content={`${postData.head}, inkuru nyarwanda, inkuru ndende, stories Rwanda, newtalentsg`}
+  />
+  <meta name="author" content={postData.author || "New Talents Stories"} />
+
+  <link rel="canonical" href={`${domain}/post/${postData.id}`} />
+
+  {/* OPEN GRAPH */}
+  <meta property="og:title" content={postData.head} />
+  <meta
+    property="og:description"
+    content={postData.story.replace(/<[^>]+>/g, "").slice(0, 200)}
+  />
+  <meta property="og:image" content={`${domain}${postData.imageUrl}`} />
+  <meta property="og:url" content={`${domain}/post/${postData.id}`} />
+  <meta property="og:type" content="article" />
+
+  {/* TWITTER */}
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={postData.head} />
+  <meta
+    name="twitter:description"
+    content={postData.story.replace(/<[^>]+>/g, "").slice(0, 200)}
+  />
+  <meta name="twitter:image" content={`${domain}${postData.imageUrl}`} />
+
+  {/* STRUCTURED DATA JSON-LD */}
+  <script
+    type="application/ld+json"
+    dangerouslySetInnerHTML={{
+      __html: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Article",
+        headline: postData.head,
+        image: [`${domain}${postData.imageUrl}`],
+        datePublished: postData.createdAt || "",
+        dateModified: postData.updatedAt || postData.createdAt || "",
+        author: {
+          "@type": "Person",
+          name: postData.author || "New Talents Stories",
+        },
+        publisher: {
+          "@type": "Organization",
+          name: "New Talents Stories Group",
+          logo: {
+            "@type": "ImageObject",
+            url: `${domain}/logo.png`,
+          },
+        },
+        description: postData.story.replace(/<[^>]+>/g, "").slice(0, 200),
+        articleBody: postData.story.replace(/<[^>]+>/g, ""),
+      }),
+    }}
+  />
+</Head>
 
       <Header />
           {showLoginWarning && (

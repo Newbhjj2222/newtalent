@@ -1,21 +1,23 @@
-// pages/_document.js
 import { Html, Head, Main, NextScript } from "next/document";
-import Script from "next/script";
 
 export default function Document() {
   return (
-    <Html lang="rw"> 
+    <Html lang="rw">
       <Head>
-        {/* Favicon / Logo */}
+        {/* Favicon */}
         <link rel="icon" href="/logo.png" />
 
-        
+        {/* 🟢 Ads Loaders (Placed in head but executed afterInteractive) */}
+      </Head>
 
+      <body>
+        <Main />
+        <NextScript />
+
+        {/* Ads scripts BELOW body to keep SEO clean */}
         
-        {/* 🟢 PropellerAds - Banner / Push (Zone ID: 9915615) */}
-        <Script
-          id="zone-9915615"
-          strategy="afterInteractive"
+        {/* PropellerAds */}
+        <script
           dangerouslySetInnerHTML={{
             __html: `
               (function(s){
@@ -26,10 +28,8 @@ export default function Document() {
           }}
         />
 
-        {/* 🟣 Epic Tag - Push Notifications (Zone ID: 9915614) */}
-        <Script
-          id="zone-9915614"
-          strategy="afterInteractive"
+        {/* Epic Tag */}
+        <script
           dangerouslySetInnerHTML={{
             __html: `
               (function(s){
@@ -40,10 +40,8 @@ export default function Document() {
           }}
         />
 
-        {/* 🔵 Gizokraijaw - Push Ads (Zone ID: 9915679) */}
-        <Script
-          id="zone-9915679"
-          strategy="afterInteractive"
+        {/* Gizokraijaw */}
+        <script
           dangerouslySetInnerHTML={{
             __html: `
               (function(s){
@@ -54,18 +52,12 @@ export default function Document() {
           }}
         />
 
-        {/* 🟠 Shoukigaigoors - Push Ads (Zone ID: 9915722) */}
-        <Script
+        {/* Shoukigaigoors */}
+        <script
           src="https://shoukigaigoors.net/act/files/tag.min.js?z=9915722"
-          strategy="afterInteractive"
           async
           data-cfasync="false"
-        />
-      </Head>
-
-      <body>
-        <Main />
-        <NextScript />
+        ></script>
       </body>
     </Html>
   );

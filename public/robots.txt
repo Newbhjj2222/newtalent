@@ -1,3 +1,3 @@
-Sitemap: https://newtalentsg.co.rw/api/sitemap
+Sitemap: https://www.newtalentsg.co.rw/api/sitemap
 User-agent: *
 Allow: /

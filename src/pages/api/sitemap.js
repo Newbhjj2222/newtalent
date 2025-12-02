@@ -3,7 +3,7 @@ import { collection, getDocs } from "firebase/firestore";
 
 export default async function handler(req, res) {
   try {
-    const domain = "https://newtalentsg.co.rw";
+    const domain = "https://www.newtalentsg.co.rw";
 
     let staticPages = `
       <url>

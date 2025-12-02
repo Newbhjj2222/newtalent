@@ -4,7 +4,7 @@ import Script from "next/script";
 
 export default function Document() {
   return (
-    <Html lang="en">
+    <Html lang="rw"> 
       <Head>
         {/* Favicon / Logo */}
         <link rel="icon" href="/logo.png" />

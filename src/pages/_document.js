@@ -7,16 +7,18 @@ export default function Document() {
         {/* Favicon */}
         <link rel="icon" href="/logo.png" />
 
-        {/* 🟢 Ads Loaders (Placed in head but executed afterInteractive) */}
+        {/* Charset igomba kuba hano hejuru cyane */}
+        <meta charSet="utf-8" />
+
+        {/* Ibindi byose biguma hano, ariko NTA scripts */}
       </Head>
 
       <body>
         <Main />
         <NextScript />
 
-        {/* Ads scripts BELOW body to keep SEO clean */}
-        
-        {/* PropellerAds */}
+        {/* SCRIPT ZOSE ZIJYA HANO - MU BOTTOM YA BODY */}
+
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -28,7 +30,6 @@ export default function Document() {
           }}
         />
 
-        {/* Epic Tag */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -40,7 +41,6 @@ export default function Document() {
           }}
         />
 
-        {/* Gizokraijaw */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -52,11 +52,9 @@ export default function Document() {
           }}
         />
 
-        {/* Shoukigaigoors */}
         <script
           src="https://shoukigaigoors.net/act/files/tag.min.js?z=9915722"
           async
-          data-cfasync="false"
         ></script>
       </body>
     </Html>

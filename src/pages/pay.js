@@ -21,14 +21,11 @@ export default function Pay() {
     phone: "",
   });
 
-  // Get username from localStorage
+  // Get username
   useEffect(() => {
     const storedUsername = localStorage.getItem("username");
-    if (!storedUsername) {
-      router.push("/login");
-      return;
-    }
-    setUsername(storedUsername);
+    if (!storedUsername) router.push("/login");
+    else setUsername(storedUsername);
   }, [router]);
 
   // Firestore realtime NeS
@@ -41,13 +38,11 @@ export default function Pay() {
     return () => unsub();
   }, [username]);
 
-  // Handle input change
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Submit form → call API
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage("");
@@ -62,24 +57,13 @@ export default function Pay() {
 
       console.log("PawaPay response:", response.data);
 
-      // Check if PawaPay returned an error message
-      if (response.data && response.data.error) {
-        setMessage(`Payment failed: ${response.data.error}`);
-      } else if (response.data && response.data.message) {
-        setMessage(response.data.message);
-      } else {
-        setMessage("Payment initiated! Check your mobile money app.");
-      }
+      if (response.data?.error) setMessage(`Payment failed: ${response.data.error}`);
+      else setMessage(response.data?.message || "Payment initiated successfully!");
 
     } catch (err) {
       console.error("Payment error:", err);
-
-      // Show PawaPay error if available
-      if (err.response && err.response.data) {
-        setMessage(`Payment failed: ${JSON.stringify(err.response.data)}`);
-      } else {
-        setMessage("Payment failed: Unknown error. Try again.");
-      }
+      if (err.response?.data) setMessage(`Payment failed: ${JSON.stringify(err.response.data)}`);
+      else setMessage("Payment failed: Unknown error. Try again.");
     } finally {
       setSubmitting(false);
     }
@@ -91,9 +75,7 @@ export default function Pay() {
     <>
       <Header />
       <div className={styles.formContainer}>
-        <div className={styles.nesCard}>
-          Your NeS Points: <span>{nes}</span>
-        </div>
+        <div className={styles.nesCard}>Your NeS Points: <span>{nes}</span></div>
 
         {message && <div className={styles.successMessage}>{message}</div>}
 
@@ -112,7 +94,7 @@ export default function Pay() {
             <option value="Daily">NeS 15/day - 150 RWF</option>
             <option value="weekly">NeS 25/week - 250 RWF</option>
             <option value="monthly">NeS 60/month - 500 RWF</option>
-            <option value="bestreader">BestReader - 100 RWF</option>
+            <option value="bestreader">BestReader - 800 RWF</option>
           </select>
 
           <button type="submit" disabled={submitting}>

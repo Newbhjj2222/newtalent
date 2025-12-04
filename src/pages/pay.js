@@ -1,99 +1,109 @@
-import { useState } from "react";
+"use client";
 
-export default function PayPage() {
-  const [phone, setPhone] = useState("");
-  const [amount, setAmount] = useState("");
-  const [telco, setTelco] = useState("MTN");
-  const [loading, setLoading] = useState(false);
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import axios from "axios";
+import { db } from "../components/firebase";
+import { doc, onSnapshot } from "firebase/firestore";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+import styles from "../components/Balance.module.css";
+
+export default function Pay() {
+  const router = useRouter();
+  const [username, setUsername] = useState(null);
+  const [nes, setNes] = useState(0);
   const [message, setMessage] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage("");
+  const [formData, setFormData] = useState({
+    plan: "",
+    phone: "",
+  });
 
-    try {
-      const res = await fetch("/api/pay", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          phone: phone.trim(),
-          amount: Number(amount),
-          telco,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setMessage("Error: " + (data.error || "Payment failed"));
-      } else {
-        setMessage("Payment request sent! Reba kuri phone yawe wemere USSD.");
-      }
-    } catch (error) {
-      setMessage("Network error: " + error.message);
+  // Get username from localStorage
+  useEffect(() => {
+    const storedUsername = localStorage.getItem("username");
+    if (!storedUsername) {
+      router.push("/login");
+      return;
     }
+    setUsername(storedUsername);
+  }, [router]);
 
-    setLoading(false);
+  // Firestore realtime NeS
+  useEffect(() => {
+    if (!username) return;
+    const unsub = onSnapshot(doc(db, "depositers", username), (docSnap) => {
+      if (docSnap.exists()) setNes(docSnap.data().nes || 0);
+      else setNes(0);
+    });
+    return () => unsub();
+  }, [username]);
+
+  // Handle input change
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Submit form → call API
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setMessage("");
+    setSubmitting(true);
+
+    try {
+      const response = await axios.post("/api/pawapay-deposit", {
+        username,
+        plan: formData.plan,
+        phone: formData.phone,
+      });
+
+      console.log("PawaPay response:", response.data);
+      setMessage("Payment initiated! Check your mobile money app.");
+    } catch (err) {
+      console.error(err);
+      setMessage("Payment failed. Try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (!username) return <div>Injira mbere yo gukomeza.</div>;
+
   return (
-    <div style={{ maxWidth: 420, margin: "50px auto", padding: 20, fontFamily: "sans-serif" }}>
-      <h2 style={{ textAlign: "center" }}>PowerPay Payment</h2>
+    <>
+      <Header />
+      <div className={styles.formContainer}>
+        <div className={styles.nesCard}>Your NeS Points: <span>{nes}</span></div>
 
-      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 15 }}>
-        
-        <label>Phone Number</label>
-        <input
-          type="text"
-          placeholder="078xxxxxxx"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          required
-          style={{ padding: 10, borderRadius: 8, border: "1px solid #ccc" }}
-        />
+        {message && <div className={styles.successMessage}>{message}</div>}
 
-        <label>Amount</label>
-        <input
-          type="number"
-          placeholder="Enter amount"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          required
-          style={{ padding: 10, borderRadius: 8, border: "1px solid #ccc" }}
-        />
+        <form onSubmit={handleSubmit} className={styles.balanceForm}>
+          <input
+            type="tel"
+            name="phone"
+            placeholder="Phone number (Rwanda)"
+            value={formData.phone}
+            onChange={handleChange}
+            required
+          />
+          <select name="plan" value={formData.plan} onChange={handleChange} required>
+            <option value="">--Select Plan--</option>
+            <option value="onestory">NeS 1 - 10 RWF</option>
+            <option value="Daily">NeS 15/day - 150 RWF</option>
+            <option value="weekly">NeS 25/week - 250 RWF</option>
+            <option value="monthly">NeS 60/month - 500 RWF</option>
+            <option value="bestreader">BestReader - 100 RWF</option>
+          </select>
 
-        <label>Select Telco</label>
-        <select
-          value={telco}
-          onChange={(e) => setTelco(e.target.value)}
-          style={{ padding: 10, borderRadius: 8, border: "1px solid #ccc" }}
-        >
-          <option value="MTN">MTN</option>
-          <option value="AIRTEL">AIRTEL</option>
-        </select>
-
-        <button
-          type="submit"
-          disabled={loading}
-          style={{
-            padding: 12,
-            background: "#000",
-            color: "#fff",
-            border: "none",
-            borderRadius: 8,
-            cursor: "pointer",
-          }}
-        >
-          {loading ? "Processing..." : "Pay Now"}
-        </button>
-      </form>
-
-      {message && (
-        <p style={{ marginTop: 20, color: "#333", fontWeight: "bold", textAlign: "center" }}>
-          {message}
-        </p>
-      )}
-    </div>
+          <button type="submit" disabled={submitting}>
+            {submitting ? "Processing..." : "Pay with PawaPay"}
+          </button>
+        </form>
+      </div>
+      <Footer />
+    </>
   );
 }

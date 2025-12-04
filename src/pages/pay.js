@@ -19,17 +19,15 @@ export default function Pay() {
   const [formData, setFormData] = useState({
     plan: "",
     phone: "",
-    provider: "MTN_MOBILE_MONEY", // default
+    provider: "MTN_MOBILE_MONEY",
   });
 
-  // Get username
   useEffect(() => {
     const storedUsername = localStorage.getItem("username");
     if (!storedUsername) router.push("/login");
     else setUsername(storedUsername);
   }, [router]);
 
-  // Firestore realtime NeS
   useEffect(() => {
     if (!username) return;
     const unsub = onSnapshot(doc(db, "depositers", username), (docSnap) => {
@@ -58,12 +56,25 @@ export default function Pay() {
     try {
       const response = await axios.post("/api/pawapay-deposit", formData);
 
-      if (response.data?.error) setMessage(`Payment failed: ${response.data.error}`);
-      else setMessage("Payment initiated! Check your mobile money app.");
-
+      if (response.data?.error) {
+        const errMsg = typeof response.data.error === 'object' 
+          ? JSON.stringify(response.data.error) 
+          : response.data.error;
+        setMessage(`Payment failed: ${errMsg}`);
+      } else {
+        setMessage("Payment initiated! Check your mobile money app.");
+      }
     } catch (err) {
-      console.error("Payment error:", err);
-      setMessage("Payment failed: " + (err.response?.data?.error || err.message));
+      console.error("Payment error:", err.response?.data || err.message);
+      let userMessage = "Payment failed";
+      if(err.response?.data){
+        userMessage = typeof err.response.data === 'object'
+          ? err.response.data.message || JSON.stringify(err.response.data)
+          : err.response.data;
+      } else {
+        userMessage = err.message;
+      }
+      setMessage(`Payment failed: ${userMessage}`);
     } finally {
       setSubmitting(false);
     }
@@ -83,7 +94,7 @@ export default function Pay() {
           <input
             type="tel"
             name="phone"
-            placeholder="Phone number (Rwanda)"
+            placeholder="Phone number"
             value={formData.phone}
             onChange={handleChange}
             required

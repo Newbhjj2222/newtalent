@@ -8,11 +8,12 @@ export default async function handler(req, res) {
 
   const { username, plan, phone } = req.body;
 
-  // Validation
+  // Validate phone
   if (!phone || !phone.match(/^07\d{8}$/)) {
     return res.status(400).json({ error: "Invalid Rwandan phone number" });
   }
 
+  // Map plan → amount
   let amount = 0;
   switch (plan) {
     case "onestory": amount = 10; break;
@@ -24,20 +25,20 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Invalid plan selected" });
   }
 
-  // External reference for tracking
   const external_reference = `${username}__${plan}__${amount}`;
 
-  // PawaPay live API token
+  // Live PawaPay API token
   const PAWAPAY_TOKEN = "eyJraWQiOiIxIiwiYWxnIjoiRVMyNTYifQ.eyJ0dCI6IkFBVCIsInN1YiI6IjIwMTgiLCJtYXYiOiIxIiwiZXhwIjoyMDgwMzgxOTU2LCJpYXQiOjE3NjQ4NDkxNTYsInBtIjoiREFGLFBBRiIsImp0aSI6ImI0YWM3MzQ4LWYyNDEtNDVjNy04MmQ1LTI0ZTgwZjVlZmJhNSJ9.8qxWc0Aph9QhrhKcfPXvaFe5l_RzSPjOWsCGFr6W88QpMmcyWwqm7W7M83-UCE4OrM8UQZOncdnx-t1MACbObA";
 
   try {
-    console.log("Sending request to PawaPay:", { amount, phone, external_reference });
+    console.log("Sending request to PawaPay:", { amount, phone, external_reference, type: "MOBILE_MONEY" });
 
     const response = await axios.post(
       "https://api.pawapay.io/v2/deposits",
       {
         amount,
         payer: { msisdn: phone },
+        type: "MOBILE_MONEY",   // <--- Required parameter added
         external_reference,
       },
       {
@@ -50,12 +51,10 @@ export default async function handler(req, res) {
 
     console.log("PawaPay response:", response.data);
 
-    // Check if PawaPay returned an error
     if (response.data?.error) {
       return res.status(400).json({ error: response.data.error });
     }
 
-    // Return success message
     res.status(200).json({ message: "Payment initiated successfully!", data: response.data });
 
   } catch (err) {

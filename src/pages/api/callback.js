@@ -1,22 +1,17 @@
 // /pages/api/callback.js
 
 import { db } from "../../components/firebase";
-import { doc, setDoc, getDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
-export const config = {
-  api: {
-    bodyParser: false, // tumaze kuvugurura raw body
-  },
-};
+export const config = { api: { bodyParser: false } };
 
 export default async function handler(req, res) {
-  // TWEMERE POST GUSA
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
   try {
-    // Soma raw body kuko PowerPay ishobora kutohereza JSON
+    // Soma raw body
     let body = "";
     await new Promise((resolve, reject) => {
       req.on("data", (chunk) => (body += chunk));
@@ -31,9 +26,11 @@ export default async function handler(req, res) {
       body = { raw: body };
     }
 
-    console.log("CALLBACK BODY:", body);
+    console.log("PAWAPAY CALLBACK BODY:", body);
 
-    // Sample processing (automatic NeS add)
+    // -----------------------------
+    // Automatic NeS add muri Firestore
+    // -----------------------------
     if (body.status === "SUCCESS" && body.external_reference) {
       const [username, plan, amount] = body.external_reference.split("__");
 
@@ -57,11 +54,11 @@ export default async function handler(req, res) {
       }
     }
 
-    // Always 200 to PowerPay
-    res.status(200).json({ success: true });
+    // Always return 200 OK to PawaPay
+    return res.status(200).json({ success: true });
 
   } catch (err) {
-    console.error("Callback error:", err);
-    res.status(500).json({ error: "Server callback error" });
+    console.error("Callback processing error:", err);
+    return res.status(500).json({ error: "Server callback error" });
   }
 }

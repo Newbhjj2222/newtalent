@@ -1,61 +1,53 @@
 // pages/pay.js
-
+"use client";
 import { useState } from "react";
 
 export default function Pay() {
-  const [phone, setPhone] = useState("");
   const [amount, setAmount] = useState("");
-  const [provider, setProvider] = useState("");
-  const [result, setResult] = useState(null);
+  const [phone, setPhone] = useState("");
 
-  const submitPayment = async (e) => {
-    e.preventDefault();
+  const handlePay = async () => {
+    const username = localStorage.getItem("username") || "UNKNOWN_USER";
 
-    const res = await fetch("/api/pawapay/deposit", {
+    const res = await fetch("/api/pawapay-pay", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ phone, amount, provider })
+      body: JSON.stringify({
+        amount,
+        msisdn: phone,
+        userId: username,   // HERE
+      }),
     });
 
     const data = await res.json();
-    setResult(data);
+    console.log(data);
+
+    if (data?.redirectUrl) {
+      window.location.href = data.redirectUrl; // send user to payment page
+    } else {
+      alert("Payment failed: " + data.message);
+    }
   };
 
   return (
-    <div style={{ maxWidth:"400px", margin:"50px auto" }}>
-      <h2>PawaPay Payment</h2>
+    <div style={{ padding: 20 }}>
+      <h2>Make Payment</h2>
 
-      <form onSubmit={submitPayment}>
-        <input
-          type="text"
-          placeholder="Phone number (FULL MSISDN)"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-        /><br/><br/>
+      <input
+        type="text"
+        placeholder="Amount"
+        value={amount}
+        onChange={(e) => setAmount(e.target.value)}
+      />
 
-        <input
-          type="number"
-          placeholder="Amount"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-        /><br/><br/>
+      <input
+        type="text"
+        placeholder="Phone number"
+        value={phone}
+        onChange={(e) => setPhone(e.target.value)}
+      />
 
-        <select value={provider} onChange={(e) => setProvider(e.target.value)}>
-          <option value="">Select provider</option>
-          <option value="MTN_MOMO_RWA">MTN Rwanda</option>
-          <option value="AIRTEL_RWA">Airtel Rwanda</option>
-          <option value="VODACOM_MOZ">Vodacom Mozambique</option>
-          <option value="MTN_MOMO_ZMB">MTN Zambia</option>
-          <option value="AIRTEL_OAPI_ZMB">Airtel Zambia</option>
-          <option value="ZAMTEL_ZMB">Zamtel Zambia</option>
-        </select>
-
-        <br/><br/>
-
-        <button>Pay Now</button>
-      </form>
-
-      <pre>{result && JSON.stringify(result, null, 2)}</pre>
+      <button onClick={handlePay}>Pay Now</button>
     </div>
   );
 }

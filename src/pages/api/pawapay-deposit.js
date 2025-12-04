@@ -1,13 +1,10 @@
 import axios from "axios";
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
+  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
   const { username, plan, phone } = req.body;
 
-  // Define amount based on plan
   let amount = 0;
   switch (plan) {
     case "onestory": amount = 10; break;
@@ -15,7 +12,6 @@ export default async function handler(req, res) {
     case "weekly": amount = 250; break;
     case "monthly": amount = 500; break;
     case "bestreader": amount = 800; break;
-    default: amount = 0;
   }
 
   try {
@@ -25,7 +21,6 @@ export default async function handler(req, res) {
         amount,
         payer: { msisdn: phone },
         external_reference: `${username}__${plan}__${amount}`,
-        // correspondent optional depending on PawaPay account setup
       },
       {
         headers: {

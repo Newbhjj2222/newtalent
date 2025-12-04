@@ -61,10 +61,25 @@ export default function Pay() {
       });
 
       console.log("PawaPay response:", response.data);
-      setMessage("Payment initiated! Check your mobile money app.");
+
+      // Check if PawaPay returned an error message
+      if (response.data && response.data.error) {
+        setMessage(`Payment failed: ${response.data.error}`);
+      } else if (response.data && response.data.message) {
+        setMessage(response.data.message);
+      } else {
+        setMessage("Payment initiated! Check your mobile money app.");
+      }
+
     } catch (err) {
-      console.error(err);
-      setMessage("Payment failed. Try again.");
+      console.error("Payment error:", err);
+
+      // Show PawaPay error if available
+      if (err.response && err.response.data) {
+        setMessage(`Payment failed: ${JSON.stringify(err.response.data)}`);
+      } else {
+        setMessage("Payment failed: Unknown error. Try again.");
+      }
     } finally {
       setSubmitting(false);
     }
@@ -76,7 +91,9 @@ export default function Pay() {
     <>
       <Header />
       <div className={styles.formContainer}>
-        <div className={styles.nesCard}>Your NeS Points: <span>{nes}</span></div>
+        <div className={styles.nesCard}>
+          Your NeS Points: <span>{nes}</span>
+        </div>
 
         {message && <div className={styles.successMessage}>{message}</div>}
 

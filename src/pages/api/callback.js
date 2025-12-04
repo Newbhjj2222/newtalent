@@ -1,5 +1,3 @@
-// /pages/api/callback.js
-
 import { db } from "../../components/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 
@@ -11,7 +9,6 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Soma raw body
     let body = "";
     await new Promise((resolve, reject) => {
       req.on("data", (chunk) => (body += chunk));
@@ -19,18 +16,10 @@ export default async function handler(req, res) {
       req.on("error", reject);
     });
 
-    // Gerageza parse JSON
-    try {
-      body = JSON.parse(body);
-    } catch {
-      body = { raw: body };
-    }
+    try { body = JSON.parse(body); } catch { body = { raw: body }; }
 
-    console.log("PAWAPAY CALLBACK BODY:", body);
+    console.log("PawaPay CALLBACK BODY:", body);
 
-    // -----------------------------
-    // Automatic NeS add muri Firestore
-    // -----------------------------
     if (body.status === "SUCCESS" && body.external_reference) {
       const [username, plan, amount] = body.external_reference.split("__");
 
@@ -54,11 +43,9 @@ export default async function handler(req, res) {
       }
     }
 
-    // Always return 200 OK to PawaPay
     return res.status(200).json({ success: true });
-
   } catch (err) {
-    console.error("Callback processing error:", err);
+    console.error("Callback error:", err);
     return res.status(500).json({ error: "Server callback error" });
   }
 }

@@ -1,139 +1,61 @@
-"use client";
+// pages/pay.js
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import axios from "axios";
-import { db } from "../components/firebase";
-import { doc, onSnapshot } from "firebase/firestore";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
-import styles from "../components/Balance.module.css";
+import { useState } from "react";
 
 export default function Pay() {
-  const router = useRouter();
-  const [username, setUsername] = useState(null);
-  const [nes, setNes] = useState(0);
-  const [message, setMessage] = useState("");
-  const [submitting, setSubmitting] = useState(false);
+  const [phone, setPhone] = useState("");
+  const [amount, setAmount] = useState("");
+  const [provider, setProvider] = useState("");
+  const [result, setResult] = useState(null);
 
-  const [formData, setFormData] = useState({
-    plan: "",
-    phone: "",
-    provider: "",
-  });
-
-  // Supported providers
-  const providers = [
-    { value: "VODACOM_MOZ", label: "Vodacom Mozambique", currency: "MZN", decimals: 2 },
-    { value: "MTN_MOMO_NGA", label: "MTN Nigeria", currency: "NGN", decimals: 2 },
-    { value: "MTN_MOMO_COG", label: "MTN Congo", currency: "XAF", decimals: 0 },
-    { value: "MTN_MOMO_RWA", label: "MTN Rwanda", currency: "RWF", decimals: 0 },
-    { value: "AIRTEL_TZA", label: "Airtel Tanzania", currency: "TZS", decimals: 2 },
-    { value: "AIRTEL_OAPI_ZMB", label: "Airtel Zambia", currency: "ZMW", decimals: 2 },
-    { value: "MTN_MOMO_ZMB", label: "MTN Zambia", currency: "ZMW", decimals: 2 },
-    { value: "ZAMTEL_ZMB", label: "Zamtel Zambia", currency: "ZMW", decimals: 2 },
-  ];
-
-  useEffect(() => {
-    const storedUsername = localStorage.getItem("username");
-    if (!storedUsername) router.push("/login");
-    else setUsername(storedUsername);
-  }, [router]);
-
-  useEffect(() => {
-    if (!username) return;
-    const unsub = onSnapshot(doc(db, "depositers", username), (docSnap) => {
-      if (docSnap.exists()) setNes(docSnap.data().nes || 0);
-      else setNes(0);
-    });
-    return () => unsub();
-  }, [username]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = async (e) => {
+  const submitPayment = async (e) => {
     e.preventDefault();
-    setMessage("");
-    setSubmitting(true);
 
-    if (!formData.provider) {
-      setMessage("Hitamo Mobile Money provider");
-      setSubmitting(false);
-      return;
-    }
+    const res = await fetch("/api/pawapay/deposit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone, amount, provider })
+    });
 
-    try {
-      const response = await axios.post("/api/pawapay-deposit", formData);
-
-      if (response.data?.error) {
-        const errMsg = typeof response.data.error === 'object' 
-          ? JSON.stringify(response.data.error) 
-          : response.data.error;
-        setMessage(`Payment failed: ${errMsg}`);
-      } else {
-        setMessage("Payment initiated! Check your mobile money app.");
-      }
-    } catch (err) {
-      console.error("Payment error:", err.response?.data || err.message);
-      let userMessage = "Payment failed";
-      if(err.response?.data){
-        userMessage = typeof err.response.data === 'object'
-          ? err.response.data.message || JSON.stringify(err.response.data)
-          : err.response.data;
-      } else {
-        userMessage = err.message;
-      }
-      setMessage(`Payment failed: ${userMessage}`);
-    } finally {
-      setSubmitting(false);
-    }
+    const data = await res.json();
+    setResult(data);
   };
-
-  if (!username) return <div>Injira mbere yo gukomeza.</div>;
 
   return (
-    <>
-      <Header />
-      <div className={styles.formContainer}>
-        <div className={styles.nesCard}>Your NeS Points: <span>{nes}</span></div>
+    <div style={{ maxWidth:"400px", margin:"50px auto" }}>
+      <h2>PawaPay Payment</h2>
 
-        {message && <div className={styles.successMessage}>{message}</div>}
+      <form onSubmit={submitPayment}>
+        <input
+          type="text"
+          placeholder="Phone number (FULL MSISDN)"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+        /><br/><br/>
 
-        <form onSubmit={handleSubmit} className={styles.balanceForm}>
-          <input
-            type="tel"
-            name="phone"
-            placeholder="Phone number"
-            value={formData.phone}
-            onChange={handleChange}
-            required
-          />
+        <input
+          type="number"
+          placeholder="Amount"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+        /><br/><br/>
 
-          <select name="plan" value={formData.plan} onChange={handleChange} required>
-            <option value="">--Select Plan--</option>
-            <option value="onestory">NeS 1 - 10 RWF</option>
-            <option value="Daily">NeS 15/day - 150 RWF</option>
-            <option value="weekly">NeS 25/week - 250 RWF</option>
-            <option value="monthly">NeS 60/month - 500 RWF</option>
-            <option value="bestreader">BestReader - 800 RWF</option>
-          </select>
+        <select value={provider} onChange={(e) => setProvider(e.target.value)}>
+          <option value="">Select provider</option>
+          <option value="MTN_MOMO_RWA">MTN Rwanda</option>
+          <option value="AIRTEL_RWA">Airtel Rwanda</option>
+          <option value="VODACOM_MOZ">Vodacom Mozambique</option>
+          <option value="MTN_MOMO_ZMB">MTN Zambia</option>
+          <option value="AIRTEL_OAPI_ZMB">Airtel Zambia</option>
+          <option value="ZAMTEL_ZMB">Zamtel Zambia</option>
+        </select>
 
-          <select name="provider" value={formData.provider} onChange={handleChange} required>
-            <option value="">--Select Mobile Money Provider--</option>
-            {providers.map(p => (
-              <option key={p.value} value={p.value}>{p.label}</option>
-            ))}
-          </select>
+        <br/><br/>
 
-          <button type="submit" disabled={submitting}>
-            {submitting ? "Processing..." : "Pay with PawaPay"}
-          </button>
-        </form>
-      </div>
-      <Footer />
-    </>
+        <button>Pay Now</button>
+      </form>
+
+      <pre>{result && JSON.stringify(result, null, 2)}</pre>
+    </div>
   );
 }

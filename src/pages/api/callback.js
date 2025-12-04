@@ -4,14 +4,12 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 export const config = { api: { bodyParser: false } };
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
+  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
   try {
     let body = "";
     await new Promise((resolve, reject) => {
-      req.on("data", (chunk) => (body += chunk));
+      req.on("data", chunk => (body += chunk));
       req.on("end", resolve);
       req.on("error", reject);
     });
@@ -21,7 +19,7 @@ export default async function handler(req, res) {
     console.log("PawaPay CALLBACK BODY:", body);
 
     if (body.status === "SUCCESS" && body.external_reference) {
-      const [username, plan, amount] = body.external_reference.split("__");
+      const [username, plan] = body.external_reference.split("__");
 
       let nesToAdd = 0;
       switch (plan) {

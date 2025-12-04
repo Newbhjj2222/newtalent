@@ -19,17 +19,15 @@ export default function Pay() {
   const [formData, setFormData] = useState({
     plan: "",
     phone: "",
-    paymentType: "MOBILE_MONEY", // default Mobile Money
+    provider: "MTN_MOBILE_MONEY",
   });
 
-  // Get username
   useEffect(() => {
     const storedUsername = localStorage.getItem("username");
     if (!storedUsername) router.push("/login");
     else setUsername(storedUsername);
   }, [router]);
 
-  // Firestore realtime NeS
   useEffect(() => {
     if (!username) return;
     const unsub = onSnapshot(doc(db, "depositers", username), (docSnap) => {
@@ -54,13 +52,11 @@ export default function Pay() {
         username,
         plan: formData.plan,
         phone: formData.phone,
-        type: formData.paymentType,
+        provider: formData.provider,
       });
 
-      console.log("PawaPay response:", response.data);
-
       if (response.data?.error) setMessage(`Payment failed: ${response.data.error}`);
-      else setMessage(response.data?.message || "Payment initiated successfully!");
+      else setMessage("Payment initiated successfully! Check your mobile money app.");
 
     } catch (err) {
       console.error("Payment error:", err);
@@ -90,6 +86,7 @@ export default function Pay() {
             onChange={handleChange}
             required
           />
+
           <select name="plan" value={formData.plan} onChange={handleChange} required>
             <option value="">--Select Plan--</option>
             <option value="onestory">NeS 1 - 10 RWF</option>
@@ -99,10 +96,9 @@ export default function Pay() {
             <option value="bestreader">BestReader - 800 RWF</option>
           </select>
 
-          <select name="paymentType" value={formData.paymentType} onChange={handleChange} required>
-            <option value="MOBILE_MONEY">Mobile Money</option>
-            <option value="MTN_MOBILE_MONEY">MTN Mobile Money</option>
-            <option value="AIRTEL_MONEY">Airtel Money</option>
+          <select name="provider" value={formData.provider} onChange={handleChange} required>
+            <option value="MTN_MOBILE_MONEY">MTN Mobile Money (Rwanda)</option>
+            <option value="AIRTEL_MONEY">Airtel Money (Rwanda)</option>
           </select>
 
           <button type="submit" disabled={submitting}>

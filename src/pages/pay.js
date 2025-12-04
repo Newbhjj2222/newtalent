@@ -19,8 +19,20 @@ export default function Pay() {
   const [formData, setFormData] = useState({
     plan: "",
     phone: "",
-    provider: "MTN_MOBILE_MONEY",
+    provider: "",
   });
+
+  // Supported providers
+  const providers = [
+    { value: "VODACOM_MOZ", label: "Vodacom Mozambique", currency: "MZN", decimals: 2 },
+    { value: "MTN_MOMO_NGA", label: "MTN Nigeria", currency: "NGN", decimals: 2 },
+    { value: "MTN_MOMO_COG", label: "MTN Congo", currency: "XAF", decimals: 0 },
+    { value: "MTN_MOMO_RWA", label: "MTN Rwanda", currency: "RWF", decimals: 0 },
+    { value: "AIRTEL_TZA", label: "Airtel Tanzania", currency: "TZS", decimals: 2 },
+    { value: "AIRTEL_OAPI_ZMB", label: "Airtel Zambia", currency: "ZMW", decimals: 2 },
+    { value: "MTN_MOMO_ZMB", label: "MTN Zambia", currency: "ZMW", decimals: 2 },
+    { value: "ZAMTEL_ZMB", label: "Zamtel Zambia", currency: "ZMW", decimals: 2 },
+  ];
 
   useEffect(() => {
     const storedUsername = localStorage.getItem("username");
@@ -111,14 +123,9 @@ export default function Pay() {
 
           <select name="provider" value={formData.provider} onChange={handleChange} required>
             <option value="">--Select Mobile Money Provider--</option>
-            <option value="MTN_MOBILE_MONEY">MTN Rwanda</option>
-            <option value="AIRTEL_MONEY">Airtel Rwanda</option>
-            <option value="MTN_MOMO_UG">MTN Uganda</option>
-            <option value="AIRTEL_MONEY_UG">Airtel Uganda</option>
-            <option value="MTN_MOMO_ZMB">MTN Zambia</option>
-            <option value="AIRTEL_MONEY_ZMB">Airtel Zambia</option>
-            <option value="M-PESA_KE">M-PESA Kenya</option>
-            <option value="AIRTEL_MONEY_KE">Airtel Kenya</option>
+            {providers.map(p => (
+              <option key={p.value} value={p.value}>{p.label}</option>
+            ))}
           </select>
 
           <button type="submit" disabled={submitting}>

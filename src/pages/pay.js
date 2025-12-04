@@ -19,15 +19,17 @@ export default function Pay() {
   const [formData, setFormData] = useState({
     plan: "",
     phone: "",
-    provider: "MTN_MOBILE_MONEY",
+    provider: "MTN_MOBILE_MONEY", // default
   });
 
+  // Get username
   useEffect(() => {
     const storedUsername = localStorage.getItem("username");
     if (!storedUsername) router.push("/login");
     else setUsername(storedUsername);
   }, [router]);
 
+  // Firestore realtime NeS
   useEffect(() => {
     if (!username) return;
     const unsub = onSnapshot(doc(db, "depositers", username), (docSnap) => {
@@ -39,7 +41,7 @@ export default function Pay() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -47,21 +49,21 @@ export default function Pay() {
     setMessage("");
     setSubmitting(true);
 
+    if (!formData.provider) {
+      setMessage("Hitamo Mobile Money provider");
+      setSubmitting(false);
+      return;
+    }
+
     try {
-      const response = await axios.post("/api/pawapay-deposit", {
-        username,
-        plan: formData.plan,
-        phone: formData.phone,
-        provider: formData.provider,
-      });
+      const response = await axios.post("/api/pawapay-deposit", formData);
 
       if (response.data?.error) setMessage(`Payment failed: ${response.data.error}`);
-      else setMessage("Payment initiated successfully! Check your mobile money app.");
+      else setMessage("Payment initiated! Check your mobile money app.");
 
     } catch (err) {
       console.error("Payment error:", err);
-      if (err.response?.data) setMessage(`Payment failed: ${JSON.stringify(err.response.data)}`);
-      else setMessage("Payment failed: Unknown error. Try again.");
+      setMessage("Payment failed: " + (err.response?.data?.error || err.message));
     } finally {
       setSubmitting(false);
     }
@@ -97,8 +99,15 @@ export default function Pay() {
           </select>
 
           <select name="provider" value={formData.provider} onChange={handleChange} required>
-            <option value="MTN_MOBILE_MONEY">MTN Mobile Money (Rwanda)</option>
-            <option value="AIRTEL_MONEY">Airtel Money (Rwanda)</option>
+            <option value="">--Select Mobile Money Provider--</option>
+            <option value="MTN_MOBILE_MONEY">MTN Rwanda</option>
+            <option value="AIRTEL_MONEY">Airtel Rwanda</option>
+            <option value="MTN_MOMO_UG">MTN Uganda</option>
+            <option value="AIRTEL_MONEY_UG">Airtel Uganda</option>
+            <option value="MTN_MOMO_ZMB">MTN Zambia</option>
+            <option value="AIRTEL_MONEY_ZMB">Airtel Zambia</option>
+            <option value="M-PESA_KE">M-PESA Kenya</option>
+            <option value="AIRTEL_MONEY_KE">Airtel Kenya</option>
           </select>
 
           <button type="submit" disabled={submitting}>

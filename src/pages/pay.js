@@ -19,6 +19,7 @@ export default function Pay() {
   const [formData, setFormData] = useState({
     plan: "",
     phone: "",
+    paymentType: "MOBILE_MONEY", // default Mobile Money
   });
 
   // Get username
@@ -53,6 +54,7 @@ export default function Pay() {
         username,
         plan: formData.plan,
         phone: formData.phone,
+        type: formData.paymentType,
       });
 
       console.log("PawaPay response:", response.data);
@@ -95,6 +97,12 @@ export default function Pay() {
             <option value="weekly">NeS 25/week - 250 RWF</option>
             <option value="monthly">NeS 60/month - 500 RWF</option>
             <option value="bestreader">BestReader - 800 RWF</option>
+          </select>
+
+          <select name="paymentType" value={formData.paymentType} onChange={handleChange} required>
+            <option value="MOBILE_MONEY">Mobile Money</option>
+            <option value="MTN_MOBILE_MONEY">MTN Mobile Money</option>
+            <option value="AIRTEL_MONEY">Airtel Money</option>
           </select>
 
           <button type="submit" disabled={submitting}>

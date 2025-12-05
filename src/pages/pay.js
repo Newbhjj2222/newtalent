@@ -3,22 +3,40 @@ import { useState, useEffect } from "react";
 
 export default function PayPage() {
   const [phone, setPhone] = useState("");
-  const [plan, setPlan] = useState("Daily");
   const [provider, setProvider] = useState("MTN_MOMO_RWA");
+  const [nesPoints, setNesPoints] = useState("10");
+  const [amount, setAmount] = useState(10);
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState("");
   const [username, setUsername] = useState("");
+
+  const nesPointsMapping = {
+    "10": 10,
+    "50": 50,
+    "100": 100,
+    "200": 200,
+    "500": 500,
+  };
 
   useEffect(() => {
     const u = localStorage.getItem("username");
     if (u) setUsername(u);
   }, []);
 
+  useEffect(() => {
+    setAmount(nesPointsMapping[nesPoints]);
+  }, [nesPoints]);
+
   const handlePay = async () => {
     if (!username) { setMsg("Missing parameter: username"); return; }
     if (!phone) { setMsg("Missing parameter: phone"); return; }
-    if (!plan) { setMsg("Missing parameter: plan"); return; }
     if (!provider) { setMsg("Missing parameter: provider"); return; }
+    if (!nesPoints) { setMsg("Missing parameter: NES points"); return; }
+
+    if (!/^\d+$/.test(phone)) {
+      setMsg("Phone number must be in international format, e.g., 2507xxxxxxx");
+      return;
+    }
 
     setLoading(true);
     setMsg("");
@@ -27,7 +45,7 @@ export default function PayPage() {
       const res = await fetch("/api/pawapay-deposit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, phone, plan, provider }),
+        body: JSON.stringify({ username, phone, provider, nesPoints }),
       });
 
       const data = await res.json();
@@ -38,7 +56,7 @@ export default function PayPage() {
         return;
       }
 
-      setMsg("✅ SUCCESS: Payment initiated");
+      setMsg(`✅ SUCCESS: Payment of ${amount} ${provider.startsWith("MTN") ? "RWF" : ""} initiated`);
       console.log("PAWAPAY RESPONSE:", data);
     } catch (err) {
       setLoading(false);
@@ -59,15 +77,16 @@ export default function PayPage() {
       </div>
 
       <div style={{ marginBottom: 15 }}>
-        <label>Plan:</label>
-        <select value={plan} onChange={e => setPlan(e.target.value)}
+        <label>NES Points:</label>
+        <select value={nesPoints} onChange={e => setNesPoints(e.target.value)}
           style={{ width: "100%", padding: 8, marginTop: 5, borderRadius: 5, border: "1px solid #ccc" }}>
-          <option value="onestory">One Story - 10</option>
-          <option value="Daily">Daily - 150</option>
-          <option value="weekly">Weekly - 250</option>
-          <option value="monthly">Monthly - 500</option>
-          <option value="bestreader">Best Reader - 800</option>
+          <option value="10">10 NES Points</option>
+          <option value="50">50 NES Points</option>
+          <option value="100">100 NES Points</option>
+          <option value="200">200 NES Points</option>
+          <option value="500">500 NES Points</option>
         </select>
+        <p style={{ marginTop: 5 }}>Amount: {amount} RWF</p>
       </div>
 
       <div style={{ marginBottom: 15 }}>

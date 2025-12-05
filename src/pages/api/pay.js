@@ -18,9 +18,8 @@ export default async function handler(req, res) {
 
   const bodyToSend = {
     depositId,
-    reason: `Purchase of ${nesPoints} NES Points for ${amount} RWF`,
+    reason: `Payment for ${nesPoints} NES Points — Amount: ${amount} RWF`,
     returnUrl: `https://www.newtalentsg.co.rw/payment-result?depositId=${depositId}`,
-    callbackUrl: `https://www.newtalentsg.co.rw/api/pawapay-callback`,
     metadata: [
       { username },
       { nesPoints },

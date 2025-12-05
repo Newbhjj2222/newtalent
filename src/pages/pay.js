@@ -25,12 +25,21 @@ export default function PayPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, nesPoints }),
       });
+
       const data = await res.json();
       setLoading(false);
 
-      if (!res.ok) { setMsg("Error: " + (data.error || "Failed to create payment page")); return; }
+      if (!res.ok) {
+        // Guhindura object error yose kuba string
+        let errorMsg = "Payment failed";
+        if (data.error) {
+          errorMsg = typeof data.error === "object" ? JSON.stringify(data.error) : data.error;
+        }
+        setMsg("Error: " + errorMsg);
+        return;
+      }
 
-      // Redirect user to PawaPay Payment Page
+      // Redirect user kuri PawaPay Payment Page
       window.location.href = data.redirectUrl;
 
     } catch (err) {
@@ -62,7 +71,7 @@ export default function PayPage() {
         {loading ? "Processing..." : "Pay Now"}
       </button>
 
-      {msg && <p style={{ marginTop:20, padding:10, borderRadius:5, backgroundColor: "#f8d7da", color:"#721c24" }}>{msg}</p>}
+      {msg && <p style={{ marginTop:20, padding:10, borderRadius:5, backgroundColor: msg.startsWith("Error") ? "#f8d7da" : "#d4edda", color: msg.startsWith("Error") ? "#721c24" : "#155724" }}>{msg}</p>}
     </div>
   );
 }

@@ -4,24 +4,37 @@ import crypto from "crypto";
 const PAWAPAY_TOKEN = "eyJraWQiOiIxIiwiYWxnIjoiRVMyNTYifQ.eyJ0dCI6IkFBVCIsInN1YiI6IjIwMTgiLCJtYXYiOiIxIiwiZXhwIjoyMDgwMzgxOTU2LCJpYXQiOjE3NjQ4NDkxNTYsInBtIjoiREFGLFBBRiIsImp0aSI6ImI0YWM3MzQ4LWYyNDEtNDVjNy04MmQ1LTI0ZTgwZjVlZmJhNSJ9.8qxWc0Aph9QhrhKcfPXvaFe5l_RzSPjOWsCGFr6W88QpMmcyWwqm7W7M83-UCE4OrM8UQZOncdnx-t1MACbObA";
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") 
+  if (req.method !== "POST")
     return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
 
-  const { username, nesPoints } = req.body;
+  const { username, nesPoints, amount } = req.body;
 
   if (!username) return res.status(400).json({ error: "Missing parameter: username" });
   if (!nesPoints) return res.status(400).json({ error: "Missing parameter: nesPoints" });
+  if (!amount) return res.status(400).json({ error: "Missing parameter: amount" });
 
   const depositId = crypto.randomUUID();
 
   const bodyToSend = {
     depositId,
-    reason: `Purchase of ${nesPoints} NES Points`,
+    reason: `Purchase of ${nesPoints} NES Points for ${amount} RWF`,
+
+    // 👉 Callback / Return URLs
     returnUrl: `https://www.newtalentsg.co.rw/payment-result?depositId=${depositId}`,
+    successUrl: `https://www.newtalentsg.co.rw/payment-success?depositId=${depositId}`,
+    failureUrl: `https://www.newtalentsg.co.rw/payment-failed?depositId=${depositId}`,
+
+    amount: {
+      currency: "RWF",
+      value: amount,
+    },
+
+    // 👉 metadata in correct format
     metadata: [
-      { username },
-      { nesPoints }
-    ],
+      { key: "username", value: username },
+      { key: "nesPoints", value: `${nesPoints}` },
+      { key: "amount", value: `${amount}` }
+    ]
   };
 
   try {
@@ -37,7 +50,8 @@ export default async function handler(req, res) {
     );
 
     const redirectUrl = response.data.redirectUrl;
-    if (!redirectUrl) return res.status(500).json({ error: "Payment page URL not returned by PawaPay" });
+    if (!redirectUrl)
+      return res.status(500).json({ error: "Payment page URL not returned by PawaPay" });
 
     res.status(200).json({ redirectUrl });
 

@@ -2,21 +2,15 @@
 import { useState, useEffect } from "react";
 
 export default function PayPage() {
+  const [username, setUsername] = useState("");
   const [phone, setPhone] = useState("");
   const [provider, setProvider] = useState("MTN_MOMO_RWA");
   const [nesPoints, setNesPoints] = useState("10");
   const [amount, setAmount] = useState(10);
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState("");
-  const [username, setUsername] = useState("");
 
-  const nesPointsMapping = {
-    "10": 10,
-    "50": 50,
-    "100": 100,
-    "200": 200,
-    "500": 500,
-  };
+  const nesPointsMapping = { "10":10, "50":50, "100":100, "200":200, "500":500 };
 
   useEffect(() => {
     const u = localStorage.getItem("username");
@@ -28,10 +22,10 @@ export default function PayPage() {
   }, [nesPoints]);
 
   const handlePay = async () => {
-    if (!username) { setMsg("Missing parameter: username"); return; }
-    if (!phone) { setMsg("Missing parameter: phone"); return; }
-    if (!provider) { setMsg("Missing parameter: provider"); return; }
-    if (!nesPoints) { setMsg("Missing parameter: NES points"); return; }
+    if (!username || !phone || !provider || !nesPoints) {
+      setMsg("Please fill all fields correctly.");
+      return;
+    }
 
     if (!/^\d+$/.test(phone)) {
       setMsg("Phone number must be in international format, e.g., 2507xxxxxxx");
@@ -56,7 +50,7 @@ export default function PayPage() {
         return;
       }
 
-      setMsg(`✅ SUCCESS: Payment of ${amount} ${provider.startsWith("MTN") ? "RWF" : ""} initiated`);
+      setMsg(`✅ SUCCESS: Payment of ${amount} RWF initiated`);
       console.log("PAWAPAY RESPONSE:", data);
     } catch (err) {
       setLoading(false);
@@ -72,7 +66,7 @@ export default function PayPage() {
 
       <div style={{ marginBottom: 15 }}>
         <label>Phone:</label>
-        <input type="text" placeholder="2507xxxxxxx" value={phone} onChange={e => setPhone(e.target.value)}
+        <input type="text" placeholder="2507xxxxxxx" value={phone} onChange={e => setPhone(e.target.value)} 
           style={{ width: "100%", padding: 8, marginTop: 5, borderRadius: 5, border: "1px solid #ccc" }} />
       </div>
 

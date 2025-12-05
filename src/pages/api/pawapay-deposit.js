@@ -6,9 +6,7 @@ import crypto from "crypto";
 // ====================
 const PAWAPAY_TOKEN = "eyJraWQiOiIxIiwiYWxnIjoiRVMyNTYifQ.eyJ0dCI6IkFBVCIsInN1YiI6IjIwMTgiLCJtYXYiOiIxIiwiZXhwIjoyMDgwMzgxOTU2LCJpYXQiOjE3NjQ4NDkxNTYsInBtIjoiREFGLFBBRiIsImp0aSI6ImI0YWM3MzQ4LWYyNDEtNDVjNy04MmQ1LTI0ZTgwZjVlZmJhNSJ9.8qxWc0Aph9QhrhKcfPXvaFe5l_RzSPjOWsCGFr6W88QpMmcyWwqm7W7M83-UCE4OrM8UQZOncdnx-t1MACbObA";
 
-// ====================
-// Mapping ya NES points ku mafaranga
-// ====================
+// Mapping ya NES Points ku mafaranga
 const nesPointsMapping = {
   "10": 10,
   "50": 50,
@@ -25,7 +23,7 @@ export default async function handler(req, res) {
   const { username, phone, provider, nesPoints } = req.body;
 
   // ====================
-  // Validate fields
+  // Validation
   // ====================
   if (!username) return res.status(400).json({ error: "Missing parameter: username" });
   if (!phone) return res.status(400).json({ error: "Missing parameter: phone" });
@@ -37,7 +35,7 @@ export default async function handler(req, res) {
   }
 
   // ====================
-  // Amount based on NES points
+  // Amount
   // ====================
   let amount = nesPointsMapping[nesPoints];
 
@@ -45,8 +43,8 @@ export default async function handler(req, res) {
   // Supported providers (Rwanda example)
   // ====================
   const providerData = {
-    AIRTEL_RWA: { currency: "RWF", decimals: 0, country: "RWA" },
     MTN_MOMO_RWA: { currency: "RWF", decimals: 0, country: "RWA" },
+    AIRTEL_RWA: { currency: "RWF", decimals: 0, country: "RWA" },
   };
 
   const p = providerData[provider];
@@ -65,8 +63,19 @@ export default async function handler(req, res) {
     country: p.country,
     type: "MOBILE_MONEY",
     provider,
-    payer: { msisdn: phone },
-    external_reference,
+    payer: {
+      type: "MMO",
+      accountDetails: {
+        phoneNumber: phone,
+        provider,
+      },
+    },
+    clientReferenceId: external_reference,
+    customerMessage: `Purchase of ${nesPoints} NES Points`,
+    metadata: [
+      { nesPoints },
+      { username },
+    ],
   };
 
   console.log("Sending body to PawaPay:", bodyToSend);

@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function PayPage() {
   const [phone, setPhone] = useState("");
@@ -7,47 +7,66 @@ export default function PayPage() {
   const [provider, setProvider] = useState("MTN_MOMO_RWA");
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState("");
+  const [username, setUsername] = useState("");
+
+  // Fata username muri localStorage
+  useEffect(() => {
+    const u = localStorage.getItem("username");
+    if (u) setUsername(u);
+  }, []);
 
   const handlePay = async () => {
-    const username = localStorage.getItem("username");
-
     if (!username) {
-      setMsg("Username not found in localStorage. Login first.");
+      setMsg("Username not found in localStorage. Please login first.");
+      return;
+    }
+
+    if (!phone) {
+      setMsg("Please enter phone number");
       return;
     }
 
     setLoading(true);
     setMsg("");
 
-    const res = await fetch("/api/pawapay-deposit", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        username,
-        phone,
-        plan,
-        provider,
-      }),
-    });
+    try {
+      const res = await fetch("/api/pawapay-deposit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username,
+          phone,
+          plan,
+          provider,
+        }),
+      });
 
-    const data = await res.json();
-    setLoading(false);
+      const data = await res.json();
+      setLoading(false);
 
-    if (!res.ok) {
-      setMsg("Error: " + (data.error || "Payment failed"));
-      return;
+      if (!res.ok) {
+        setMsg("Error: " + (data.error || "Payment failed"));
+        return;
+      }
+
+      setMsg("SUCCESS: Payment initiated");
+      console.log(data);
+    } catch (err) {
+      setLoading(false);
+      setMsg("Network error");
     }
-
-    setMsg("SUCCESS: Payment initiated");
-    console.log("PAWAPAY RESPONSE:", data);
   };
 
   return (
     <div style={{ padding: 20 }}>
       <h2>PawaPay Deposit</h2>
 
-      <div>
-        <label>Phone:</label>
+      <p><b>Logged as:</b> {username || "No username found"}</p>
+
+      <div style={{ marginBottom: 10 }}>
+        <label>Phone:</label><br />
         <input
           type="text"
           placeholder="2507xxxxxxx"
@@ -56,8 +75,8 @@ export default function PayPage() {
         />
       </div>
 
-      <div>
-        <label>Plan:</label>
+      <div style={{ marginBottom: 10 }}>
+        <label>Plan:</label><br />
         <select value={plan} onChange={(e) => setPlan(e.target.value)}>
           <option value="onestory">One Story</option>
           <option value="Daily">Daily</option>
@@ -67,8 +86,8 @@ export default function PayPage() {
         </select>
       </div>
 
-      <div>
-        <label>Provider:</label>
+      <div style={{ marginBottom: 10 }}>
+        <label>Provider:</label><br />
         <select
           value={provider}
           onChange={(e) => setProvider(e.target.value)}
@@ -82,6 +101,7 @@ export default function PayPage() {
         {loading ? "Processing..." : "Pay Now"}
       </button>
 
-      <p>{msg}</p>
+      <p style={{ marginTop: 20 }}>{msg}</p>
     </div>
   );
+}

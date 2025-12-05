@@ -1,49 +1,57 @@
+// pages/api/callback.js
 import { db } from "../../components/firebase";
-import { doc, getDoc, setDoc } from "firebase/firestore";
-
-export const config = { api: { bodyParser: false } };
+import { doc, getDoc, updateDoc, increment } from "firebase/firestore";
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+  if (req.method !== "POST") return res.status(405).send("Method not allowed");
+
+  const event = req.body;
+  console.log("PawaPay callback payload:", JSON.stringify(event));
+
+  // expected fields (adjust to actual PawaPay webhook body)
+  // common: event.customer_reference, event.status, event.amount.value
+  const txRef = event.customer_reference || event.data?.customer_reference || event.reference;
+  const status = event.status || event.data?.status;
+  const amount = event.amount?.value || event.data?.amount?.value || null;
+
+  if (!txRef || !status) {
+    console.warn("Callback missing txRef or status");
+    return res.status(400).send("Invalid callback");
+  }
 
   try {
-    let body = "";
-    await new Promise((resolve, reject) => {
-      req.on("data", chunk => (body += chunk));
-      req.on("end", resolve);
-      req.on("error", reject);
-    });
-
-    try { body = JSON.parse(body); } catch { body = { raw: body }; }
-
-    console.log("PawaPay CALLBACK BODY:", body);
-
-    if (body.status === "SUCCESS" && body.external_reference) {
-      const [username, plan] = body.external_reference.split("__");
-
-      let nesToAdd = 0;
-      switch (plan) {
-        case "onestory": nesToAdd = 1; break;
-        case "Daily": nesToAdd = 15; break;
-        case "weekly": nesToAdd = 25; break;
-        case "monthly": nesToAdd = 60; break;
-        case "bestreader": nesToAdd = 100; break;
-      }
-
-      const ref = doc(db, "depositers", username);
-      const snap = await getDoc(ref);
-
-      if (snap.exists()) {
-        const oldNes = snap.data().nes || 0;
-        await setDoc(ref, { nes: oldNes + nesToAdd }, { merge: true });
-      } else {
-        await setDoc(ref, { nes: nesToAdd }, { merge: true });
-      }
+    const txDocRef = doc(db, "transactions", txRef);
+    const txSnap = await getDoc(txDocRef);
+    if (!txSnap.exists()) {
+      console.warn("Transaction not found:", txRef);
+      // you might still want to record it somewhere
+      return res.status(404).send("Transaction not found");
     }
 
-    return res.status(200).json({ success: true });
+    const tx = txSnap.data();
+
+    // Update status
+    await updateDoc(txDocRef, {
+      status,
+      callbackReceivedAt: new Date()
+    });
+
+    if (String(status).toLowerCase() === "successful" || String(status).toLowerCase() === "success") {
+      // increment user's nes points in depositers collection
+      const pointsToAdd = tx.points || 0; // points we stored when creating tx
+      const deposRef = doc(db, "depositers", tx.username);
+      await updateDoc(deposRef, {
+        nes: increment(Number(pointsToAdd))
+      });
+
+      // mark transaction as completed
+      await updateDoc(txDocRef, { completedAt: new Date() });
+    }
+
+    return res.status(200).send("OK");
+
   } catch (err) {
-    console.error("Callback error:", err);
-    return res.status(500).json({ error: "Server callback error" });
+    console.error("Callback processing error:", err);
+    return res.status(500).send("Server error");
   }
 }

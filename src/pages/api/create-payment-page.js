@@ -11,16 +11,10 @@ export default async function handler(req, res) {
   if (!username) return res.status(400).json({ error: "Missing parameter: username" });
   if (!nesPoints) return res.status(400).json({ error: "Missing parameter: nesPoints" });
 
-  const nesPointsMapping = { "10":10, "50":50, "100":100, "200":200, "500":500 };
-  const amount = nesPointsMapping[nesPoints];
-  if (!amount) return res.status(400).json({ error: "Invalid nesPoints value" });
-
   const depositId = crypto.randomUUID();
 
   const bodyToSend = {
     depositId,
-    amount: amount.toString(),
-    currency: "RWF",
     type: "MOBILE_MONEY",
     reason: `Purchase of ${nesPoints} NES Points`,
     returnUrl: `https://www.newtalentsg.co.rw/payment-result?depositId=${depositId}`,

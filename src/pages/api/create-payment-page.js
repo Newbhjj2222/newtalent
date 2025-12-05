@@ -4,7 +4,8 @@ import crypto from "crypto";
 const PAWAPAY_TOKEN = "eyJraWQiOiIxIiwiYWxnIjoiRVMyNTYifQ.eyJ0dCI6IkFBVCIsInN1YiI6IjIwMTgiLCJtYXYiOiIxIiwiZXhwIjoyMDgwMzgxOTU2LCJpYXQiOjE3NjQ4NDkxNTYsInBtIjoiREFGLFBBRiIsImp0aSI6ImI0YWM3MzQ4LWYyNDEtNDVjNy04MmQ1LTI0ZTgwZjVlZmJhNSJ9.8qxWc0Aph9QhrhKcfPXvaFe5l_RzSPjOWsCGFr6W88QpMmcyWwqm7W7M83-UCE4OrM8UQZOncdnx-t1MACbObA";
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
+  if (req.method !== "POST") 
+    return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
 
   const { username, nesPoints } = req.body;
 
@@ -15,17 +16,24 @@ export default async function handler(req, res) {
 
   const bodyToSend = {
     depositId,
-    type: "MOBILE_MONEY",
     reason: `Purchase of ${nesPoints} NES Points`,
     returnUrl: `https://www.newtalentsg.co.rw/payment-result?depositId=${depositId}`,
-    metadata: [{ username }, { nesPoints }],
+    metadata: [
+      { username },
+      { nesPoints }
+    ],
   };
 
   try {
     const response = await axios.post(
       "https://api.pawapay.io/v2/paymentpage",
       bodyToSend,
-      { headers: { Authorization: `Bearer ${PAWAPAY_TOKEN}`, "Content-Type": "application/json" } }
+      {
+        headers: {
+          Authorization: `Bearer ${PAWAPAY_TOKEN}`,
+          "Content-Type": "application/json"
+        }
+      }
     );
 
     const redirectUrl = response.data.redirectUrl;

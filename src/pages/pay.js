@@ -30,16 +30,11 @@ export default function PayPage() {
       setLoading(false);
 
       if (!res.ok) {
-        // Guhindura object error yose kuba string
-        let errorMsg = "Payment failed";
-        if (data.error) {
-          errorMsg = typeof data.error === "object" ? JSON.stringify(data.error) : data.error;
-        }
+        let errorMsg = typeof data.error === "object" ? JSON.stringify(data.error) : data.error;
         setMsg("Error: " + errorMsg);
         return;
       }
 
-      // Redirect user kuri PawaPay Payment Page
       window.location.href = data.redirectUrl;
 
     } catch (err) {

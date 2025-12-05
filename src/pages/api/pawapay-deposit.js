@@ -1,56 +1,46 @@
-// pages/api/pawapay-deposit.js
-
 import axios from "axios";
 import crypto from "crypto";
 
-// TOKEN yawe ya LIVE (NKUKO WAYINGAHAYE)
-const PAWAPAY_TOKEN =
-  "eyJraWQiOiIxIiwiYWxnIjoiRVMyNTYifQ.eyJ0dCI6IkFBVCIsInN1YiI6IjIwMTgiLCJtYXYiOiIxIiwiZXhwIjoyMDgwMzgxOTU2LCJpYXQiOjE3NjQ4NDkxNTYsInBtIjoiREFGLFBBRiIsImp0aSI6ImI0YWM3MzQ4LWYyNDEtNDVjNy04MmQ1LTI0ZTgwZjVlZmJhNSJ9.8qxWc0Aph9QhrhKcfPXvaFe5l_RzSPjOWsCGFr6W88QpMmcyWwqm7W7M83-UCE4OrM8UQZOncdnx-t1MACbObA";
+// ====================
+// TOKEN ya LIVE yawe
+// ====================
+const PAWAPAY_TOKEN = "eyJraWQiOiIxIiwiYWxnIjoiRVMyNTYifQ.eyJ0dCI6IkFBVCIsInN1YiI6IjIwMTgiLCJtYXYiOiIxIiwiZXhwIjoyMDgwMzgxOTU2LCJpYXQiOjE3NjQ4NDkxNTYsInBtIjoiREFGLFBBRiIsImp0aSI6ImI0YWM3MzQ4LWYyNDEtNDVjNy04MmQ1LTI0ZTgwZjVlZmJhNSJ9.8qxWc0Aph9QhrhKcfPXvaFe5l_RzSPjOWsCGFr6W88QpMmcyWwqm7W7M83-UCE4OrM8UQZOncdnx-t1MACbObA";
 
 export default async function handler(req, res) {
-  // Only POST allowed
   if (req.method !== "POST") {
-    return res
-      .status(405)
-      .json({ error: `Method ${req.method} Not Allowed` });
+    return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
   }
 
   const { username, plan, phone, provider } = req.body;
 
-  if (!username)
-    return res.status(400).json({ error: "Username required" });
+  // ====================
+  // Validation y'amas fields
+  // ====================
+  if (!username) return res.status(400).json({ error: "Missing parameter: username" });
+  if (!phone) return res.status(400).json({ error: "Missing parameter: phone" });
+  if (!provider) return res.status(400).json({ error: "Missing parameter: provider" });
+  if (!plan) return res.status(400).json({ error: "Missing parameter: plan" });
 
-  if (!phone || !/^\d+$/.test(phone))
-    return res
-      .status(400)
-      .json({ error: "Phone must contain digits only (no + or spaces)" });
-
-  if (!provider)
-    return res.status(400).json({ error: "Payment provider required" });
-
-  // Pricing
-  let amount = 0;
-  switch (plan) {
-    case "onestory":
-      amount = 10;
-      break;
-    case "Daily":
-      amount = 150;
-      break;
-    case "weekly":
-      amount = 250;
-      break;
-    case "monthly":
-      amount = 500;
-      break;
-    case "bestreader":
-      amount = 800;
-      break;
-    default:
-      return res.status(400).json({ error: "Invalid plan selected" });
+  if (!/^\d+$/.test(phone)) {
+    return res.status(400).json({ error: "Phone must contain digits only (no + or spaces)" });
   }
 
-  // Providers supported
+  // ====================
+  // Amount based on plan
+  // ====================
+  let amount = 0;
+  switch (plan) {
+    case "onestory": amount = 10; break;
+    case "Daily": amount = 150; break;
+    case "weekly": amount = 250; break;
+    case "monthly": amount = 500; break;
+    case "bestreader": amount = 800; break;
+    default: return res.status(400).json({ error: "Invalid plan selected" });
+  }
+
+  // ====================
+  // Supported providers
+  // ====================
   const providerData = {
     AIRTEL_RWA: { currency: "RWF", decimals: 0, country: "RWA" },
     MTN_MOMO_RWA: { currency: "RWF", decimals: 0, country: "RWA" },
@@ -67,32 +57,30 @@ export default async function handler(req, res) {
   };
 
   const p = providerData[provider];
-
-  if (!p)
-    return res
-      .status(400)
-      .json({ error: "Unsupported payment provider" });
+  if (!p) return res.status(400).json({ error: `Unsupported payment provider: ${provider}` });
 
   if (p.decimals === 0) amount = Math.round(amount);
 
   const depositId = crypto.randomUUID();
   const external_reference = `${username}__${plan}__${Date.now()}`;
 
+  const bodyToSend = {
+    depositId,
+    amount: amount.toString(),
+    currency: p.currency,
+    country: p.country,
+    type: "MOBILE_MONEY", // ✅ mandatory
+    provider,
+    payer: { msisdn: phone },
+    external_reference,
+  };
+
+  console.log("Sending body to PawaPay:", bodyToSend);
+
   try {
     const response = await axios.post(
       "https://api.pawapay.io/v2/deposits",
-      {
-        depositId,
-        amount: amount.toString(),
-        currency: p.currency,
-        country: p.country,
-        type: "MOBILE_MONEY",
-        provider,
-        payer: {
-          msisdn: phone,
-        },
-        external_reference,
-      },
+      bodyToSend,
       {
         headers: {
           Authorization: `Bearer ${PAWAPAY_TOKEN}`,
@@ -106,13 +94,15 @@ export default async function handler(req, res) {
       result: response.data,
     });
   } catch (error) {
-    console.log("PAWAPAY ERROR:", error.response?.data || error.message);
+    const failureMessage =
+      error.response?.data?.error?.message ||
+      error.response?.data?.message ||
+      error.message;
+
+    console.error("PAWAPAY ERROR:", failureMessage);
 
     return res.status(500).json({
-      error:
-        error.response?.data ||
-        error.message ||
-        "PawaPay deposit failed",
+      error: `PawaPay deposit failed: ${failureMessage}`,
     });
   }
 }

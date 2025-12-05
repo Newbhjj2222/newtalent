@@ -3,22 +3,21 @@ import { doc, updateDoc, increment, getDoc, setDoc } from "firebase/firestore";
 
 export default async function handler(req, res) {
   try {
-    const payload = req.body || {}; // fallback niba body ari undefined
-
-    // If GET request, try parsing query params too
-    if (req.method === "GET") {
-      Object.assign(payload, req.query);
+    // Only POST allowed (PawaPay requires POST)
+    if (req.method !== "POST") {
+      console.warn(`Received ${req.method} request, expected POST`);
+      return res.status(405).json({ error: "Method Not Allowed" });
     }
 
-    console.log("Webhook method:", req.method);
-    console.log("Payload received:", JSON.stringify(payload, null, 2));
+    const payload = req.body || {};
+    console.log("PawaPay Callback Payload:", JSON.stringify(payload, null, 2));
 
-    // Dynamic extraction: check common places where PawaPay might send data
+    // Dynamic extraction
     let username = payload.username;
     let nesPoints = payload.nesPoints;
     let status = payload.status;
 
-    // Try extracting from metadata array if available
+    // Extract from metadata array if exists
     if ((!username || !nesPoints) && Array.isArray(payload.metadata)) {
       payload.metadata.forEach(item => {
         if (item.username) username = item.username;
@@ -26,10 +25,8 @@ export default async function handler(req, res) {
       });
     }
 
-    // Try extracting from clientReferenceId or custom fields if needed
-    // Example: clientReferenceId might contain username and nesPoints
+    // Extract from clientReferenceId (format "username__nesPoints")
     if ((!username || !nesPoints) && payload.clientReferenceId) {
-      // assuming format "username__nesPoints"
       const parts = payload.clientReferenceId.split("__");
       if (parts.length === 2) {
         username = username || parts[0];
@@ -40,7 +37,7 @@ export default async function handler(req, res) {
     // Ensure nesPoints is a number
     nesPoints = Number(nesPoints);
 
-    // Check final required fields
+    // If required fields missing, respond 200 but log warning
     if (!username || !nesPoints || !status) {
       console.warn("Webhook received but missing fields after extraction");
       return res.status(200).json({ message: "Webhook received but missing fields" });
@@ -51,17 +48,19 @@ export default async function handler(req, res) {
       return res.status(200).json({ message: "Payment not successful, NES not added" });
     }
 
+    // Reference to Firestore doc
     const userRef = doc(db, "depositers", username);
     const userSnap = await getDoc(userRef);
 
     if (!userSnap.exists()) {
+      // Create new doc if not exists
       await setDoc(userRef, { nes: nesPoints });
     } else {
-      await updateDoc(userRef, {
-        nes: increment(nesPoints)
-      });
+      // Increment existing nes field
+      await updateDoc(userRef, { nes: increment(nesPoints) });
     }
 
+    console.log(`Added ${nesPoints} NES to ${username}`);
     return res.status(200).json({ message: `Payment successful, ${nesPoints} NES added for ${username}` });
 
   } catch (err) {

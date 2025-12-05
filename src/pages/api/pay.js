@@ -1,41 +1,53 @@
-// pages/api/pay.js
+import axios from "axios";
+import crypto from "crypto";
+
+const PAWAPAY_TOKEN =
+  "eyJraWQiOiIxIiwiYWxnIjoiRVMyNTYifQ.eyJ0dCI6IkFBVCIsInN1YiI6IjIwMTgiLCJtYXYiOiIxIiwiZXhwIjoyMDgwMzgxOTU2LCJpYXQiOjE3NjQ4NDkxNTYsInBtIjoiREFGLFBBRiIsImp0aSI6ImI0YWM3MzQ4LWYyNDEtNDVjNy04MmQ1LTI0ZTgwZjVlZmJhNSJ9.8qxWc0Aph9QhrhKcfPXvaFe5l_RzSPjOWsCGFr6W88QpMmcyWwqm7W7M83-UCE4OrM8UQZOncdnx-t1MACbObA";
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
+  if (req.method !== "POST")
+    return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
+
+  const { username, nesPoints, amount } = req.body;
+
+  if (!username) return res.status(400).json({ error: "Missing parameter: username" });
+  if (!nesPoints) return res.status(400).json({ error: "Missing parameter: nesPoints" });
+  if (!amount) return res.status(400).json({ error: "Missing parameter: amount" });
+
+  const depositId = crypto.randomUUID();
+
+  const bodyToSend = {
+    depositId,
+    reason: `Purchase of ${nesPoints} NES Points for ${amount} RWF`,
+    returnUrl: `https://www.newtalentsg.co.rw/payment-result?depositId=${depositId}`,
+    callbackUrl: `https://www.newtalentsg.co.rw/api/pawapay-callback`,
+    metadata: [
+      { username },
+      { nesPoints },
+      { amount }
+    ]
+  };
 
   try {
-    const { phone, amount, telco, username, plan } = req.body;
+    const response = await axios.post(
+      "https://api.pawapay.io/v2/paymentpage",
+      bodyToSend,
+      {
+        headers: {
+          Authorization: `Bearer ${PAWAPAY_TOKEN}`,
+          "Content-Type": "application/json"
+        }
+      }
+    );
 
-    // --------------------------------------------
-    // POWERPAY API KEY YAWE — WANSABYE KUYISHYIRAMO
-    // --------------------------------------------
-    const POWERPAY_API_KEY = "eyJraWQiOiIxIiwiYWxnIjoiRVMyNTYifQ.eyJ0dCI6IkFBVCIsInN1YiI6IjIwMTgiLCJtYXYiOiIxIiwiZXhwIjoyMDgwMzc4ODA0LCJpYXQiOjE3NjQ4NDYwMDQsInBtIjoiREFGLFBBRiIsImp0aSI6IjBmZmI2MDUyLWMwYzctNDM5Yi1iZGVhLTc5NDA1OTgzMTNjZCJ9.RQdMQ1_A00iFviYwzazrHUy_jHk9UmG3cedKZpJ5NwElKiBPr-TTp0WkHKzluDsU5xBBLPgocFwBrcHROZjOYg";
+    const redirectUrl = response.data.redirectUrl;
+    if (!redirectUrl)
+      return res.status(500).json({ error: "PawaPay did not return redirectUrl" });
 
-    const POWERPAY_BASE_URL = "https://api.powerpay.rw/api";
-    const CALLBACK_URL = "https://yourdomain.com/api/callback";
-    // --------------------------------------------
+    res.status(200).json({ redirectUrl });
 
-    const response = await fetch(`${POWERPAY_BASE_URL}/merchant/pay`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${POWERPAY_API_KEY}`,
-      },
-      body: JSON.stringify({
-        amount,
-        telco,
-        phone_number: phone,
-        external_reference: `${username}__${plan}__${amount}`,
-        callback_url: CALLBACK_URL,
-      }),
-    });
-
-    const data = await response.json();
-    return res.status(200).json(data);
-
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
+  } catch (err) {
+    console.error("PawaPay error:", err.response?.data || err.message);
+    res.status(400).json({ error: err.response?.data || err.message });
   }
 }

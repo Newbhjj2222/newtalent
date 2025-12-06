@@ -8,66 +8,57 @@ import {
   increment,
 } from "firebase/firestore";
 
-export const config = {
-  api: {
-    bodyParser: false, // Dukoresha raw reader kugira ngo dufate POST yose
-  },
-};
-
-// Gusoma raw body yose
-async function readRawBody(req) {
-  return new Promise((resolve) => {
-    let body = "";
-    req.on("data", (chunk) => (body += chunk));
-    req.on("end", () => resolve(body));
-  });
-}
-
 export default async function handler(req, res) {
   try {
-    const rawBody = await readRawBody(req);
-    console.log("📌 RAW CALLBACK BODY:", rawBody);
+    // Accept ALL methods (POST, GET, PUT, PATCH...)
+    const method = req.method;
 
-    let data = {};
+    // Try reading JSON body, if empty fallback to query or text
+    let data = req.body;
 
-    // Try decode JSON
-    try {
-      data = JSON.parse(rawBody);
-    } catch (e) {
-      try {
-        // Try URL-encoded
-        const params = new URLSearchParams(rawBody);
-        data = Object.fromEntries(params);
-      } catch (e2) {
-        data = {};
+    if (!data || Object.keys(data).length === 0) {
+      // try query
+      if (Object.keys(req.query).length > 0) {
+        data = req.query;
+      } else {
+        // try text body
+        try {
+          const raw = await new Promise((resolve) => {
+            let body = "";
+            req.on("data", (chunk) => (body += chunk));
+            req.on("end", () => resolve(body));
+          });
+
+          try {
+            data = JSON.parse(raw);
+          } catch (err) {
+            const params = new URLSearchParams(raw);
+            data = Object.fromEntries(params);
+          }
+        } catch (e) {
+          data = {};
+        }
       }
     }
 
-    console.log("📌 PARSED CALLBACK:", data);
+    console.log("📌 CALLBACK DATA:", data);
 
-    //-------------------------------
-    // 1. Extract Deposit ID
-    //-------------------------------
+    // Extract depositId
     const depositId =
       data.depositId ||
       data.id ||
-      data.paymentId ||
-      data.transactionId ||
       data.reference ||
+      data.transactionId ||
       null;
 
-    //-------------------------------
-    // 2. Extract Payment Status
-    //-------------------------------
+    // Extract payment status
     const status =
       data.status ||
       data.state ||
       data.paymentStatus ||
       null;
 
-    //-------------------------------
-    // 3. Extract Metadata (username + nes)
-    //-------------------------------
+    // Extract metadata
     const username =
       data.username ||
       (data.metadata && data.metadata.username) ||
@@ -81,33 +72,36 @@ export default async function handler(req, res) {
     if (!depositId) {
       return res.status(200).json({
         message: "Callback received but depositId missing",
+        method,
       });
     }
 
-    // Success flags accepted by Pawapay
-    const successStates = ["success", "successful", "completed", "paid"];
+    // Success statuses accepted by PawaPay
+    const successStates = [
+      "success",
+      "successful",
+      "completed",
+      "paid",
+      "ok"
+    ];
 
     if (!successStates.includes(String(status).toLowerCase())) {
       return res.status(200).json({
-        message: `Payment not successful. Status: ${status}`,
+        message: `Payment not successful`,
         depositId,
+        status,
+        method,
       });
     }
 
-    //-------------------------------
-    // 4. Ensure metadata exists
-    //-------------------------------
     if (!username || !nes) {
       return res.status(200).json({
-        message:
-          "Payment successful BUT metadata (username, nes) missing.",
+        message: "Payment success but username or nes missing",
         depositId,
       });
     }
 
-    //-------------------------------
-    // 5. Firestore Update
-    //-------------------------------
+    // Firestore update
     const userRef = doc(db, "depositers", username);
     const snapshot = await getDoc(userRef);
 
@@ -122,7 +116,9 @@ export default async function handler(req, res) {
     return res.status(200).json({
       message: `Payment successful, ${nes} NES added for ${username}`,
       depositId,
+      method,
     });
+
   } catch (err) {
     console.error("🔥 CALLBACK ERROR:", err);
     return res.status(500).json({

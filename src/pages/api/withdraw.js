@@ -2,20 +2,18 @@
 import axios from 'axios';
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+  // Fata payload n'ikibazo cyose muri body
+  const { amount, recipient } = req.body || {};
 
-  const { amount, recipient } = req.body;
+  // API key ya PawaPay hardcoded
+  const PAWAPAY_API_KEY = 'eyJraWQiOiIxIiwiYWxnIjoiRVMyNTYifQ.eyJ0dCI6IkFBVCIsInN1YiI6IjIwMTgiLCJtYXYiOiIxIiwiZXhwIjoyMDgwMzgxOTU2LCJpYXQiOjE3NjQ4NDkxNTYsInBtIjoiREFGLFBBRiIsImp0aSI6ImI0YWM3MzQ4LWYyNDEtNDVjNy04MmQ1LTI0ZTgwZjVlZmJhNSJ9.8qxWc0Aph9QhrhKcfPXvaFe5l_RzSPjOWsCGFr6W88QpMmcyWwqm7W7M83-UCE4OrM8UQZOncdnx-t1MACbObA';
 
   if (!amount || !recipient) {
     return res.status(400).json({ error: 'Amount and recipient are required' });
   }
 
-  // API key watanze
-  const PAWAPAY_API_KEY = 'eyJraWQiOiIxIiwiYWxnIjoiRVMyNTYifQ.eyJ0dCI6IkFBVCIsInN1YiI6IjIwMTgiLCJtYXYiOiIxIiwiZXhwIjoyMDgwMzgxOTU2LCJpYXQiOjE3NjQ4NDkxNTYsInBtIjoiREFGLFBBRiIsImp0aSI6ImI0YWM3MzQ4LWYyNDEtNDVjNy04MmQ1LTI0ZTgwZjVlZmJhNSJ9.8qxWc0Aph9QhrhKcfPXvaFe5l_RzSPjOWsCGFr6W88QpMmcyWwqm7W7M83-UCE4OrM8UQZOncdnx-t1MACbObA';
-
   try {
+    // Kohereza request kuri PawaPay API
     const response = await axios.post('https://api.pawapay.com/withdraw', {
       apiKey: PAWAPAY_API_KEY,
       amount,
@@ -29,10 +27,11 @@ export default async function handler(req, res) {
       data: response.data
     });
   } catch (err) {
-    console.error('Withdrawal error:', err.response?.data || err.message);
+    // Subiza error nyirizina (object -> string)
+    const errorData = err.response?.data || err.message;
     return res.status(500).json({
       success: false,
-      error: err.response?.data || err.message
+      error: typeof errorData === 'object' ? JSON.stringify(errorData) : errorData
     });
   }
 }

@@ -1,48 +1,43 @@
-import crypto from "crypto";
+// pages/api/payout.js
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
 
-export async function POST(request) {
+  const token = "eyJraWQiOiIxIiwiYWxnIjoiRVMyNTYifQ.eyJ0dCI6IkFBVCIsInN1YiI6IjIwMTgiLCJtYXYiOiIxIiwiZXhwIjoyMDgwMzgxOTU2LCJpYXQiOjE3NjQ4NDkxNTYsInBtIjoiREFGLFBBRiIsImp0aSI6ImI0YWM3MzQ4LWYyNDEtNDVjNy04MmQ1LTI0ZTgwZjVlZmJhNSJ9.8qxWc0Aph9QhrhKcfPXvaFe5l_RzSPjOWsCGFr6W88QpMmcyWwqm7W7M83-UCE4OrM8UQZOncdnx-t1MACbObA"; 
+
   try {
-    const { phone, amount, reference } = await request.json();
+    const { amount, phone } = req.body;
 
-    const token = "eyJraWQiOiIxIiwiYWxnIjoiRVMyNTYifQ.eyJ0dCI6IkFBVCIsInN1YiI6IjIwMTgiLCJtYXYiOiIxIiwiZXhwIjoyMDgwMzgxOTU2LCJpYXQiOjE3NjQ4NDkxNTYsInBtIjoiREFGLFBBRiIsImp0aSI6ImI0YWM3MzQ4LWYyNDEtNDVjNy04MmQ1LTI0ZTgwZjVlZmJhNSJ9.8qxWc0Aph9QhrhKcfPXvaFe5l_RzSPjOWsCGFr6W88QpMmcyWwqm7W7M83-UCE4OrM8UQZOncdnx-t1MACbObA";
-
-    // Determine product by prefix
-    let product = "MTN-MOMO-RW";
-    const num = phone.replace("+", "").replace("250", "");
-
-    if (num.startsWith("78") || num.startsWith("79")) {
-      product = "AIRTEL-MONEY-RW";
-    }
+    // Random payout ID
+    const payoutId = "REF" + Math.floor(100000000 + Math.random() * 900000000);
 
     const payload = {
-      reference,
-      amount,
+      payoutId,
+      amount: String(amount),
       currency: "RWF",
-      product,
-      customerTimestamp: new Date().toISOString(),
-      payee: {
-        partyIdType: "MSISDN",
-        partyId: phone,
-      },
+      recipient: {
+        type: "MMO",
+        accountDetails: {
+          phoneNumber: phone,
+          provider: "MTN_MOMO_RWA"   // LIVE format from documentation
+        }
+      }
     };
 
-    const res = await fetch("https://api.pawapay.cloud/payouts", {
+    const response = await fetch("https://api.pawapay.io/v2/payouts", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${token}`,
-        "Idempotency-Key": crypto.randomUUID(),
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(payload)
     });
 
-    const body = await res.json();
+    const data = await response.json();
+    return res.status(response.status).json(data);
 
-    return Response.json(body, { status: res.status });
-  } catch (err) {
-    return Response.json(
-      { error: err.message },
-      { status: 500 }
-    );
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
   }
 }

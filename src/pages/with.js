@@ -20,12 +20,14 @@ export default function WithdrawForm() {
       const data = await res.json();
 
       if (data.success) {
-        setMessage('✅ Withdrawal submitted successfully!');
+        setMessage(`✅ ${data.message}`);
       } else {
-        setMessage(`❌ Error: ${data.error}`);
+        // Error nyirizina, ikoze stringify niba ari object
+        const errMsg = typeof data.error === 'object' ? JSON.stringify(data.error) : data.error;
+        setMessage(`❌ ${errMsg}`);
       }
     } catch (err) {
-      setMessage(`❌ Error: ${err.message}`);
+      setMessage(`❌ ${err.message}`);
     }
   };
 
@@ -51,7 +53,7 @@ export default function WithdrawForm() {
       <button type="submit" style={{ width: '100%', padding: 10, backgroundColor: '#38a169', color: '#fff' }}>
         Withdraw
       </button>
-      {message && <p style={{ marginTop: 10 }}>{message}</p>}
+      {message && <p style={{ marginTop: 10, whiteSpace: 'pre-wrap' }}>{message}</p>}
     </form>
   );
 }

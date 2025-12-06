@@ -1,70 +1,114 @@
+// pages/api/pawapay-callback.js
 import { db } from "../../components/firebase";
-import { doc, updateDoc, increment, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, setDoc, increment } from "firebase/firestore";
+
+export const config = {
+  api: {
+    bodyParser: false, // Tugenda dusoma raw body kugira ngo dukire POST yose ya PawaPay
+  },
+};
+
+// Helper to read raw body
+async function readStream(req) {
+  return new Promise((resolve) => {
+    let data = "";
+    req.on("data", (chunk) => (data += chunk));
+    req.on("end", () => resolve(data));
+  });
+}
 
 export default async function handler(req, res) {
   try {
-    // Only POST allowed (PawaPay requires POST)
-    if (req.method !== "POST") {
-      console.warn(`Received ${req.method} request, expected POST`);
-      return res.status(405).json({ error: "Method Not Allowed" });
-    }
+    const rawBody = await readStream(req);
+    let event = null;
 
-    const payload = req.body || {};
-    console.log("PawaPay Callback Payload:", JSON.stringify(payload, null, 2));
-
-    // Dynamic extraction
-    let username = payload.username;
-    let nesPoints = payload.nesPoints;
-    let status = payload.status;
-
-    // Extract from metadata array if exists
-    if ((!username || !nesPoints) && Array.isArray(payload.metadata)) {
-      payload.metadata.forEach(item => {
-        if (item.username) username = item.username;
-        if (item.nesPoints) nesPoints = item.nesPoints;
-      });
-    }
-
-    // Extract from clientReferenceId (format "username__nesPoints")
-    if ((!username || !nesPoints) && payload.clientReferenceId) {
-      const parts = payload.clientReferenceId.split("__");
-      if (parts.length === 2) {
-        username = username || parts[0];
-        nesPoints = nesPoints || Number(parts[1]);
+    // Try JSON
+    try {
+      event = JSON.parse(rawBody);
+    } catch (e) {
+      // Try form-urlencoded
+      try {
+        const params = new URLSearchParams(rawBody);
+        event = Object.fromEntries(params);
+      } catch (e2) {
+        event = {};
       }
     }
 
-    // Ensure nesPoints is a number
-    nesPoints = Number(nesPoints);
+    console.log("📌 RAW CALLBACK BODY:", rawBody);
+    console.log("📌 PARSED EVENT:", event);
 
-    // If required fields missing, respond 200 but log warning
-    if (!username || !nesPoints || !status) {
-      console.warn("Webhook received but missing fields after extraction");
-      return res.status(200).json({ message: "Webhook received but missing fields" });
+    // ---------------------------------------
+    // 1. Check required fields
+    // ---------------------------------------
+    const depositId =
+      event.depositId ||
+      event.id ||
+      event.transactionId ||
+      event.reference ||
+      null;
+
+    const status =
+      event.status ||
+      event.state ||
+      event.paymentStatus ||
+      null;
+
+    const username = event.username || event.user || null;
+    const nes = event.nes || event.points || null;
+
+    if (!depositId) {
+      return res.status(200).json({
+        message: "Callback received but no depositId found",
+      });
     }
 
-    // Only process successful payments
-    if (status !== "SUCCESS") {
-      return res.status(200).json({ message: "Payment not successful, NES not added" });
+    // ---------------------------------------
+    // 2. Only credit NES if payment completed
+    // ---------------------------------------
+    const successStates = ["success", "successful", "completed", "paid"];
+
+    if (!successStates.includes(String(status).toLowerCase())) {
+      return res.status(200).json({
+        message: `Payment NOT successful. Current state = ${status}`,
+      });
     }
 
-    // Reference to Firestore doc
+    // ---------------------------------------
+    // 3. We MUST have username + nes passed in metadata
+    // ---------------------------------------
+    if (!username || !nes) {
+      return res.status(200).json({
+        message: "Payment success but username or NES missing in metadata",
+      });
+    }
+
+    // ---------------------------------------
+    // 4. Update Firestore
+    // ---------------------------------------
     const userRef = doc(db, "depositers", username);
-    const userSnap = await getDoc(userRef);
+    const snapshot = await getDoc(userRef);
 
-    if (!userSnap.exists()) {
-      // Create new doc if not exists
-      await setDoc(userRef, { nes: nesPoints });
+    if (!snapshot.exists()) {
+      // Create doc if missing
+      await setDoc(userRef, { nes: Number(nes) });
     } else {
-      // Increment existing nes field
-      await updateDoc(userRef, { nes: increment(nesPoints) });
+      // Increase NES amount
+      await updateDoc(userRef, {
+        nes: increment(Number(nes)),
+      });
     }
 
-    console.log(`Added ${nesPoints} NES to ${username}`);
-    return res.status(200).json({ message: `Payment successful, ${nesPoints} NES added for ${username}` });
-
-  } catch (err) {
-    console.error("Webhook processing error:", err);
-    return res.status(500).json({ error: err.message });
+    return res.status(200).json({
+      message: `Payment successful, ${nes} NES added for ${username}`,
+      depositId,
+      status,
+    });
+  } catch (error) {
+    console.error("🔥 CALLBACK ERROR:", error);
+    return res.status(500).json({
+      message: "Internal callback error",
+      error: error.message,
+    });
   }
 }

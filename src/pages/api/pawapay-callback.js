@@ -1,99 +1,119 @@
 // pages/api/pawapay-callback.js
 import { db } from "../../components/firebase";
-import { doc, getDoc, updateDoc, setDoc, increment } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  increment,
+} from "firebase/firestore";
 
 export const config = {
   api: {
-    bodyParser: false, // Tugenda dusoma raw body kugira ngo dukire POST yose ya PawaPay
+    bodyParser: false, // Dukoresha raw reader kugira ngo dufate POST yose
   },
 };
 
-// Helper to read raw body
-async function readStream(req) {
+// Gusoma raw body yose
+async function readRawBody(req) {
   return new Promise((resolve) => {
-    let data = "";
-    req.on("data", (chunk) => (data += chunk));
-    req.on("end", () => resolve(data));
+    let body = "";
+    req.on("data", (chunk) => (body += chunk));
+    req.on("end", () => resolve(body));
   });
 }
 
 export default async function handler(req, res) {
   try {
-    const rawBody = await readStream(req);
-    let event = null;
+    const rawBody = await readRawBody(req);
+    console.log("📌 RAW CALLBACK BODY:", rawBody);
 
-    // Try JSON
+    let data = {};
+
+    // Try decode JSON
     try {
-      event = JSON.parse(rawBody);
+      data = JSON.parse(rawBody);
     } catch (e) {
-      // Try form-urlencoded
       try {
+        // Try URL-encoded
         const params = new URLSearchParams(rawBody);
-        event = Object.fromEntries(params);
+        data = Object.fromEntries(params);
       } catch (e2) {
-        event = {};
+        data = {};
       }
     }
 
-    console.log("📌 RAW CALLBACK BODY:", rawBody);
-    console.log("📌 PARSED EVENT:", event);
+    console.log("📌 PARSED CALLBACK:", data);
 
-    // ---------------------------------------
-    // 1. Check required fields
-    // ---------------------------------------
+    //-------------------------------
+    // 1. Extract Deposit ID
+    //-------------------------------
     const depositId =
-      event.depositId ||
-      event.id ||
-      event.transactionId ||
-      event.reference ||
+      data.depositId ||
+      data.id ||
+      data.paymentId ||
+      data.transactionId ||
+      data.reference ||
       null;
 
+    //-------------------------------
+    // 2. Extract Payment Status
+    //-------------------------------
     const status =
-      event.status ||
-      event.state ||
-      event.paymentStatus ||
+      data.status ||
+      data.state ||
+      data.paymentStatus ||
       null;
 
-    const username = event.username || event.user || null;
-    const nes = event.nes || event.points || null;
+    //-------------------------------
+    // 3. Extract Metadata (username + nes)
+    //-------------------------------
+    const username =
+      data.username ||
+      (data.metadata && data.metadata.username) ||
+      null;
+
+    const nes =
+      data.nes ||
+      (data.metadata && data.metadata.nes) ||
+      null;
 
     if (!depositId) {
       return res.status(200).json({
-        message: "Callback received but no depositId found",
+        message: "Callback received but depositId missing",
       });
     }
 
-    // ---------------------------------------
-    // 2. Only credit NES if payment completed
-    // ---------------------------------------
+    // Success flags accepted by Pawapay
     const successStates = ["success", "successful", "completed", "paid"];
 
     if (!successStates.includes(String(status).toLowerCase())) {
       return res.status(200).json({
-        message: `Payment NOT successful. Current state = ${status}`,
+        message: `Payment not successful. Status: ${status}`,
+        depositId,
       });
     }
 
-    // ---------------------------------------
-    // 3. We MUST have username + nes passed in metadata
-    // ---------------------------------------
+    //-------------------------------
+    // 4. Ensure metadata exists
+    //-------------------------------
     if (!username || !nes) {
       return res.status(200).json({
-        message: "Payment success but username or NES missing in metadata",
+        message:
+          "Payment successful BUT metadata (username, nes) missing.",
+        depositId,
       });
     }
 
-    // ---------------------------------------
-    // 4. Update Firestore
-    // ---------------------------------------
+    //-------------------------------
+    // 5. Firestore Update
+    //-------------------------------
     const userRef = doc(db, "depositers", username);
     const snapshot = await getDoc(userRef);
 
     if (!snapshot.exists()) {
-      // Create doc if missing
       await setDoc(userRef, { nes: Number(nes) });
     } else {
-      // Increase NES amount
       await updateDoc(userRef, {
         nes: increment(Number(nes)),
       });
@@ -102,13 +122,12 @@ export default async function handler(req, res) {
     return res.status(200).json({
       message: `Payment successful, ${nes} NES added for ${username}`,
       depositId,
-      status,
     });
-  } catch (error) {
-    console.error("🔥 CALLBACK ERROR:", error);
+  } catch (err) {
+    console.error("🔥 CALLBACK ERROR:", err);
     return res.status(500).json({
-      message: "Internal callback error",
-      error: error.message,
+      message: "Callback internal error",
+      error: err.message,
     });
   }
 }

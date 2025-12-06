@@ -1,70 +1,55 @@
 "use client";
-
 import { useState } from "react";
 
 export default function PayoutPage() {
-  const [phone, setPhone] = useState("");
   const [amount, setAmount] = useState("");
-  const [message, setMessage] = useState("");
+  const [phone, setPhone] = useState("");
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  // Generate random reference
-  const generateRef = () =>
-    "REF" + Math.floor(Math.random() * 1000000000).toString();
+  const handlePayout = async () => {
+    setLoading(true);
+    setResult(null);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setMessage("Processing...");
+    const res = await fetch("/api/payout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ amount, phone })
+    });
 
-    const ref = generateRef();
-
-    try {
-      const res = await fetch("/api/payout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          reference: ref,
-          phone,
-          amount: Number(amount),
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setMessage("❌ " + (data.error || "Payout failed"));
-      } else {
-        setMessage("✅ Success: " + JSON.stringify(data));
-      }
-    } catch (error) {
-      setMessage("❌ Network error: " + error.message);
-    }
+    const data = await res.json();
+    setResult(data);
+    setLoading(false);
   };
 
   return (
     <div style={{ padding: 20 }}>
-      <h2>Payout (Withdraw)</h2>
+      <h1>Withdraw (Payout)</h1>
 
-      <form onSubmit={handleSubmit}>
+      <div>
+        <label>Amount (RWF)</label>
         <input
-          type="text"
-          placeholder="Phone (07...)"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-        />
-        <br />
-
-        <input
-          type="number"
-          placeholder="Amount (RWF)"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
+          type="number"
         />
-        <br />
+      </div>
 
-        <button type="submit">Send Payout</button>
-      </form>
+      <div>
+        <label>Phone Number</label>
+        <input
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          type="text"
+        />
+      </div>
 
-      <div style={{ marginTop: 20 }}>{message}</div>
+      <button onClick={handlePayout} disabled={loading}>
+        {loading ? "Processing..." : "Withdraw Now"}
+      </button>
+
+      <h3>Response:</h3>
+      <pre>{JSON.stringify(result, null, 2)}</pre>
     </div>
   );
 }

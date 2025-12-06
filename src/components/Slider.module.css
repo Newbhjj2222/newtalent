@@ -5,12 +5,13 @@
   padding: 1rem;
   margin-top: 7px;
   margin-left: 0;
-  background-color: #ffffff; /* Light background */
-  color: #333333; /* Light text */
+  background-color: #ffffff;
+  color: #333333;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .slider h2 {
+  text-align: center;
   margin-bottom: 1rem;
   font-size: 1.5rem;
   font-weight: bold;
@@ -135,7 +136,8 @@
 
 .scrollingText {
   display: inline-block;
-  animation: scrollLeft 20s linear infinite;
+  white-space: nowrap;
+  animation: scrollText 15s linear infinite;
 }
 
 .scrollItem {
@@ -145,33 +147,5 @@
 .scrollItem:hover {
   text-decoration: underline;
 }
-.slider h2 {
-  text-align: center; /* Title iri hagati */
-  margin-bottom: 1rem;
-  font-size: 1.5rem;
-  font-weight: bold;
-}
 
-/* Scrolling text auto */
-.scrollingText {
-  display: inline-block;
-  white-space: nowrap;
-  animation: scrollText 15s linear infinite;
-}
-
-@keyframes scrollText {
-  0% { transform: translateX(100%); }
-  100% { transform: translateX(-100%); }
-}
-
-/* Global animation keyframes for scrolling text */
-:global {
-  @keyframes scrollLeft {
-    from {
-      transform: translateX(0);
-    }
-    to {
-      transform: translateX(-100%);
-    }
-  }
-}
+/* Keyframes zose zigomba kujya muri global CSS file */

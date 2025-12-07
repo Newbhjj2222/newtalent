@@ -60,8 +60,8 @@ export default async function handler(req, res) {
   // Initialize metadata array
   const metadata = [];
   createUniqueMetadata(metadata, [
-    { key: "userId", value: userId.toString() },
-    { key: "source", value: "Next.js app" }
+    { key: "userId", value: userId.toString() }
+    
   ]);
 
   if (!validateMetadataArray(metadata)) {

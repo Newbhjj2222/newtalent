@@ -93,10 +93,10 @@ export default function PayPage() {
           }}
         >
           
-          <option value="150">15 NES Points</option>
-          <option value="250">25 Nes icyumweru</option>
-          <option value="500">60 NES ukwezi</option>
-          <option value="800">1000 NES ukwezi</option>
+          <option value="15">15 NES Points</option>
+          <option value="25">25 Nes icyumweru</option>
+          <option value="60">60 NES ukwezi</option>
+          <option value="1000">1000 NES ukwezi</option>
         </select>
 
         <p style={{ marginTop: 5 }}>Amafaranga wishyura: {amount} RWF</p>

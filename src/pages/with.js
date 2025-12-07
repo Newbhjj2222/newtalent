@@ -1,36 +1,19 @@
-// pay.js
-"use client";
-
-import { useState } from "react";
 import axios from "axios";
-import { v4 as uuidv4 } from "uuid";
+import { useState } from "react";
 
 export default function Pay() {
-  const [amount, setAmount] = useState("");
   const [phone, setPhone] = useState("");
+  const [amount, setAmount] = useState("");
   const [response, setResponse] = useState(null);
 
   const sendPayout = async () => {
-    const payoutId = uuidv4();
-
-    const username = localStorage.getItem("username") || "guest_user";
-
-    // METADATA AS ARRAY (NO DUPLICATES)
-    const metadata = [
-      { fieldName: "username", value: username },
-      { fieldName: "transactionType", value: "payout" },
-      { fieldName: "platform", value: "web" }
-    ];
-
     try {
       const res = await axios.post("/api/payout", {
-        payoutId,
-        amount: Number(amount),
-        currency: "RWF",
         phoneNumber: phone,
-        country: "RW",
-        payoutMethod: "MOBILE_MONEY",
-        metadata
+        amount,
+        currency: "RWF",
+        country: "RWA",
+        userId: "USER12345",
       });
 
       setResponse(res.data);
@@ -40,30 +23,20 @@ export default function Pay() {
   };
 
   return (
-    <div style={{ padding: 20 }}>
-      <h2>Payout Form</h2>
-
+    <div>
       <input
-        type="text"
+        value={phone}
+        onChange={(e) => setPhone(e.target.value)}
+        placeholder="Phone"
+      />
+      <input
+        value={amount}
+        onChange={(e) => setAmount(e.target.value)}
         placeholder="Amount"
-        onChange={e => setAmount(e.target.value)}
-      /><br/><br/>
+      />
+      <button onClick={sendPayout}>Send Payout</button>
 
-      <input
-        type="text"
-        placeholder="Phone Number"
-        onChange={e => setPhone(e.target.value)}
-      /><br/><br/>
-
-      <button onClick={sendPayout} style={{ padding: 10, background: "blue", color: "white" }}>
-        Send Payout
-      </button>
-
-      {response && (
-        <pre style={{ marginTop: 20 }}>
-          {JSON.stringify(response, null, 2)}
-        </pre>
-      )}
+      <pre>{JSON.stringify(response, null, 2)}</pre>
     </div>
   );
 }

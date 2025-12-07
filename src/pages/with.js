@@ -1,70 +1,27 @@
-"use client";
+// /pages/payout.js
 
 import { useState } from "react";
-
-// API TOKEN yawe (LIVE)
-const API_KEY =
-  'eyJraWQiOiIxIiwiYWxnIjoiRVMyNTYifQ.eyJ0dCI6IkFBVCIsInN1YiI6IjIwMTgiLCJtYXYiOiIxIiwiZXhwIjoyMDgwMzgxOTU2LCJpYXQiOjE3NjQ4NDkxNTYsInBtIjoiREFGLFBBRiIsImp0aSI6ImI0YWM3MzQ4LWYyNDEtNDVjNy04MmQ1LTI0ZTgwZjVlZmJhNSJ9.8qxWc0Aph9QhrhKcfPXvaFe5l_RzSPjOWsCGFr6W88QpMmcyWwqm7W7M83-UCE4OrM8UQZOncdnx-t1MACbObA';
-
-// Generate random UUID v4
-function generateUUID() {
-  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
-    const r = (Math.random() * 16) | 0;
-    const v = c === "x" ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  });
-}
 
 export default function PayoutPage() {
   const [phone, setPhone] = useState("");
   const [amount, setAmount] = useState("");
-  const [responseMsg, setResponseMsg] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [msg, setMsg] = useState("");
 
-  // sanitize phone to numbers only
-  const cleanPhone = (num) => num.replace(/\D/g, "");
-
-  const submitPayout = async () => {
-    let msisdn = cleanPhone(phone);
-
-    if (msisdn.startsWith("0")) {
-      msisdn = msisdn.substring(1); // remove 0 prefix
-    }
-
-    if (msisdn.startsWith("250")) {
-      msisdn = msisdn.substring(3); // remove 250
-    }
-
-    if (msisdn.length < 9) {
-      setResponseMsg("Invalid phone number: must be 9 digits");
-      return;
-    }
-
-    const payout_id = generateUUID();
-
-    const payload = {
-      payoutId: payout_id,
-      payee: {
-        msisdn: msisdn,
-        provider: "MTN-MOMO-RW"
-      },
-      amount: {
-        currency: "RWF",
-        value: Number(amount)
-      },
-      statementDescription: "Withdrawal"
-    };
+  const submitPayout = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setMsg("Processing payout...");
 
     try {
-      const res = await fetch("https://api.pawapay.io/v2/payouts", {
+      const res = await fetch("/api/payout", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-          Authorization: API_KEY
+          "Content-Type": "application/json"
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({ phone, amount })
       });
 
-      // we capture any response (json or text)
       const raw = await res.text();
       let data;
 
@@ -74,73 +31,88 @@ export default function PayoutPage() {
         data = raw;
       }
 
-      setResponseMsg(JSON.stringify(data, null, 2));
+      setMsg(JSON.stringify(data, null, 2));
     } catch (err) {
-      setResponseMsg("NETWORK ERROR: " + err.message);
+      setMsg("Network error: " + err.message);
     }
+
+    setLoading(false);
   };
 
   return (
-    <div style={{ padding: "20px", maxWidth: "400px", margin: "auto" }}>
-      <h1>PawaPay Withdrawal</h1>
+    <div style={styles.wrapper}>
+      <h1 style={styles.title}>PawaPay Withdrawal</h1>
 
-      <label>Phone Number</label>
-      <input
-        type="text"
-        placeholder="7xxxxxxxx"
-        value={phone}
-        onChange={(e) => setPhone(e.target.value)}
-        style={{
-          width: "100%",
-          padding: "10px",
-          marginBottom: "10px",
-          borderRadius: "8px",
-          border: "1px solid #ccc"
-        }}
-      />
+      <form onSubmit={submitPayout} style={styles.form}>
+        <input
+          type="tel"
+          placeholder="Phone 078XXXXXXX"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          style={styles.input}
+          required
+        />
 
-      <label>Amount (RWF)</label>
-      <input
-        type="number"
-        placeholder="150"
-        value={amount}
-        onChange={(e) => setAmount(e.target.value)}
-        style={{
-          width: "100%",
-          padding: "10px",
-          marginBottom: "10px",
-          borderRadius: "8px",
-          border: "1px solid #ccc"
-        }}
-      />
+        <input
+          type="number"
+          placeholder="Amount (RWF)"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          style={styles.input}
+          required
+        />
 
-      <button
-        onClick={submitPayout}
-        style={{
-          width: "100%",
-          padding: "12px",
-          backgroundColor: "#0070f3",
-          color: "#fff",
-          borderRadius: "8px",
-          fontWeight: "bold"
-        }}
-      >
-        Send Withdrawal
-      </button>
+        <button type="submit" style={styles.btn} disabled={loading}>
+          {loading ? "Processing..." : "Withdraw Now"}
+        </button>
+      </form>
 
-      <pre
-        style={{
-          background: "#000",
-          color: "#0f0",
-          padding: "15px",
-          marginTop: "20px",
-          borderRadius: "10px",
-          whiteSpace: "pre-wrap",
-          fontSize: "14px"
-        }}
-      >
-        {responseMsg}
-      </pre>
+      <pre style={styles.responseBox}>{msg}</pre>
     </div>
   );
 }
+
+const styles = {
+  wrapper: {
+    maxWidth: "600px",
+    margin: "50px auto",
+    padding: "20px",
+    background: "#fff",
+    borderRadius: "12px",
+    boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
+  },
+  title: {
+    textAlign: "center",
+    fontSize: "26px",
+    marginBottom: "20px",
+  },
+  form: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "15px",
+  },
+  input: {
+    padding: "12px",
+    borderRadius: "8px",
+    border: "1px solid #ccc",
+    fontSize: "16px",
+  },
+  btn: {
+    background: "#1A73E8",
+    color: "#fff",
+    padding: "12px",
+    borderRadius: "8px",
+    border: "none",
+    fontSize: "16px",
+    cursor: "pointer",
+  },
+  responseBox: {
+    marginTop: "20px",
+    padding: "15px",
+    background: "#f4f4f4",
+    borderRadius: "8px",
+    minHeight: "150px",
+    whiteSpace: "pre-wrap",
+    fontSize: "14px",
+  },
+};

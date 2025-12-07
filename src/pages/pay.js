@@ -9,11 +9,10 @@ export default function PayPage() {
 
   // Mapping of nesPoints to amount (RWF)
   const nesPointsMapping = {
-    "10": 10,
-    "50": 50,
-    "100": 100,
-    "200": 200,
-    "500": 500
+    "15": 150,
+    "25": 250,
+    "60": 500,
+    "1000": 800
   };
 
   const amount = nesPointsMapping[nesPoints];
@@ -93,11 +92,11 @@ export default function PayPage() {
             border: "1px solid #ccc",
           }}
         >
-          <option value="10">10 NES Points</option>
-          <option value="50">50 NES Points</option>
-          <option value="100">100 NES Points</option>
-          <option value="200">200 NES Points</option>
-          <option value="500">500 NES Points</option>
+          
+          <option value="150">15 NES Points</option>
+          <option value="250">25 Nes icyumweru</option>
+          <option value="500">60 NES ukwezi</option>
+          <option value="800">1000 NES ukwezi</option>
         </select>
 
         <p style={{ marginTop: 5 }}>Amount: {amount} RWF</p>

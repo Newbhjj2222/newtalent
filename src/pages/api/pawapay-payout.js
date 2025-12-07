@@ -13,24 +13,49 @@ function validateAmount(amount) {
   return !isNaN(num) && Number.isInteger(num) && num >= 100 && num <= 1000000;
 }
 
+// Validate metadata
+function validateMetadata(metadata) {
+  return metadata && typeof metadata === "object" && Object.keys(metadata).length > 0;
+}
+
 export default async function handler(req, res) {
-  if (req.method !== "POST") return res.status(405).json({ message: "Method not allowed" });
+  if (req.method !== "POST")
+    return res.status(405).json({ success: false, message: "Method not allowed" });
 
   const { phone, amount, userId } = req.body;
 
-  if (!phone || !amount || !userId) {
-    return res.status(400).json({ message: "Phone, amount, and userId are required" });
+  // Pre-send validation
+  const errors = [];
+  if (!phone) errors.push("Missing phone parameter");
+  if (!amount) errors.push("Missing amount parameter");
+  if (!userId) errors.push("Missing userId parameter");
+
+  if (errors.length > 0) {
+    return res.status(400).json({ success: false, message: errors });
   }
 
-  if (!validatePhone(phone)) return res.status(400).json({ message: "Invalid Rwanda phone number" });
-  if (!validateAmount(amount)) return res.status(400).json({ message: "Amount must be integer within 100–1,000,000 RWF" });
+  if (!validatePhone(phone)) {
+    return res.status(400).json({ success: false, message: "Invalid Rwanda phone number" });
+  }
+
+  if (!validateAmount(amount)) {
+    return res.status(400).json({
+      success: false,
+      message: "Amount must be integer within 100–1,000,000 RWF",
+    });
+  }
+
+  const metadata = { userId: userId.toString() };
+  if (!validateMetadata(metadata)) {
+    return res.status(400).json({ success: false, message: "Metadata is required and must be an object" });
+  }
 
   const payoutId = uuidv4();
 
-  // Convert phone to international format
+  // Convert phone to international MSISDN
   const phoneNumber = phone.startsWith("0") ? "250" + phone.slice(1) : phone.replace(/\+/, "");
 
-  // Payload with required metadata
+  // Payload ready to send
   const payload = {
     payoutId,
     amount: Number(amount),
@@ -39,13 +64,13 @@ export default async function handler(req, res) {
       type: "MMO",
       accountDetails: {
         phoneNumber,
-        provider: "MTN_MOMO_RWA", // must match docs
+        provider: "MTN_MOMO_RWA",
       },
     },
-    metadata: { userId: userId.toString() }, // required, ensure string
+    metadata,
   };
 
-  console.log("Sending payload:", JSON.stringify(payload, null, 2));
+  console.log("Prepared payload:", JSON.stringify(payload, null, 2));
 
   try {
     const response = await axios.post(

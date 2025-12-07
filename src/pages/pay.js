@@ -9,10 +9,10 @@ export default function PayPage() {
 
   // Mapping of nesPoints to amount (RWF)
   const nesPointsMapping = {
-    "15": 150,
-    "25": 250,
-    "60": 500,
-    "1000": 800
+    "150": 15,
+    "250": 25,
+    "500": 60,
+    "800": 1000
   };
 
   const amount = nesPointsMapping[nesPoints];

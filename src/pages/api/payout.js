@@ -1,67 +1,51 @@
+// pages/api/payout.js
 import axios from "axios";
-import { v4 as uuidv4 } from "uuid";
+
+// Generate 36-length random ID
+function generateRandomId36() {
+  const chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  let result = "";
+  for (let i = 0; i < 36; i++) {
+    result += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return result;
+}
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
-    return res.status(405).json({
-      success: false,
-      message: `Method ${req.method} Not Allowed`,
-    });
+    return res.status(405).json({ success: false, error: "Method Not Allowed" });
   }
 
   try {
-    const {
-      amount,
-      phoneNumber,
-      currency,
-      country,
-      userId
-    } = req.body;
+    const { phone, amount } = req.body;
 
-    // VALIDATION OF REQUIRED FIELDS
-    const requiredFields = { amount, phoneNumber, currency, country, userId };
-    for (const key in requiredFields) {
-      if (!requiredFields[key]) {
-        return res.status(400).json({
-          success: false,
-          message: `Missing required field: ${key}`,
-        });
-      }
+    // Validate fields before sending request
+    if (!phone || !amount) {
+      return res.status(400).json({
+        success: false,
+        error: "Missing required fields: phone or amount",
+      });
     }
 
-    // Convert to full MSISDN format
-    const msisdn =
-      phoneNumber.startsWith("0")
-        ? `250${phoneNumber.slice(1)}`
-        : phoneNumber.replace("+", "");
+    // VALID metadata array — no duplicates
+    const metadata = [
+      { fieldName: "customerPhone", fieldValue: phone },
+      { fieldName: "transactionAmount", fieldValue: String(amount) },
+      { fieldName: "description", fieldValue: "Payout request" },
+    ];
 
-    const payoutId = uuidv4();
+    const payoutId = generateRandomId36();
 
-    // CLEAN METADATA (avoid duplicates)
-    let metadata = [];
-    const used = new Set();
-
-    metadata.push({ fieldName: "userId", value: userId.toString() });
-
-    metadata = metadata.filter((m) => {
-      if (!used.has(m.fieldName)) {
-        used.add(m.fieldName);
-        return true;
-      }
-      return false;
-    });
-
-    // PAWAPAY PAYOUT PAYLOAD
     const payload = {
-      payoutId,
-      payoutMethod: {
-        type: "MMO",
-        phoneNumber: msisdn,
-        amount: Number(amount),
-        currency,
-        country,
-      },
-      metadata,
+      payoutId: payoutId,
+      merchantId: "newtalentsg-live-merchant", // Niba ufite merchantId yawe shyiramo hano
+      currency: "RWF",
+      country: "RW",
+      amount: Number(amount),
+      payoutMode: "MOBILE_MONEY",
+      product: "MTN-MOMO-RW",
+      phoneNumber: phone,
+      metadata: metadata,
     };
 
     // SEND REQUEST
@@ -70,24 +54,24 @@ export default async function handler(req, res) {
       payload,
       {
         headers: {
-          Authorization:
-            "Bearer eyJraWQiOiIxIiwiYWxnIjoiRVMyNTYifQ.eyJ0dCI6IkFBVCIsInN1YiI6IjIwMTgiLCJtYXYiOiIxIiwiZXhwIjoyMDgwMzgxOTU2LCJpYXQiOjE3NjQ4NDkxNTYsInBtIjoiREFGLFBBRiIsImp0aSI6ImI0YWM3MzQ4LWYyNDEtNDVjNy04MmQ1LTI0ZTgwZjVlZmJhNSJ9.8qxWc0Aph9QhrhKcfPXvaFe5l_RzSPjOWsCGFr6W88QpMmcyWwqm7W7M83-UCE4OrM8UQZOncdnx-t1MACbObA",
           "Content-Type": "application/json",
+          Authorization: "Bearer LIVE_API_KEY_HANO", // API KEY yawe hano nka string
         },
       }
     );
 
     return res.status(200).json({
       success: true,
+      sent: true,
       payoutId,
-      data: response.data,
+      response: response.data,
     });
   } catch (error) {
-    console.error("PawaPay ERROR:", error.response?.data || error.message);
+    console.log("API ERROR:", error?.response?.data || error.message);
 
     return res.status(500).json({
       success: false,
-      error: error.response?.data || error.message,
+      error: error?.response?.data || error.message,
     });
   }
 }

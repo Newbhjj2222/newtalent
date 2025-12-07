@@ -1,27 +1,17 @@
 import axios from "axios";
-
-// Numeric-only UUID 36-char
-function generateNumericUUID() {
-  const digits = "0123456789";
-  const s = Array.from({ length: 36 }, (_, i) => {
-    if (i === 8 || i === 13 || i === 18 || i === 23) return "-";
-    if (i === 14) return "4";
-    if (i === 19) return digits[Math.floor(Math.random() * 10)];
-    return digits[Math.floor(Math.random() * 10)];
-  });
-  return s.join("");
-}
+import { v4 as uuidv4 } from "uuid"; // real UUID v4
 
 // Simple phone validation for Rwanda MTN/Airtel
 function validatePhone(phone) {
-  const pattern = /^(?:\+250|0)(7[8|2|3|4|5|6|9])\d{7}$/;
+  // Accept numbers like "25078XXXXXXX" (international MSISDN) or "078XXXXXXX"
+  const pattern = /^(?:\+?250|0)(7[8|2|3|4|5|6|9])\d{7}$/;
   return pattern.test(phone);
 }
 
-// Simple amount validation
+// Amount validation (example: 100–1,000,000 RWF)
 function validateAmount(amount) {
   const num = Number(amount);
-  return !isNaN(num) && num >= 100 && num <= 1000000; // example limits
+  return !isNaN(num) && Number.isInteger(num) && num >= 100 && num <= 1000000;
 }
 
 export default async function handler(req, res) {
@@ -29,21 +19,33 @@ export default async function handler(req, res) {
 
   const { phone, amount, userId } = req.body;
 
-  if (!phone || !amount || !userId) return res.status(400).json({ message: "Phone, amount and userId required" });
-  if (!validatePhone(phone)) return res.status(400).json({ message: "Invalid Rwanda phone number" });
-  if (!validateAmount(amount)) return res.status(400).json({ message: "Amount out of limits" });
+  if (!phone || !amount || !userId) {
+    return res.status(400).json({ message: "Phone, amount, and userId are required" });
+  }
 
-  const payoutId = generateNumericUUID();
+  if (!validatePhone(phone)) return res.status(400).json({ message: "Invalid Rwanda phone number" });
+  if (!validateAmount(amount)) return res.status(400).json({ message: "Amount must be integer within 100–1,000,000 RWF" });
+
+  const payoutId = uuidv4(); // real UUID v4
+
+  // Convert phone to international format if needed
+  let phoneNumber = phone.startsWith("0") ? "250" + phone.slice(1) : phone.replace(/\+/, "");
 
   const payload = {
     payoutId,
     amount: Number(amount),
     currency: "RWF",
-    recipient: { type: "MMO", accountDetails: { phoneNumber: phone, provider: "MTN-MOMO-RW" } },
+    recipient: {
+      type: "MMO",
+      accountDetails: {
+        phoneNumber,
+        provider: "MTN_MOMO_RWA", // exactly as PawaPay docs
+      },
+    },
     metadata: { userId },
   };
 
-  console.log("Sending payload:", payload);
+  console.log("Payload being sent:", payload);
 
   try {
     const response = await axios.post(
@@ -57,7 +59,11 @@ export default async function handler(req, res) {
       }
     );
 
-    res.status(200).json({ success: true, payoutId, data: response.data });
+    res.status(200).json({
+      success: true,
+      payoutId,
+      data: response.data,
+    });
   } catch (error) {
     console.error("PawaPay Error Data:", error.response?.data);
     console.error("Status:", error.response?.status);

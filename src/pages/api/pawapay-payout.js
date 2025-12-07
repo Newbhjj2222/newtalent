@@ -26,8 +26,11 @@ export default async function handler(req, res) {
   if (!validateAmount(amount)) return res.status(400).json({ message: "Amount must be integer within 100–1,000,000 RWF" });
 
   const payoutId = uuidv4();
+
+  // Convert phone to international format
   const phoneNumber = phone.startsWith("0") ? "250" + phone.slice(1) : phone.replace(/\+/, "");
 
+  // Payload with required metadata
   const payload = {
     payoutId,
     amount: Number(amount),
@@ -39,10 +42,10 @@ export default async function handler(req, res) {
         provider: "MTN_MOMO_RWA", // must match docs
       },
     },
-    metadata: { userId }, // required
+    metadata: { userId: userId.toString() }, // required, ensure string
   };
 
-  console.log("Sending payload:", payload);
+  console.log("Sending payload:", JSON.stringify(payload, null, 2));
 
   try {
     const response = await axios.post(

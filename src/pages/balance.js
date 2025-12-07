@@ -6,6 +6,7 @@ import { doc, onSnapshot, setDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import pay from "../components/pay";
 import styles from "../components/Balance.module.css";
 
 export default function Pay() {
@@ -140,7 +141,7 @@ export default function Pay() {
                 <div className={styles.nesCard}>
                     Your NeS Points: <span>{nes}</span>
                 </div>
-
+          <pay />
                 {message && <div className={styles.successMessage}>{message}</div>}
 
                 <form onSubmit={handleSubmit} className={styles.balanceForm}>

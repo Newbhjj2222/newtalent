@@ -9,11 +9,11 @@ export default function PayoutPage() {
   const [status, setStatus] = useState("");
   const [userId, setUserId] = useState("");
 
-  // Save or retrieve userId from localStorage
+  // Retrieve or create userId in localStorage
   useEffect(() => {
     let stored = localStorage.getItem("userId");
     if (!stored) {
-      stored = Math.floor(Math.random() * 1000000000).toString(); // random numeric userId
+      stored = Math.floor(Math.random() * 1000000000).toString();
       localStorage.setItem("userId", stored);
     }
     setUserId(stored);
@@ -21,7 +21,6 @@ export default function PayoutPage() {
 
   const handlePayout = async () => {
     setStatus("Processing payout...");
-
     try {
       const response = await axios.post("/api/pawapay-payout", {
         phone,
@@ -32,20 +31,20 @@ export default function PayoutPage() {
       if (response.data.success) {
         setStatus(`Success! Payout ID: ${response.data.payoutId}`);
       } else {
-        setStatus(`Failed: ${response.data.message}`);
+        setStatus(`Failed: ${JSON.stringify(response.data.message)}`);
       }
     } catch (error) {
-      setStatus(`Error: ${error.message}`);
+      setStatus(`Error: ${error.response?.data || error.message}`);
     }
   };
 
   return (
     <div style={{ padding: 20 }}>
-      <h1>PawaPay Payout</h1>
+      <h1>PawaPay Live Payout</h1>
 
       <input
         type="text"
-        placeholder="Phone number"
+        placeholder="Phone number (e.g. 078XXXXXXX)"
         value={phone}
         onChange={(e) => setPhone(e.target.value)}
         style={{ marginBottom: 10 }}
@@ -54,7 +53,7 @@ export default function PayoutPage() {
 
       <input
         type="number"
-        placeholder="Amount"
+        placeholder="Amount (integer RWF)"
         value={amount}
         onChange={(e) => setAmount(e.target.value)}
         style={{ marginBottom: 10 }}

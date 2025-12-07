@@ -4,28 +4,25 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const token = "eyJraWQiOiIxIiwiYWxnIjoiRVMyNTYifQ.eyJ0dCI6IkFBVCIsInN1YiI6IjIwMTgiLCJtYXYiOiIxIiwiZXhwIjoyMDgwMzgxOTU2LCJpYXQiOjE3NjQ4NDkxNTYsInBtIjoiREFGLFBBRiIsImp0aSI6ImI0YWM3MzQ4LWYyNDEtNDVjNy04MmQ1LTI0ZTgwZjVlZmJhNSJ9.8qxWc0Aph9QhrhKcfPXvaFe5l_RzSPjOWsCGFr6W88QpMmcyWwqm7W7M83-UCE4OrM8UQZOncdnx-t1MACbObA"; 
+  const token = "eyJraWQiOiIxIiwiYWxnIjoiRVMyNTYifQ.eyJ0dCI6IkFBVCIsInN1YiI6IjIwMTgiLCJtYXYiOiIxIiwiZXhwIjoyMDgwMzgxOTU2LCJpYXQiOjE3NjQ4NDkxNTYsInBtIjoiREFGLFBBRiIsImp0aSI6ImI0YWM3MzQ4LWYyNDEtNDVjNy04MmQ1LTI0ZTgwZjVlZmJhNSJ9.8qxWc0Aph9QhrhKcfPXvaFe5l_RzSPjOWsCGFr6W88QpMmcyWwqm7W7M83-UCE4OrM8UQZOncdnx-t1MACbObA";
 
-  const { phone, amount } = await req.body;
+  const { phone, amount } = req.body;
 
-  // Generate random 36-character payoutId
-  const generatePayoutId = () => {
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    let id = "";
-    for (let i = 0; i < 36; i++) {
-      id += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return id;
-  };
-
-  const payoutId = generatePayoutId();
-
-  // Determine provider by phone prefix
-  let provider = "MTN_MOMO_RWA";
-  const num = phone.replace("+", "").replace("250", "");
-  if (num.startsWith("78") || num.startsWith("79")) {
-    provider = "AIRTEL_MONEY_RWA";
+  // Generate valid UUID v4
+  function generateUUIDv4() {
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+      const r = (Math.random() * 16) | 0;
+      const v = c === "x" ? r : (r & 0x3) | 0x8;
+      return v.toString(16);
+    });
   }
+
+  const payoutId = generateUUIDv4();
+
+  // Detect provider
+  let provider = "MTN_MOMO_RWA";
+  const n = phone.replace("+", "").replace("250", "");
+  if (n.startsWith("78") || n.startsWith("79")) provider = "AIRTEL_MONEY_RWA";
 
   const payload = {
     payoutId,
@@ -52,7 +49,7 @@ export default async function handler(req, res) {
 
     const data = await response.json();
     return res.status(response.status).json(data);
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
   }
 }

@@ -13,9 +13,9 @@ function validateAmount(amount) {
   return !isNaN(num) && Number.isInteger(num) && num >= 100 && num <= 1000000;
 }
 
-// Validate metadata
-function validateMetadata(metadata) {
-  return metadata && typeof metadata === "object" && Object.keys(metadata).length > 0;
+// Validate metadata array
+function validateMetadataArray(metadata) {
+  return Array.isArray(metadata) && metadata.length > 0;
 }
 
 export default async function handler(req, res) {
@@ -45,9 +45,14 @@ export default async function handler(req, res) {
     });
   }
 
-  const metadata = { userId: userId.toString() };
-  if (!validateMetadata(metadata)) {
-    return res.status(400).json({ success: false, message: "Metadata is required and must be an object" });
+  // Metadata as array
+  const metadata = [
+    { key: "userId", value: userId.toString() },
+    { key: "source", value: "Next.js app" }
+  ];
+
+  if (!validateMetadataArray(metadata)) {
+    return res.status(400).json({ success: false, message: "Metadata array is required" });
   }
 
   const payoutId = uuidv4();
@@ -67,7 +72,7 @@ export default async function handler(req, res) {
         provider: "MTN_MOMO_RWA",
       },
     },
-    metadata,
+    metadata, // array
   };
 
   console.log("Prepared payload:", JSON.stringify(payload, null, 2));

@@ -24,12 +24,21 @@ export default function PayoutPage() {
     setStatus("Processing payout...");
     setResponseData(null);
 
+    if (!phone || !amount) {
+      setStatus("Please fill in phone and amount");
+      return;
+    }
+
     try {
-      const response = await axios.post("/api/pawapay-payout", {
+      const payload = {
         phone,
         amount,
         userId,
-      });
+      };
+
+      console.log("Sending payload to backend:", payload);
+
+      const response = await axios.post("/api/pawapay-payout", payload);
 
       if (response.data.success) {
         setStatus("Success!");

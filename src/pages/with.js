@@ -1,110 +1,69 @@
+// pay.js
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import axios from "axios";
+import { v4 as uuidv4 } from "uuid";
 
-export default function PayoutPage() {
-  const [phone, setPhone] = useState("");
+export default function Pay() {
   const [amount, setAmount] = useState("");
-  const [status, setStatus] = useState("");
-  const [responseData, setResponseData] = useState(null);
-  const [userId, setUserId] = useState("");
+  const [phone, setPhone] = useState("");
+  const [response, setResponse] = useState(null);
 
-  // Retrieve or create userId in localStorage
-  useEffect(() => {
-    let stored = localStorage.getItem("userId");
-    if (!stored) {
-      stored = Math.floor(Math.random() * 1000000000).toString();
-      localStorage.setItem("userId", stored);
-    }
-    setUserId(stored);
-  }, []);
+  const sendPayout = async () => {
+    const payoutId = uuidv4();
 
-  const handlePayout = async () => {
-    setStatus("Processing payout...");
-    setResponseData(null);
+    const username = localStorage.getItem("username") || "guest_user";
 
-    if (!phone || !amount) {
-      setStatus("Please fill in phone and amount");
-      return;
-    }
+    // METADATA AS ARRAY (NO DUPLICATES)
+    const metadata = [
+      { fieldName: "username", value: username },
+      { fieldName: "transactionType", value: "payout" },
+      { fieldName: "platform", value: "web" }
+    ];
 
     try {
-      const payload = {
-        phone,
-        amount,
-        userId,
-      };
+      const res = await axios.post("/api/payout", {
+        payoutId,
+        amount: Number(amount),
+        currency: "RWF",
+        phoneNumber: phone,
+        country: "RW",
+        payoutMethod: "MOBILE_MONEY",
+        metadata
+      });
 
-      console.log("Sending payload to backend:", payload);
-
-      const response = await axios.post("/api/pawapay-payout", payload);
-
-      if (response.data.success) {
-        setStatus("Success!");
-        setResponseData(response.data);
-      } else {
-        setStatus("Failed");
-        setResponseData(response.data);
-      }
-    } catch (error) {
-      setStatus("Error");
-
-      let data;
-      if (error.response?.data) {
-        data = error.response.data;
-      } else {
-        data = { message: error.message };
-      }
-      setResponseData(data);
+      setResponse(res.data);
+    } catch (err) {
+      setResponse(err.response?.data || err);
     }
   };
 
   return (
-    <div style={{ padding: 20, fontFamily: "Arial, sans-serif" }}>
-      <h1>PawaPay Live Payout</h1>
+    <div style={{ padding: 20 }}>
+      <h2>Payout Form</h2>
 
       <input
         type="text"
-        placeholder="Phone number (e.g. 078XXXXXXX)"
-        value={phone}
-        onChange={(e) => setPhone(e.target.value)}
-        style={{ marginBottom: 10, width: "250px" }}
-      />
-      <br />
+        placeholder="Amount"
+        onChange={e => setAmount(e.target.value)}
+      /><br/><br/>
 
       <input
-        type="number"
-        placeholder="Amount (integer RWF)"
-        value={amount}
-        onChange={(e) => setAmount(e.target.value)}
-        style={{ marginBottom: 10, width: "250px" }}
-      />
-      <br />
+        type="text"
+        placeholder="Phone Number"
+        onChange={e => setPhone(e.target.value)}
+      /><br/><br/>
 
-      <button onClick={handlePayout} style={{ padding: "5px 15px" }}>
+      <button onClick={sendPayout} style={{ padding: 10, background: "blue", color: "white" }}>
         Send Payout
       </button>
 
-      <h3>Status: {status}</h3>
-
-      {responseData && (
-        <div style={{ marginTop: 10 }}>
-          <h4>Response:</h4>
-          <pre
-            style={{
-              background: "#f5f5f5",
-              padding: 10,
-              borderRadius: 5,
-              overflowX: "auto",
-            }}
-          >
-            {JSON.stringify(responseData, null, 2)}
-          </pre>
-        </div>
+      {response && (
+        <pre style={{ marginTop: 20 }}>
+          {JSON.stringify(response, null, 2)}
+        </pre>
       )}
-
-      <p>User ID: {userId}</p>
     </div>
   );
 }

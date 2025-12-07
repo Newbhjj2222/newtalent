@@ -17,7 +17,7 @@ export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({
       error: true,
-      message: "Method not allowed. Use POST only."
+      message: "Method not allowed. Use POST."
     });
   }
 
@@ -31,19 +31,15 @@ export default async function handler(req, res) {
       });
     }
 
-    // Clean phone number (only digits)
-    phone = phone.replace(/\D/g, "");
-
-    // Remove 0 prefix
+    // Clean & validate phone
+    phone = phone.replace(/\D/g, ""); // only digits
     if (phone.startsWith("0")) phone = phone.substring(1);
-
-    // Remove 250 if present
     if (phone.startsWith("250")) phone = phone.substring(3);
 
     if (phone.length !== 9) {
       return res.status(400).json({
         error: true,
-        message: "Phone must be 9 digits after cleaning."
+        message: "Phone must be 9 digits (after cleaning)."
       });
     }
 
@@ -62,7 +58,6 @@ export default async function handler(req, res) {
       statementDescription: "Withdrawal"
     };
 
-    // Send request to PawaPay
     const pawapayRes = await fetch("https://api.pawapay.io/v2/payouts", {
       method: "POST",
       headers: {
@@ -72,17 +67,15 @@ export default async function handler(req, res) {
       body: JSON.stringify(payload)
     });
 
-    // Accept both JSON & TEXT
     const raw = await pawapayRes.text();
     let data;
 
     try {
       data = JSON.parse(raw);
     } catch {
-      data = raw;
+      data = raw; // fallback if not JSON
     }
 
-    // Always return response (even if error)
     return res.status(pawapayRes.status).json({
       error: pawapayRes.status !== 200,
       status: pawapayRes.status,

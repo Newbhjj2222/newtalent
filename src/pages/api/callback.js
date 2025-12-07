@@ -1,34 +1,39 @@
-import { NextApiRequest, NextApiResponse } from "next";
+// pages/api/callback.js
+import { buffer } from 'micro';
+
+export const config = {
+  api: {
+    bodyParser: false, // kugirango tubashe kwakira raw body yose
+  },
+};
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ success: false, message: "Method not allowed" });
-  }
-
   try {
-    const callbackData = req.body;
+    // Akira raw body yose
+    const rawBody = await buffer(req);
 
-    // Log the callback data for debugging
-    console.log("Received callback data:", JSON.stringify(callbackData, null, 2));
-
-    // Process the callback based on the PawaPay specifications
-    // Example: Check for success or failure
-    if (callbackData.status === "SUCCESS") {
-      // Handle successful payout
-      console.log(`Payout successful for payoutId: ${callbackData.payoutId}`);
-      // You could update your database or notify the user here
-    } else if (callbackData.status === "FAILED") {
-      // Handle failed payout
-      console.log(`Payout failed for payoutId: ${callbackData.payoutId}`);
-      // You could log the error or notify the user here
-    } else {
-      console.log(`Unknown status for payoutId: ${callbackData.payoutId}`);
+    let payload;
+    try {
+      payload = JSON.parse(rawBody.toString());
+    } catch (err) {
+      // Niba atari JSON, shyiramo raw string
+      payload = rawBody.toString();
     }
 
-    // Respond to PawaPay to acknowledge receipt of the callback
-    res.status(200).json({ success: true });
+    console.log(`Callback Received [${req.method}]:`, payload);
+
+    // Hano ushobora:
+    // - Gushyira payload muri database
+    // - Kumenyesha admin
+    // - Gukora logging
+
+    // Subiza response
+    return res.status(200).json({
+      message: `Callback received successfully via ${req.method}`,
+      receivedPayload: payload,
+    });
   } catch (error) {
-    console.error("Error processing callback:", error);
-    res.status(500).json({ success: false, message: "Internal server error" });
+    console.error('Callback error:', error);
+    return res.status(500).json({ message: 'Server error' });
   }
 }

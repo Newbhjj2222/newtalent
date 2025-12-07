@@ -4,12 +4,25 @@ import axios from "axios";
 function generateNumericUUID() {
   const digits = "0123456789";
   const s = Array.from({ length: 36 }, (_, i) => {
-    if (i === 8 || i === 13 || i === 18 || i === 23) return "-"; // dashes
-    if (i === 14) return "4"; // UUID v4 fixed char
-    if (i === 19) return digits[Math.floor(Math.random() * 10)]; // variant
-    return digits[Math.floor(Math.random() * 10)]; // other random digits
+    if (i === 8 || i === 13 || i === 18 || i === 23) return "-";
+    if (i === 14) return "4";
+    if (i === 19) return digits[Math.floor(Math.random() * 10)];
+    return digits[Math.floor(Math.random() * 10)];
   });
   return s.join("");
+}
+
+// Simple phone validation for Rwanda MTN/Airtel
+function validatePhone(phone) {
+  // Accepts numbers like 078XXXXXXX or +25078XXXXXXX
+  const pattern = /^(?:\+250|0)(7[8|2|3|4|5|6|9])\d{7}$/;
+  return pattern.test(phone);
+}
+
+// Simple amount validation
+function validateAmount(amount) {
+  const num = Number(amount);
+  return !isNaN(num) && num > 0; // could add max limit if needed
 }
 
 export default async function handler(req, res) {
@@ -18,8 +31,17 @@ export default async function handler(req, res) {
   }
 
   const { phone, amount, userId } = req.body;
+
   if (!phone || !amount || !userId) {
     return res.status(400).json({ message: "Phone, amount and userId are required" });
+  }
+
+  if (!validatePhone(phone)) {
+    return res.status(400).json({ message: "Invalid Rwandan phone number format" });
+  }
+
+  if (!validateAmount(amount)) {
+    return res.status(400).json({ message: "Invalid amount" });
   }
 
   const payoutId = generateNumericUUID();
@@ -38,9 +60,7 @@ export default async function handler(req, res) {
             provider: "MTN-MOMO-RW",
           },
         },
-        metadata: {
-          userId, // save the user ID for reconciliation
-        },
+        metadata: { userId },
       },
       {
         headers: {
@@ -56,10 +76,15 @@ export default async function handler(req, res) {
       data: response.data,
     });
   } catch (error) {
-    console.error(error.response?.data || error.message);
+    // Full logging for debugging
+    console.error("Axios Error Data:", error.response?.data);
+    console.error("Axios Error Status:", error.response?.status);
+    console.error("Axios Error Headers:", error.response?.headers);
+    console.error("Axios Error Message:", error.message);
+
     res.status(500).json({
       success: false,
-      message: error.response?.data || error.message,
+      message: error.response?.data || error.message || "Unknown server error",
     });
   }
 }

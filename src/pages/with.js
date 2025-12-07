@@ -7,6 +7,7 @@ export default function PayoutPage() {
   const [phone, setPhone] = useState("");
   const [amount, setAmount] = useState("");
   const [status, setStatus] = useState("");
+  const [responseData, setResponseData] = useState(null);
   const [userId, setUserId] = useState("");
 
   // Retrieve or create userId in localStorage
@@ -21,6 +22,8 @@ export default function PayoutPage() {
 
   const handlePayout = async () => {
     setStatus("Processing payout...");
+    setResponseData(null);
+
     try {
       const response = await axios.post("/api/pawapay-payout", {
         phone,
@@ -29,17 +32,27 @@ export default function PayoutPage() {
       });
 
       if (response.data.success) {
-        setStatus(`Success! Payout ID: ${response.data.payoutId}`);
+        setStatus("Success!");
+        setResponseData(response.data);
       } else {
-        setStatus(`Failed: ${JSON.stringify(response.data.message)}`);
+        setStatus("Failed");
+        setResponseData(response.data);
       }
     } catch (error) {
-      setStatus(`Error: ${error.response?.data || error.message}`);
+      setStatus("Error");
+
+      let data;
+      if (error.response?.data) {
+        data = error.response.data;
+      } else {
+        data = { message: error.message };
+      }
+      setResponseData(data);
     }
   };
 
   return (
-    <div style={{ padding: 20 }}>
+    <div style={{ padding: 20, fontFamily: "Arial, sans-serif" }}>
       <h1>PawaPay Live Payout</h1>
 
       <input
@@ -47,7 +60,7 @@ export default function PayoutPage() {
         placeholder="Phone number (e.g. 078XXXXXXX)"
         value={phone}
         onChange={(e) => setPhone(e.target.value)}
-        style={{ marginBottom: 10 }}
+        style={{ marginBottom: 10, width: "250px" }}
       />
       <br />
 
@@ -56,13 +69,32 @@ export default function PayoutPage() {
         placeholder="Amount (integer RWF)"
         value={amount}
         onChange={(e) => setAmount(e.target.value)}
-        style={{ marginBottom: 10 }}
+        style={{ marginBottom: 10, width: "250px" }}
       />
       <br />
 
-      <button onClick={handlePayout}>Send Payout</button>
+      <button onClick={handlePayout} style={{ padding: "5px 15px" }}>
+        Send Payout
+      </button>
 
-      <p>{status}</p>
+      <h3>Status: {status}</h3>
+
+      {responseData && (
+        <div style={{ marginTop: 10 }}>
+          <h4>Response:</h4>
+          <pre
+            style={{
+              background: "#f5f5f5",
+              padding: 10,
+              borderRadius: 5,
+              overflowX: "auto",
+            }}
+          >
+            {JSON.stringify(responseData, null, 2)}
+          </pre>
+        </div>
+      )}
+
       <p>User ID: {userId}</p>
     </div>
   );

@@ -1,14 +1,13 @@
 import axios from "axios";
-import { v4 as uuidv4 } from "uuid"; // real UUID v4
+import { v4 as uuidv4 } from "uuid";
 
-// Simple phone validation for Rwanda MTN/Airtel
+// Validate Rwanda phone numbers
 function validatePhone(phone) {
-  // Accept numbers like "25078XXXXXXX" (international MSISDN) or "078XXXXXXX"
   const pattern = /^(?:\+?250|0)(7[8|2|3|4|5|6|9])\d{7}$/;
   return pattern.test(phone);
 }
 
-// Amount validation (example: 100–1,000,000 RWF)
+// Validate amount
 function validateAmount(amount) {
   const num = Number(amount);
   return !isNaN(num) && Number.isInteger(num) && num >= 100 && num <= 1000000;
@@ -26,10 +25,8 @@ export default async function handler(req, res) {
   if (!validatePhone(phone)) return res.status(400).json({ message: "Invalid Rwanda phone number" });
   if (!validateAmount(amount)) return res.status(400).json({ message: "Amount must be integer within 100–1,000,000 RWF" });
 
-  const payoutId = uuidv4(); // real UUID v4
-
-  // Convert phone to international format if needed
-  let phoneNumber = phone.startsWith("0") ? "250" + phone.slice(1) : phone.replace(/\+/, "");
+  const payoutId = uuidv4();
+  const phoneNumber = phone.startsWith("0") ? "250" + phone.slice(1) : phone.replace(/\+/, "");
 
   const payload = {
     payoutId,
@@ -39,13 +36,13 @@ export default async function handler(req, res) {
       type: "MMO",
       accountDetails: {
         phoneNumber,
-        provider: "MTN_MOMO_RWA", // exactly as PawaPay docs
+        provider: "MTN_MOMO_RWA", // must match docs
       },
     },
-    metadata: { userId },
+    metadata: { userId }, // required
   };
 
-  console.log("Payload being sent:", payload);
+  console.log("Sending payload:", payload);
 
   try {
     const response = await axios.post(

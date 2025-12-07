@@ -1,73 +1,70 @@
-// pages/payout.js
+"use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 export default function PayoutPage() {
   const [phone, setPhone] = useState("");
   const [amount, setAmount] = useState("");
-  const [provider, setProvider] = useState("MTN-MOMO-RW");
-  const [result, setResult] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState("");
+  const [userId, setUserId] = useState("");
 
-  function uuidv4() {
-    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => {
-      const r = (Math.random() * 16) | 0;
-      const v = c === "x" ? r : (r & 0x3) | 0x8;
-      return v.toString(16);
-    });
-  }
+  // Save or retrieve userId from localStorage
+  useEffect(() => {
+    let stored = localStorage.getItem("userId");
+    if (!stored) {
+      stored = Math.floor(Math.random() * 1000000000).toString(); // random numeric userId
+      localStorage.setItem("userId", stored);
+    }
+    setUserId(stored);
+  }, []);
 
-  const submit = async () => {
-    setLoading(true);
-    setResult(null);
+  const handlePayout = async () => {
+    setStatus("Processing payout...");
 
-    const cleanPhone = phone.replace(/\D/g, "");
-
-    const externalId = uuidv4();
-
-    const res = await fetch("/api/payout", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        phone: cleanPhone,
+    try {
+      const response = await axios.post("/api/pawapay-payout", {
+        phone,
         amount,
-        currency: "RWF",
-        provider,
-        externalId
-      }),
-    });
+        userId,
+      });
 
-    const data = await res.json();
-    setResult(data);
-    setLoading(false);
+      if (response.data.success) {
+        setStatus(`Success! Payout ID: ${response.data.payoutId}`);
+      } else {
+        setStatus(`Failed: ${response.data.message}`);
+      }
+    } catch (error) {
+      setStatus(`Error: ${error.message}`);
+    }
   };
 
   return (
     <div style={{ padding: 20 }}>
-      <h1>Payout (Withdraw)</h1>
+      <h1>PawaPay Payout</h1>
 
       <input
-        placeholder="Phone (2507xxxxxxx)"
+        type="text"
+        placeholder="Phone number"
         value={phone}
         onChange={(e) => setPhone(e.target.value)}
-      /><br /><br />
+        style={{ marginBottom: 10 }}
+      />
+      <br />
 
       <input
+        type="number"
         placeholder="Amount"
         value={amount}
         onChange={(e) => setAmount(e.target.value)}
-      /><br /><br />
+        style={{ marginBottom: 10 }}
+      />
+      <br />
 
-      <select value={provider} onChange={(e) => setProvider(e.target.value)}>
-        <option value="MTN-MOMO-RW">MTN Rwanda</option>
-        <option value="AIRTEL-MONEY-RW">Airtel Rwanda</option>
-      </select><br /><br />
+      <button onClick={handlePayout}>Send Payout</button>
 
-      <button onClick={submit} disabled={loading}>
-        {loading ? "Processing..." : "Withdraw"}
-      </button>
-
-      <pre>{result && JSON.stringify(result, null, 2)}</pre>
+      <p>{status}</p>
+      <p>User ID: {userId}</p>
     </div>
   );
 }

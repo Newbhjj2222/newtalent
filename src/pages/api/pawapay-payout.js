@@ -18,9 +18,16 @@ function validateMetadataArray(metadata) {
   return Array.isArray(metadata) && metadata.length > 0;
 }
 
-// Function to check for duplicate metadata
-function hasDuplicateMetadata(metadata, key) {
-  return metadata.some(item => item.key === key);
+// Function to create metadata without duplicates
+function createUniqueMetadata(existingMetadata, newMetadata) {
+  const keys = new Set(existingMetadata.map(item => item.key));
+  
+  newMetadata.forEach(item => {
+    if (!keys.has(item.key)) {
+      existingMetadata.push(item);
+      keys.add(item.key);
+    }
+  });
 }
 
 export default async function handler(req, res) {
@@ -50,14 +57,12 @@ export default async function handler(req, res) {
     });
   }
 
-  // Metadata as array with duplication check
+  // Initialize metadata array
   const metadata = [];
-  if (!hasDuplicateMetadata(metadata, "userId")) {
-    metadata.push({ key: "userId", value: userId.toString() });
-  }
-  if (!hasDuplicateMetadata(metadata, "source")) {
-    metadata.push({ key: "source", value: "Next.js app" });
-  }
+  createUniqueMetadata(metadata, [
+    { key: "userId", value: userId.toString() },
+    { key: "source", value: "Next.js app" }
+  ]);
 
   if (!validateMetadataArray(metadata)) {
     return res.status(400).json({ success: false, message: "Metadata array is required" });

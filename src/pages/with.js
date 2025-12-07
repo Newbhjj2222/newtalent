@@ -24,8 +24,17 @@ export default function PayoutPage() {
     setStatus("Processing payout...");
     setResponseData(null);
 
+    // Input validation
     if (!phone || !amount) {
       setStatus("Please fill in phone and amount");
+      return;
+    }
+    if (!validatePhone(phone)) {
+      setStatus("Invalid phone number format");
+      return;
+    }
+    if (!validateAmount(amount)) {
+      setStatus("Amount must be an integer between 100 and 1,000,000 RWF");
       return;
     }
 
@@ -48,7 +57,7 @@ export default function PayoutPage() {
         setResponseData(response.data);
       }
     } catch (error) {
-      setStatus("Error");
+      setStatus("Error occurred");
 
       let data;
       if (error.response?.data) {
@@ -56,8 +65,20 @@ export default function PayoutPage() {
       } else {
         data = { message: error.message };
       }
+      console.error("Error response:", data);
       setResponseData(data);
     }
+  };
+
+  // Helper functions for validation
+  const validatePhone = (phone) => {
+    const pattern = /^(?:\+?250|0)(7[8|2|3|4|5|6|9])\d{7}$/;
+    return pattern.test(phone);
+  };
+
+  const validateAmount = (amount) => {
+    const num = Number(amount);
+    return Number.isInteger(num) && num >= 100 && num <= 1000000;
   };
 
   return (

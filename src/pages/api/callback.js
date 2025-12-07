@@ -1,35 +1,22 @@
 // pages/api/callback.js
-import { buffer } from 'micro';
-
-export const config = {
-  api: {
-    bodyParser: false, // kugirango tubashe kwakira raw body yose
-  },
-};
 
 export default async function handler(req, res) {
   try {
-    // Akira raw body yose
-    const rawBody = await buffer(req);
+    // Ushobora kwakira POST/PUT/GET/DELETE n'ibindi byose
+    const method = req.method;
 
-    let payload;
-    try {
-      payload = JSON.parse(rawBody.toString());
-    } catch (err) {
-      // Niba atari JSON, shyiramo raw string
-      payload = rawBody.toString();
-    }
+    // Body izaba JSON niba uri gukoresha POST cyangwa PUT
+    const payload = req.body;
 
-    console.log(`Callback Received [${req.method}]:`, payload);
+    console.log(`Callback received via ${method}:`, payload);
 
-    // Hano ushobora:
+    // Hano wakora:
     // - Gushyira payload muri database
     // - Kumenyesha admin
-    // - Gukora logging
+    // - Logging y’amanota
 
-    // Subiza response
     return res.status(200).json({
-      message: `Callback received successfully via ${req.method}`,
+      message: `Callback received successfully via ${method}`,
       receivedPayload: payload,
     });
   } catch (error) {

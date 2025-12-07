@@ -99,7 +99,7 @@ export default function PayPage() {
           <option value="800">1000 NES ukwezi</option>
         </select>
 
-        <p style={{ marginTop: 5 }}>Amount: {amount} RWF</p>
+        <p style={{ marginTop: 5 }}>Amafaranga wishyura: {amount} RWF</p>
       </div>
 
       <button

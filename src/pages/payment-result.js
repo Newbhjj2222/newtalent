@@ -1,59 +1,61 @@
 "use client";
+import { useState } from "react";
 
-import { useEffect, useState } from "react";
-import { db } from "../components/firebase"; // Firestore import
-import { doc, getDoc } from "firebase/firestore";
+export default function DepositStatusPage() {
+  const [depositId, setDepositId] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState("");
 
-export default function PaymentResult() {
-  const [loading, setLoading] = useState(true);
-  const [msg, setMsg] = useState("");
+  const handleCheck = async () => {
+    setLoading(true);
+    setResult(null);
+    setError("");
 
-  useEffect(() => {
-    const checkPayment = async () => {
-      try {
-        // Fata username muri localStorage
-        const username = localStorage.getItem("username");
-        if (!username) {
-          setMsg("Username not found in localStorage.");
-          setLoading(false);
-          return;
-        }
-
-        // Fata doc ya depositers
-        const userRef = doc(db, "depositers", username);
-        const userSnap = await getDoc(userRef);
-
-        if (!userSnap.exists()) {
-          setMsg("No deposit record found for this user.");
-          setLoading(false);
-          return;
-        }
-
-        const data = userSnap.data();
-        const nesPoints = data.nes;
-
-        if (!nesPoints || nesPoints === 0) {
-          setMsg("Payment not completed yet. NES Points not added.");
-        } else {
-          setMsg(`Payment successful! You have received ${nesPoints} NES Points.`);
-        }
-
-        setLoading(false);
-
-      } catch (err) {
-        console.error("Error checking payment:", err);
-        setMsg("Error checking payment: " + err.message);
-        setLoading(false);
+    try {
+      const res = await fetch("/api/check-deposit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ depositId }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setResult(data);
+      } else {
+        setError(data.error || "Error checking deposit");
       }
-    };
-
-    checkPayment();
-  }, []);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div style={{ maxWidth:400, margin:"50px auto", padding:20, border:"1px solid #ccc", borderRadius:10 }}>
-      <h2 style={{ textAlign:"center", marginBottom:20 }}>Payment Result</h2>
-      {loading ? <p>Checking your payment...</p> : <p>{msg}</p>}
+    <div className="p-4 max-w-xl mx-auto">
+      <h1 className="text-2xl font-bold mb-4">Check Deposit Status</h1>
+      <input
+        type="text"
+        placeholder="Enter Deposit ID"
+        value={depositId}
+        onChange={(e) => setDepositId(e.target.value)}
+        className="border p-2 w-full mb-2 rounded"
+      />
+      <button
+        onClick={handleCheck}
+        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        disabled={loading}
+      >
+        {loading ? "Checking..." : "Check Status"}
+      </button>
+
+      {error && <p className="text-red-500 mt-2">{error}</p>}
+
+      {result && (
+        <pre className="bg-gray-100 p-4 mt-4 rounded overflow-x-auto">
+          {JSON.stringify(result, null, 2)}
+        </pre>
+      )}
     </div>
   );
 }

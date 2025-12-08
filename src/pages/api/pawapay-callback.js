@@ -1,51 +1,60 @@
 export const config = {
   api: {
-    bodyParser: false, // PawaPay sometimes sends raw JSON
+    bodyParser: true, // PawaPay ituma JSON body
   },
 };
 
 export default async function handler(req, res) {
   try {
-    // Read raw body
-    const rawBody = await readRawBody(req);
-
-    // Try to parse JSON if possible
-    let parsedBody = null;
-    try {
-      parsedBody = JSON.parse(rawBody);
-    } catch (e) {
-      parsedBody = rawBody; // keep raw if not JSON
-    }
-
-    // Log everything
-    console.log("----- LIVE CALLBACK -----");
+    console.log("----- PAWAPAY CALLBACK -----");
     console.log("Method:", req.method);
     console.log("Headers:", req.headers);
-    console.log("Body:", parsedBody);
-    console.log("-------------------------");
+    console.log("Body:", req.body);
+    console.log("----------------------------");
 
-    // IMPORTANT: Always respond 200 so PawaPay does NOT retry
+    // PawaPay always sends POST
+    if (req.method !== "POST") {
+      return res.status(200).json({ message: "Callback active" });
+    }
+
+    const event = req.body;
+
+    // Extract required fields
+    const depositId =
+      event.depositId ||
+      event.id ||
+      event.reference ||
+      null;
+
+    const amount =
+      event.amount ||
+      event.value ||
+      event.transactionAmount ||
+      null;
+
+    const currency =
+      event.currency ||
+      event.currencyCode ||
+      null;
+
+    const status =
+      event.status ||
+      event.state ||
+      event.paymentStatus ||
+      null;
+
+    // Ensure we return valid data always
     return res.status(200).json({
-      received: true,
-      method: req.method,
-      headers: req.headers,
-      body: parsedBody,
+      message: "OK",
+      depositId: depositId,
+      amount: amount,
+      currency: currency,
+      status: status,
+      raw: event, // Ibi bigufasha kubona EVERY field PawaPay yohereje
     });
+
   } catch (error) {
-    console.error("Callback Error:", error);
-    return res.status(200).json({
-      received: true,
-      error: error.toString(),
-    });
+    console.error("Callback error:", error);
+    return res.status(200).json({ message: "OK" }); // PawaPay idakeneye error
   }
-}
-
-// Function to read raw request body
-function readRawBody(req) {
-  return new Promise((resolve, reject) => {
-    let data = "";
-    req.on("data", chunk => (data += chunk));
-    req.on("end", () => resolve(data));
-    req.on("error", reject);
-  });
 }

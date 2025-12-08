@@ -116,48 +116,56 @@ useEffect(() => {
 
       incrementViews();
 
-      // --- NES logic ---
-      const handleNES = async () => {
-        try {
-          const username = storedUsername;
-          const author = postData.author || "Unknown";
+// --- NES logic ---
+const handleNES = async () => {
+  try {
+    const username = storedUsername;
+    const author = postData.author || "Unknown";
 
-          if (username !== author && username.toLowerCase() !== "newtalentsg") {
-            const depositerRef = doc(db, "depositers", username);
-            const depositerSnap = await getDoc(depositerRef);
+    // 🔥 FREE READING FOR EP 1 TO EP 4
+    const ep = extractSeriesAndEpisode(postData.head).episode;
+    if (ep >= 1 && ep <= 4) {
+      console.log("EP 1 - 4 are free to read, skipping NES deduction.");
+      return; // ⛔ Ntihakorerwa kugabanya NES
+    }
 
-            if (!depositerSnap.exists()) {
-              alert(
-                "Account yawe ntiboneka mubaguze NeS. Kugira ngo wemererwe gusoma banza uzigura. tugiye kukujyana aho uzigurira. niba ukeneye ubufasha twandikire Whatsapp +250722319367."
-              );
-              router.push("/balance");
-              return;
-            }
+    // 🔥 Normal NES logic ku zindi episodes zose
+    if (username !== author && username.toLowerCase() !== "newtalentsg") {
+      const depositerRef = doc(db, "depositers", username);
+      const depositerSnap = await getDoc(depositerRef);
 
-            const currentNes = Number(depositerSnap.data().nes) || 0;
-            if (currentNes < 1) {
-              alert(
-                "Nta NeS zihagije ufite zikwemerera gusoma iyi Nkuru. Nyamuneka banza uzigure. tugiye kukujyana aho uzigurira, niba ubibonye waziguze, twandikire Whatsapp nonaha tugufashe. +250722319367."
-              );
-              router.push("/balance");
-              return;
-            }
+      if (!depositerSnap.exists()) {
+        alert(
+          "Account yawe ntiboneka mubaguze NeS, kugira ngo wemererwe gukomeza gusoma, banza uzigure."
+        );
+        router.push("/balance");
+        return;
+      }
 
-            await updateDoc(depositerRef, { nes: currentNes - 1 });
+      const currentNes = Number(depositerSnap.data().nes) || 0;
+      if (currentNes < 1) {
+        alert(
+          "Nta NeS zihagije ufite zikwemerera gukomeza gusoma iyi nkuru banza uzigure. niba ibi ubibonye waziguze twandikire Whatsapp kuri 0722319367"
+        );
+        router.push("/balance");
+        return;
+      }
 
-            if (author !== username) {
-              const authorRef = doc(db, "authors", author);
-              const authorSnap = await getDoc(authorRef);
-              if (authorSnap.exists()) {
-                const authorNes = Number(authorSnap.data().nes) || 0;
-                await updateDoc(authorRef, { nes: authorNes + 1 });
-              }
-            }
-          }
-        } catch (err) {
-          console.error("NES update failed:", err);
+      await updateDoc(depositerRef, { nes: currentNes - 1 });
+
+      if (author !== username) {
+        const authorRef = doc(db, "authors", author);
+        const authorSnap = await getDoc(authorRef);
+        if (authorSnap.exists()) {
+          const authorNes = Number(authorSnap.data().nes) || 0;
+          await updateDoc(authorRef, { nes: authorNes + 1 });
         }
-      };
+      }
+    }
+  } catch (err) {
+    console.error("NES update failed:", err);
+  }
+};
 
       handleNES();
     };

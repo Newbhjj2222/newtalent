@@ -1,46 +1,51 @@
-import { db } from "../../components/firebase";
-import { doc, getDoc, updateDoc, setDoc, increment } from "firebase/firestore";
+export const config = {
+  api: {
+    bodyParser: false, // PawaPay sometimes sends raw JSON
+  },
+};
 
 export default async function handler(req, res) {
   try {
-    if (req.method !== "POST") {
-      return res.status(200).json({});
+    // Read raw body
+    const rawBody = await readRawBody(req);
+
+    // Try to parse JSON if possible
+    let parsedBody = null;
+    try {
+      parsedBody = JSON.parse(rawBody);
+    } catch (e) {
+      parsedBody = rawBody; // keep raw if not JSON
     }
 
-    // PawaPay JSON body
-    const event = req.body;
+    // Log everything
+    console.log("----- LIVE CALLBACK -----");
+    console.log("Method:", req.method);
+    console.log("Headers:", req.headers);
+    console.log("Body:", parsedBody);
+    console.log("-------------------------");
 
-    console.log("📌 CALLBACK RECEIVED:", event);
-
-    // Extract important fields
-    const status = event.status;
-    const metadata = event.metadata || {};
-
-    const username = metadata.username;
-    const nes = metadata.nes;
-
-    // Credit NES only if COMPLETED
-    if (status === "COMPLETED" && username && nes) {
-      const userRef = doc(db, "depositers", username);
-      const snapshot = await getDoc(userRef);
-
-      if (!snapshot.exists()) {
-        await setDoc(userRef, { nes: Number(nes) });
-      } else {
-        await updateDoc(userRef, {
-          nes: increment(Number(nes)),
-        });
-      }
-    }
-
-    // 🔥 IMPORTANT:
-    // Return EXACTLY what PawaPay sent (raw event)
-    return res.status(200).json(event);
-
+    // IMPORTANT: Always respond 200 so PawaPay does NOT retry
+    return res.status(200).json({
+      received: true,
+      method: req.method,
+      headers: req.headers,
+      body: parsedBody,
+    });
   } catch (error) {
-    console.error("🔥 CALLBACK ERROR:", error);
-
-    // Even on error return empty JSON so provider stops retries
-    return res.status(200).json({});
+    console.error("Callback Error:", error);
+    return res.status(200).json({
+      received: true,
+      error: error.toString(),
+    });
   }
+}
+
+// Function to read raw request body
+function readRawBody(req) {
+  return new Promise((resolve, reject) => {
+    let data = "";
+    req.on("data", chunk => (data += chunk));
+    req.on("end", () => resolve(data));
+    req.on("error", reject);
+  });
 }

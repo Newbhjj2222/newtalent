@@ -66,7 +66,7 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
   const [newComment, setNewComment] = useState("");
   const [currentUser, setCurrentUser] = useState("");
   const [views, setViews] = useState(postData?.views || 0);
-  const domain = "https://www.newtalentsg.co.rw"; // ✅ Domain yawe
+  const domain = "www.newtalentsg.co.rw"; // ✅ Domain yawe
   const [showLoginWarning, setShowLoginWarning] = useState(false);
 
 // --- Ureba user na views ---

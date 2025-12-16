@@ -10,6 +10,7 @@ import Footer from "../components/Footer";
 export default function Pay() {
   const [username, setUsername] = useState(null);
   const [nes, setNes] = useState(0);
+  const [isHover, setIsHover] = useState(false); // For button hover
 
   useEffect(() => {
     // Soma username muri localStorage
@@ -19,14 +20,20 @@ export default function Pay() {
 
     // Soma NES muri Firestore
     const fetchNES = async () => {
-      const depositerRef = doc(db, "depositers", storedUsername);
-      const docSnap = await getDoc(depositerRef);
-      if (docSnap.exists()) {
-        setNes(docSnap.data().nes || 0);
-      } else {
+      try {
+        const depositerRef = doc(db, "depositers", storedUsername);
+        const docSnap = await getDoc(depositerRef);
+        if (docSnap.exists()) {
+          setNes(docSnap.data().nes || 0);
+        } else {
+          setNes(0);
+        }
+      } catch (error) {
+        console.error("Error fetching NES:", error);
         setNes(0);
       }
     };
+
     fetchNES();
   }, []);
 
@@ -37,7 +44,7 @@ export default function Pay() {
   const containerStyle = {
     minHeight: "100vh",
     display: "flex",
-    marginTop: "80px"
+    marginTop: "80px",
     flexDirection: "column",
     justifyContent: "space-between",
     alignItems: "center",
@@ -75,15 +82,11 @@ export default function Pay() {
     fontSize: "1.1rem",
     fontWeight: "600",
     color: "#fff",
-    backgroundColor: "#0070f3",
+    backgroundColor: isHover ? "#005bb5" : "#0070f3",
     border: "none",
     borderRadius: "10px",
     cursor: "pointer",
     transition: "0.3s",
-  };
-
-  const buttonHoverStyle = {
-    backgroundColor: "#005bb5",
   };
 
   if (!username) {
@@ -107,8 +110,8 @@ export default function Pay() {
           <button
             style={buttonStyle}
             onClick={handlePurchase}
-            onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#005bb5")}
-            onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#0070f3")}
+            onMouseOver={() => setIsHover(true)}
+            onMouseOut={() => setIsHover(false)}
           >
             Gura NeS
           </button>
@@ -117,4 +120,4 @@ export default function Pay() {
       <Footer />
     </>
   );
-    }
+        }

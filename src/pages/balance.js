@@ -44,7 +44,7 @@ export default function Pay() {
   const containerStyle = {
     minHeight: "100vh",
     display: "flex",
-    marginTop: "80px",
+    marginTop: "180px",
     flexDirection: "column",
     justifyContent: "space-between",
     alignItems: "center",

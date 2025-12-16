@@ -2,8 +2,8 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { db } from "@/components/firebase"; // shyiraho aho firebase.js iherereye
-import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { db } from "@/components/firebase";
+import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 
 export default function SuccessPage() {
   const [data, setData] = useState(null);
@@ -13,7 +13,6 @@ export default function SuccessPage() {
   useEffect(() => {
     async function processPayment() {
       try {
-        // Soma payload muri URL
         const params = new URLSearchParams(window.location.search);
         const payloadParam = params.get("payload");
 
@@ -22,7 +21,6 @@ export default function SuccessPage() {
           return;
         }
 
-        // Decode URL → JSON
         const decoded = decodeURIComponent(payloadParam);
         const parsedData = JSON.parse(decoded);
         setData(parsedData);
@@ -35,7 +33,7 @@ export default function SuccessPage() {
 
         if (!customerId || isNaN(amount)) return;
 
-        // Shyiraho plan, nes na createdAt hashingiwe ku amount
+        // Determine plan & NES based on amount
         let plan = "";
         let nes = 0;
 
@@ -65,21 +63,28 @@ export default function SuccessPage() {
             nes = 0;
         }
 
-        // Shyira muri Firestore collection 'depositers', document yitwa customerId
         const depositerRef = doc(db, "depositers", customerId);
+        const existingDoc = await getDoc(depositerRef);
+
+        let totalNES = nes;
+
+        if (existingDoc.exists()) {
+          const data = existingDoc.data();
+          totalNES += data.nes || 0; // Guteranya NES zishyashya n’izari zihari
+        }
 
         await setDoc(
           depositerRef,
           {
             plan,
-            nes,
-            createdAt: serverTimestamp(),
+            nes: totalNES,
+            amount,
+            timestamp: serverTimestamp(), // igihe nyacyo
           },
-          { merge: true }
+          { merge: true } // merge if doc exists
         );
 
-        // Update message na redirect
-        setMessage(`You received NES ${nes}! Redirecting...`);
+        setMessage(`You received NES ${totalNES}! Redirecting...`);
         setTimeout(() => {
           window.location.href = "https://www.newtalentsg.co.rw";
         }, 5000);
@@ -93,7 +98,7 @@ export default function SuccessPage() {
     processPayment();
   }, []);
 
-  // CSS responsive style
+  // Responsive CSS
   const containerStyle = {
     minHeight: "100vh",
     display: "flex",
@@ -189,4 +194,4 @@ export default function SuccessPage() {
       </div>
     </div>
   );
-          }
+        }

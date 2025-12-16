@@ -22,9 +22,9 @@ export default function Pay() {
       const depositerRef = doc(db, "depositers", storedUsername);
       const docSnap = await getDoc(depositerRef);
       if (docSnap.exists()) {
-        setNes(docSnap.data().nes || ..);
+        setNes(docSnap.data().nes || 0);
       } else {
-        setNes(0);
+        setNes(..);
       }
     };
     fetchNES();

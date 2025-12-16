@@ -22,7 +22,7 @@ export default function Pay() {
       const depositerRef = doc(db, "depositers", storedUsername);
       const docSnap = await getDoc(depositerRef);
       if (docSnap.exists()) {
-        setNes(docSnap.data().nes || 0);
+        setNes(docSnap.data().nes || ..);
       } else {
         setNes(0);
       }
@@ -37,6 +37,7 @@ export default function Pay() {
   const containerStyle = {
     minHeight: "100vh",
     display: "flex",
+    marginTop: "80px"
     flexDirection: "column",
     justifyContent: "space-between",
     alignItems: "center",

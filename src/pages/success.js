@@ -2,12 +2,13 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { db } from "@/components/firebase"; // shaka aho firebase.js iherereye
+import { db } from "@/components/firebase"; // shyiraho aho firebase.js iherereye
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 
 export default function SuccessPage() {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
+  const [message, setMessage] = useState(null);
 
   useEffect(() => {
     async function processPayment() {
@@ -24,10 +25,8 @@ export default function SuccessPage() {
         // Decode URL → JSON
         const decoded = decodeURIComponent(payloadParam);
         const parsedData = JSON.parse(decoded);
-
         setData(parsedData);
 
-        // Fata transaction ya mbere
         const transaction = parsedData?.data?.result?.[0];
         if (!transaction) return;
 
@@ -69,13 +68,22 @@ export default function SuccessPage() {
         // Shyira muri Firestore collection 'depositers', document yitwa customerId
         const depositerRef = doc(db, "depositers", customerId);
 
-        await setDoc(depositerRef, {
-          plan,
-          nes,
-          createdAt: serverTimestamp(),
-        }, { merge: true }); // merge: true ihindura gusa ibyo bidahari
+        await setDoc(
+          depositerRef,
+          {
+            plan,
+            nes,
+            createdAt: serverTimestamp(),
+          },
+          { merge: true }
+        );
 
-        console.log("Deposit updated in Firestore!");
+        // Update message na redirect
+        setMessage(`You received NES ${nes}! Redirecting...`);
+        setTimeout(() => {
+          window.location.href = "https://www.newtalentsg.co.rw";
+        }, 5000);
+
       } catch (err) {
         console.error("Error processing payment:", err);
         setError("Failed to process payment");
@@ -85,19 +93,63 @@ export default function SuccessPage() {
     processPayment();
   }, []);
 
+  // CSS responsive style
+  const containerStyle = {
+    minHeight: "100vh",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: "20px",
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+    background: "linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%)",
+  };
+
+  const cardStyle = {
+    maxWidth: "500px",
+    width: "100%",
+    background: "#fff",
+    borderRadius: "15px",
+    boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
+    padding: "30px",
+    textAlign: "center",
+  };
+
+  const headingStyle = {
+    fontSize: "1.8rem",
+    marginBottom: "15px",
+    color: "#333",
+  };
+
+  const textStyle = {
+    fontSize: "1.1rem",
+    marginBottom: "10px",
+    color: "#555",
+  };
+
+  const messageStyle = {
+    fontSize: "1.2rem",
+    fontWeight: "600",
+    color: "#0070f3",
+    marginTop: "20px",
+  };
+
   if (error) {
     return (
-      <div style={{ padding: 40, fontFamily: "Arial" }}>
-        <h1>Payment Error</h1>
-        <p>{error}</p>
+      <div style={containerStyle}>
+        <div style={cardStyle}>
+          <h1 style={headingStyle}>Payment Error</h1>
+          <p style={textStyle}>{error}</p>
+        </div>
       </div>
     );
   }
 
   if (!data) {
     return (
-      <div style={{ padding: 40, fontFamily: "Arial" }}>
-        <h1>Processing payment...</h1>
+      <div style={containerStyle}>
+        <div style={cardStyle}>
+          <h1 style={headingStyle}>Processing payment...</h1>
+        </div>
       </div>
     );
   }
@@ -105,38 +157,36 @@ export default function SuccessPage() {
   const transaction = data?.data?.result?.[0];
 
   return (
-    <div style={{ padding: 40, fontFamily: "Arial" }}>
-      <h1>Payment Status</h1>
+    <div style={containerStyle}>
+      <div style={cardStyle}>
+        <h1 style={headingStyle}>Payment Status</h1>
 
-      <p>
-        <strong>Status:</strong> {data.status}
-      </p>
+        <p style={textStyle}>
+          <strong>Status:</strong> {data.status}
+        </p>
 
-      {transaction && (
-        <>
-          <hr />
+        {transaction && (
+          <>
+            <p style={textStyle}>
+              <strong>Deposit ID:</strong> {transaction.depositId}
+            </p>
+            <p style={textStyle}>
+              <strong>Amount:</strong> {transaction.depositedAmount} {transaction.currency}
+            </p>
+            <p style={textStyle}>
+              <strong>Customer ID:</strong> {transaction.metadata?.customerId}
+            </p>
+            <p style={textStyle}>
+              <strong>Order ID:</strong> {transaction.metadata?.orderId}
+            </p>
+            <p style={textStyle}>
+              <strong>Payment Method:</strong> {transaction.correspondent}
+            </p>
+          </>
+        )}
 
-          <p>
-            <strong>Deposit ID:</strong> {transaction.depositId}
-          </p>
-          <p>
-            <strong>Amount:</strong>{" "}
-            {transaction.depositedAmount} {transaction.currency}
-          </p>
-          <p>
-            <strong>Customer ID:</strong>{" "}
-            {transaction.metadata?.customerId}
-          </p>
-          <p>
-            <strong>Order ID:</strong>{" "}
-            {transaction.metadata?.orderId}
-          </p>
-          <p>
-            <strong>Payment Method:</strong>{" "}
-            {transaction.correspondent}
-          </p>
-        </>
-      )}
+        {message && <p style={messageStyle}>{message}</p>}
+      </div>
     </div>
   );
-      }
+          }

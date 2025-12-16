@@ -1,35 +1,35 @@
 // pages/pay.js
-import Header from "../components/Header";
-import Footer from "../components/Footer";
+'use client';
+
+import { useEffect, useState } from "react";
 import { db } from "../components/firebase";
 import { doc, getDoc } from "firebase/firestore";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
 
-// SSR function to get user NES points
-export async function getServerSideProps(context) {
-  const username = context.req.cookies.username || null;
+export default function Pay() {
+  const [username, setUsername] = useState(null);
+  const [nes, setNes] = useState(0);
 
-  if (!username) {
-    return {
-      redirect: {
-        destination: "/login",
-        permanent: false,
-      },
+  useEffect(() => {
+    // Soma username muri localStorage
+    const storedUsername = localStorage.getItem("username");
+    if (!storedUsername) return; // ushobora na redirect kuri login niba ushaka
+    setUsername(storedUsername);
+
+    // Soma NES muri Firestore
+    const fetchNES = async () => {
+      const depositerRef = doc(db, "depositers", storedUsername);
+      const docSnap = await getDoc(depositerRef);
+      if (docSnap.exists()) {
+        setNes(docSnap.data().nes || 0);
+      } else {
+        setNes(0);
+      }
     };
-  }
+    fetchNES();
+  }, []);
 
-  const depositerRef = doc(db, "depositers", username);
-  const docSnap = await getDoc(depositerRef);
-  const nes = docSnap.exists() ? docSnap.data().nes || 0 : 0;
-
-  return {
-    props: {
-      username,
-      nes,
-    },
-  };
-}
-
-export default function Pay({ username, nes }) {
   const handlePurchase = () => {
     window.location.href = "https://payj.gamer.gd/";
   };
@@ -85,6 +85,16 @@ export default function Pay({ username, nes }) {
     backgroundColor: "#005bb5",
   };
 
+  if (!username) {
+    return (
+      <div style={containerStyle}>
+        <div style={cardStyle}>
+          <h1 style={headingStyle}>Injira mbere yo gukomeza</h1>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <Header />
@@ -106,4 +116,4 @@ export default function Pay({ username, nes }) {
       <Footer />
     </>
   );
-}
+    }

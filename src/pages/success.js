@@ -84,7 +84,7 @@ export default function SuccessPage() {
           { merge: true } // merge if doc exists
         );
 
-        setMessage(`You received NES ${totalNES}! Redirecting...`);
+        setMessage(`You have NES ${totalNES}! Redirecting...`);
         setTimeout(() => {
           window.location.href = "https://www.newtalentsg.co.rw";
         }, 5000);

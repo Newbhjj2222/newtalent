@@ -24,7 +24,7 @@ export default function Pay() {
       if (docSnap.exists()) {
         setNes(docSnap.data().nes || 0);
       } else {
-        setNes(..);
+        setNes(0);
       }
     };
     fetchNES();

@@ -38,6 +38,7 @@ const Header = () => {
         <li><Link href="/news">News/fashions</Link></li>
         <li><Link href="/lyrics">Songs and lyrics</Link></li>
         <li><Link href="/Nesgain">Nesgain game</Link></li>
+        <li><Link href="/poll">RQA game</Link></li>
         <li><Link href="/profile">Profile</Link></li>
       </ul>
     </header>

@@ -34,6 +34,9 @@ const Footer = () => {
             <Link href="/contact">Contact</Link>
           </li>
           <li>
+            <Link href="/poll">RQA game</Link>
+          </li>
+          <li>
             <Link href="/Monitize">Monitization</Link>
           </li>
           <li>

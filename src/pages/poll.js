@@ -13,6 +13,9 @@ import {
 } from "firebase/firestore";
 import styles from "../styles/poll.module.css";
 import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+Import Channel from "../components/Channel";
 
 /* =========================
    SSR: FETCH ALL POLLS
@@ -144,8 +147,11 @@ export default function Poll({ polls }) {
      RENDER
   ========================= */
   return (
+    <>
+    <Header />
+    <Channel />
     <div className={styles.container}>
-      <h1 className={styles.title}>🗳️ Poll Quiz</h1>
+      <h1 className={styles.title}>🗳️ Real Question And Answer</h1>
       <p className={styles.user}>User: {username}</p>
 
       {polls.map((poll, idx) => (
@@ -196,11 +202,13 @@ export default function Poll({ polls }) {
 
       {alreadySubmitted && (
         <div className={styles.result}>
-          ✅ Wamaze gukora iyi poll  
+          ✅ Wamaze gukina game
           <br />
-          🎯 Amanota wabonye: <strong>{score}</strong>
+          🎯 NeS: <strong>{score}</strong>
         </div>
       )}
     </div>
+<Footer/>
+      </>
   );
 }

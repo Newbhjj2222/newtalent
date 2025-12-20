@@ -58,6 +58,7 @@
   padding: 12px;
   cursor: pointer;
   display: flex;
+  color: black;
   justify-content: space-between;
   align-items: center;
   transition: all 0.2s ease;

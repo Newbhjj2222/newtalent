@@ -15,7 +15,7 @@ import styles from "../styles/poll.module.css";
 import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-Import Channel from "../components/Channel";
+import Channel from "../components/Channel";
 
 /* =========================
    SSR: FETCH ALL POLLS

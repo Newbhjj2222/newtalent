@@ -65,7 +65,7 @@
 }
 
 .answer:hover {
-  background: #f1f5f9;
+  background: green;
 }
 
 /* STATES */
@@ -78,7 +78,7 @@
 .wrong {
   background: #fee2e2 !important;
   border-color: #ef4444;
-  color: #7f1d1d;
+  color: red;
 }
 
 .points {

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 import { db } from "../components/firebase";
 import {
   collection,
@@ -33,6 +34,8 @@ export async function getServerSideProps() {
    PAGE COMPONENT
 ========================= */
 export default function Poll({ polls }) {
+  const router = useRouter();
+
   const [username, setUsername] = useState(null);
   const [answers, setAnswers] = useState({});
   const [submitted, setSubmitted] = useState(false);
@@ -45,12 +48,14 @@ export default function Poll({ polls }) {
   ========================= */
   useEffect(() => {
     const user = localStorage.getItem("username");
-    setUsername(user);
 
+    // 🔴 NIBA NTA USERNAME → LOGIN
     if (!user) {
-      setLoading(false);
+      router.replace("/login");
       return;
     }
+
+    setUsername(user);
 
     const checkAttempt = async () => {
       const attemptRef = doc(db, "pollAttempts", user);
@@ -66,7 +71,7 @@ export default function Poll({ polls }) {
     };
 
     checkAttempt();
-  }, []);
+  }, [router]);
 
   /* =========================
      SELECT ANSWER
@@ -74,21 +79,16 @@ export default function Poll({ polls }) {
   const handleSelect = (pollId, index) => {
     if (submitted || alreadySubmitted) return;
 
-    setAnswers({
-      ...answers,
+    setAnswers((prev) => ({
+      ...prev,
       [pollId]: index,
-    });
+    }));
   };
 
   /* =========================
      SUBMIT ANSWERS
   ========================= */
   const submitAnswers = async () => {
-    if (!username) {
-      alert("Nta username ibonetse ❌");
-      return;
-    }
-
     const attemptRef = doc(db, "pollAttempts", username);
     const attemptSnap = await getDoc(attemptRef);
 
@@ -146,16 +146,20 @@ export default function Poll({ polls }) {
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>🗳️ Poll Quiz</h1>
-      <p className={styles.user}>User: {username || "Unknown"}</p>
+      <p className={styles.user}>User: {username}</p>
 
       {polls.map((poll, idx) => (
         <div key={poll.id} className={styles.card}>
-          <h3>
+          <h3 className={styles.question}>
             {idx + 1}. {poll.question}
           </h3>
 
           {poll.imageUrl && (
-            <img src={poll.imageUrl} className={styles.image} />
+            <img
+              src={poll.imageUrl}
+              alt="poll image"
+              className={styles.image}
+            />
           )}
 
           <div className={styles.answers}>
@@ -172,7 +176,7 @@ export default function Poll({ polls }) {
                   `}
                   onClick={() => handleSelect(poll.id, index)}
                 >
-                  {ans}
+                  <span>{ans}</span>
                   {submitted && correct && <FaCheckCircle />}
                   {submitted && selected && !correct && <FaTimesCircle />}
                 </button>

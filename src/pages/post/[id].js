@@ -130,22 +130,70 @@ useEffect(() => {
 
         // ❌ Ntutanga NES niba ari author wa post
         if (storedUsername === author) return;
+useEffect(() => {
+  if (typeof window === "undefined" || !postData?.id) return;
 
-        const authorRef = doc(db, "authors", author);
-        const authorSnap = await getDoc(authorRef);
+  const checkUser = async () => {
+    const storedUsername = localStorage.getItem("username");
 
-        if (!authorSnap.exists()) return;
+    // 🔴 User atinjiye
+    if (!storedUsername) {
+      await new Promise((r) => setTimeout(r, 50000));
+      setShowLoginWarning(true);
+      await new Promise((r) => setTimeout(r, 10000));
+      router.push("/login");
+      return;
+    }
 
-        // ✅ Ongeramo NES 1
-        await updateDoc(authorRef, {
-          nes: increment(1),
-        });
-      } catch (err) {
-        console.error("NES update failed:", err);
+    setCurrentUser(storedUsername);
+
+    /* =========================
+       ⏳ WAIT 60 SECONDS
+    ========================= */
+    await new Promise((r) => setTimeout(r, 60000));
+
+    /* =========================
+       👁️ VIEWS
+    ========================= */
+    try {
+      const postRef = doc(db, "posts", postData.id);
+      await updateDoc(postRef, {
+        views: increment(1),
+      });
+
+      const snap = await getDoc(postRef);
+      if (snap.exists()) {
+        setViews(snap.data().views || 0);
       }
-    };
+    } catch (err) {
+      console.error("View update failed:", err);
+    }
 
-    handleNES();
+    /* =========================
+       ⭐ NES
+    ========================= */
+    try {
+      const author = postData.author;
+      if (!author) return;
+
+      // ❌ Ntutanga NES niba ari NewtalentsG
+      if (storedUsername === "NewtalentsG") return;
+
+      // ❌ Ntutanga NES niba ari author wa post
+      if (storedUsername === author) return;
+
+      const authorRef = doc(db, "authors", author);
+      const authorSnap = await getDoc(authorRef);
+
+      if (!authorSnap.exists()) return;
+
+      // ✅ NES +1 nyuma ya 60s
+      await updateDoc(authorRef, {
+        nes: increment(1),
+      });
+    } catch (err) {
+      console.error("NES update failed:", err);
+    }
   };
 
   checkUser();

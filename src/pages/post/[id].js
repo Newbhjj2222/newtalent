@@ -108,7 +108,7 @@ useEffect(() => {
       if (userNes < 1) {
         setLimitWarning(true);
 
-        await new Promise((r) => setTimeout(r, 10000));
+        await new Promise((r) => setTimeout(r, 15000));
         router.push("/balance");
         return;
       }

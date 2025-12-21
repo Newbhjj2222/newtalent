@@ -68,7 +68,7 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
   const [views, setViews] = useState(postData?.views || 0);
   const domain = "www.newtalentsg.co.rw"; // ✅ Domain yawe
   const [showLoginWarning, setShowLoginWarning] = useState(false);
-
+const [limitWarning, setLimitWarning] = useState(false);
 // --- Ureba user na views ---
 useEffect(() => {
   if (typeof window === "undefined" || !postData?.id) return;
@@ -106,7 +106,7 @@ useEffect(() => {
 
       // ❌ Nta NES afite
       if (userNes < 1) {
-        setShowLoginWarning(true);
+        setLimitWarning(true);
 
         await new Promise((r) => setTimeout(r, 10000));
         router.push("/balance");
@@ -301,6 +301,33 @@ useEffect(() => {
 </Head>
 
       <Header />
+        {limitWarning && (
+  <div
+    style={{
+      position: "fixed",
+      top: "50%",
+      left: "50%",
+      transform: "translate(-50%, -50%)",
+      background: "#fff7ed",
+      color: "#9a3412",
+      padding: "20px",
+      borderRadius: "12px",
+      fontSize: "18px",
+      fontWeight: "bold",
+      border: "2px solid #fdba74",
+      zIndex: 9999,
+      width: "90%",
+      maxWidth: "420px",
+      textAlign: "center",
+      boxShadow: "0 6px 25px rgba(0,0,0,0.25)",
+    }}
+  >
+    Musomyi, wemerewe gusoma ibice 3 gusa by’inkuru ku munsi.
+    <br />
+    <br />
+    Niba ukeneye gukomeza gusoma nonaha, gura NES point.
+  </div>
+)}
           {showLoginWarning && (
   <div style={{
     position: "fixed",

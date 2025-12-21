@@ -133,7 +133,7 @@ useEffect(() => {
           console.error("NES update failed:", err);
         }
       };
-      handleNES();
+      checkUser();
     }
   }, [postData, router]);
 

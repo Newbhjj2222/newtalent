@@ -73,71 +73,11 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
 useEffect(() => {
   if (typeof window === "undefined" || !postData?.id) return;
 
-  const checkUser = async () => {
-    const storedUsername = localStorage.getItem("username");
-
-    // 🔴 Niba user atinjiye
-    if (!storedUsername) {
-      // Tegereza 50s
-      await new Promise((r) => setTimeout(r, 50000));
-
-      // Erekana warning
-      setShowLoginWarning(true);
-
-      // Tegereza 10s wohereze kuri login
-      await new Promise((r) => setTimeout(r, 10000));
-      router.push("/login");
-      return;
-    }
-
-    setCurrentUser(storedUsername);
-
-    /* =========================
-       👁️ VIEWS LOGIC
-    ========================= */
-    const incrementViews = async () => {
-      try {
-        const postRef = doc(db, "posts", postData.id);
-
-        // Tegereza 60s
-        await new Promise((r) => setTimeout(r, 60000));
-
-        await updateDoc(postRef, {
-          views: increment(1),
-        });
-
-        const snap = await getDoc(postRef);
-        if (snap.exists()) {
-          setViews(snap.data().views || 0);
-        }
-      } catch (err) {
-        console.error("View update failed:", err);
-      }
-    };
-
-    incrementViews();
-
-    /* =========================
-       ⭐ NES LOGIC
-    ========================= */
-    const handleNES = async () => {
-      try {
-        const author = postData.author;
-        if (!author) return;
-
-        // ❌ Ntutanga NES niba ari NewtalentsG
-        if (storedUsername === "NewtalentsG") return;
-
-        // ❌ Ntutanga NES niba ari author wa post
-        if (storedUsername === author) return;
-useEffect(() => {
-  if (typeof window === "undefined" || !postData?.id) return;
-
-  const checkUser = async () => {
-    const storedUsername = localStorage.getItem("username");
+  const runLogic = async () => {
+    const username = localStorage.getItem("username");
 
     // 🔴 User atinjiye
-    if (!storedUsername) {
+    if (!username) {
       await new Promise((r) => setTimeout(r, 50000));
       setShowLoginWarning(true);
       await new Promise((r) => setTimeout(r, 10000));
@@ -145,7 +85,42 @@ useEffect(() => {
       return;
     }
 
-    setCurrentUser(storedUsername);
+    setCurrentUser(username);
+
+    /* =========================
+       📅 DAILY READ LIMIT (3)
+    ========================= */
+    const today = new Date().toISOString().slice(0, 10);
+    const readKey = `reads_${username}_${today}`;
+
+    let readsToday = Number(localStorage.getItem(readKey)) || 0;
+
+    if (readsToday >= 3) {
+      // 🔎 Reba NES za user
+      const depRef = doc(db, "depositers", username);
+      const depSnap = await getDoc(depRef);
+
+      const userNes = depSnap.exists()
+        ? Number(depSnap.data().nes) || 0
+        : 0;
+
+      // ❌ Nta NES afite
+      if (userNes < 1) {
+        setShowLoginWarning(true);
+
+        await new Promise((r) => setTimeout(r, 10000));
+        router.push("/balance");
+        return;
+      }
+
+      // ✅ Kata NES 1
+      await updateDoc(depRef, {
+        nes: increment(-1),
+      });
+    } else {
+      // ✅ Increment daily free reads
+      localStorage.setItem(readKey, readsToday + 1);
+    }
 
     /* =========================
        ⏳ WAIT 60 SECONDS
@@ -157,9 +132,7 @@ useEffect(() => {
     ========================= */
     try {
       const postRef = doc(db, "posts", postData.id);
-      await updateDoc(postRef, {
-        views: increment(1),
-      });
+      await updateDoc(postRef, { views: increment(1) });
 
       const snap = await getDoc(postRef);
       if (snap.exists()) {
@@ -170,35 +143,25 @@ useEffect(() => {
     }
 
     /* =========================
-       ⭐ NES
+       ⭐ NES TO AUTHOR
     ========================= */
     try {
       const author = postData.author;
       if (!author) return;
 
-      // ❌ Ntutanga NES niba ari NewtalentsG
-      if (storedUsername === "NewtalentsG") return;
+      if (username === "NewtalentsG") return;
+      if (username === author) return;
 
-      // ❌ Ntutanga NES niba ari author wa post
-      if (storedUsername === author) return;
-
-      const authorRef = doc(db, "authors", author);
-      const authorSnap = await getDoc(authorRef);
-
-      if (!authorSnap.exists()) return;
-
-      // ✅ NES +1 nyuma ya 60s
-      await updateDoc(authorRef, {
+      await updateDoc(doc(db, "authors", author), {
         nes: increment(1),
       });
     } catch (err) {
-      console.error("NES update failed:", err);
+      console.error("Author NES update failed:", err);
     }
   };
 
-  checkUser();
+  runLogic();
 }, [postData, router]);
-
   // --- Comments ---
   const handleCommentSubmit = async () => {
     if (!newComment.trim() || !currentUser) return;

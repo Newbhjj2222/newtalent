@@ -1,4 +1,5 @@
 // pages/post/[id].js
+"use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Head from "next/head";
@@ -10,60 +11,100 @@ import {
   getDocs,
   addDoc,
   updateDoc,
+  increment,
 } from "firebase/firestore";
 import { FaShareAlt } from "react-icons/fa";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import Bible from "../../components/Bible";
 import NesMine from "../../components/NesMine";
+import Channel from "../../components/Channel";
 import styles from "../../components/PostDetail.module.css";
-
 const extractSeriesAndEpisode = (head) => {
   if (!head) return { title: null, season: null, episode: null };
-  const cleanedHead = head.replace(/[\/\-_:.]+/g, " ").replace(/\s+/g, " ").trim().toUpperCase();
-  const isFinal = /FINAL(LY)?/.test(cleanedHead);
 
+  const cleanedHead = head
+    .replace(/[\/\-_:.]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toUpperCase();
+
+  // 🔹 Reba niba ari FINAL cyangwa FINALLY
+  const isFinal = /(FINAL(LY)?(\s*EPISODE)?|EPISODE\s*FINAL(LY)?)/i.test(cleanedHead);
+
+  // 🔹 Shaka Season
   const seasonMatch = cleanedHead.match(/SEASON\s*0*(\d+)|S\s*0*(\d+)/i);
   let season = seasonMatch ? parseInt(seasonMatch[1] || seasonMatch[2], 10) : 1;
 
+  // 🔹 Shaka Episode Number
   const episodeMatch = cleanedHead.match(/EPISODE\s*0*(\d+)|EP\s*0*(\d+)|E\s*0*(\d+)/i);
-  let episode = episodeMatch ? parseInt(episodeMatch[1] || episodeMatch[2] || episodeMatch[3], 10) : 1;
+  let episode = episodeMatch
+    ? parseInt(episodeMatch[1] || episodeMatch[2] || episodeMatch[3], 10)
+    : null;
 
+  // 🔹 Niba ari FINAL cyangwa FINALLY, shyiraho episode = 999
   if (isFinal) episode = 999;
 
+  // 🔹 Niba ntabonye number ariko atari FINAL, nyishyire kuri 1
+  if (episode === null || isNaN(episode)) episode = 1;
+
+  // 🔹 Sobanura title (udukuremo ibintu byongera)
   const title = cleanedHead
-    .replace(/SEASON\s*0*\d+/ig, "")
-    .replace(/S\s*0*\d+/ig, "")
-    .replace(/EPISODE\s*0*\d+/ig, "")
-    .replace(/EP\s*0*\d+/ig, "")
-    .replace(/E\s*0*\d+/ig, "")
-    .replace(/FINAL(LY)?/ig, "")
+    .replace(/SEASON\s*0*\d+/gi, "")
+    .replace(/S\s*0*\d+/gi, "")
+    .replace(/EPISODE\s*0*\d+/gi, "")
+    .replace(/EP\s*0*\d+/gi, "")
+    .replace(/E\s*0*\d+/gi, "")
+    .replace(/FINAL(LY)?/gi, "")
     .trim();
 
   return { title, season, episode };
 };
-
 const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
   const router = useRouter();
   const [comments, setComments] = useState(commentsData || []);
   const [newComment, setNewComment] = useState("");
   const [currentUser, setCurrentUser] = useState("");
-const domain = "https://newtalentsg.co.rw"; // ✅ Domain yawe
-  
-  useEffect(() => {
-    if (typeof window !== "undefined") {
+  const [views, setViews] = useState(postData?.views || 0);
+  const domain = "www.newtalentsg.co.rw"; // ✅ Domain yawe
+  const [showLoginWarning, setShowLoginWarning] = useState(false);
+
+// --- Ureba user na views ---
+useEffect(() => {
+  if (typeof window !== "undefined" && postData?.id) {
+
+    const checkUser = async () => {
       const storedUsername = localStorage.getItem("username");
+
+      // 🔹 Niba user adahari
       if (!storedUsername) {
+
+        // --- Tegereza 50 seconds mbere yo kwerekana message ---
+        await new Promise((resolve) => setTimeout(resolve, 50000));
+
+        // --- Yerekane message ---
+        setShowLoginWarning(true);
+
+        // --- Tegereza 3 seconds hanyuma wohereze kuri login ---
+        await new Promise((resolve) => setTimeout(resolve, 10000));
+
         router.push("/login");
         return;
       }
+
       setCurrentUser(storedUsername);
-const incrementViews = async () => {
+
+      // ⏳ Count views nyuma yo gutegereza 60 seconds
+      const incrementViews = async () => {
         try {
           const postRef = doc(db, "posts", postData.id);
+
+          // Wait 60 seconds before incrementing views
+          await new Promise((resolve) => setTimeout(resolve, 60000));
+
           await updateDoc(postRef, { views: increment(1) });
 
-          // refresh view count locally
+          // Refresh local views
           const snap = await getDoc(postRef);
           if (snap.exists()) {
             setViews(snap.data().views || 0);
@@ -72,51 +113,68 @@ const incrementViews = async () => {
           console.error("View update failed:", err);
         }
       };
+
       incrementViews();
-      
-      // NES logic
-      const handleNES = async () => {
-        try {
-          const username = storedUsername;
-          const author = postData.author || "Unknown";
 
-          if (username !== author && username.toLowerCase() !== "newtalentsg") {
-            const depositerRef = doc(db, "depositers", username);
-            const depositerSnap = await getDoc(depositerRef);
+// --- NES logic ---
+const handleNES = async () => {
+  try {
+    const username = storedUsername;
+    const author = postData.author || "Unknown";
 
-            if (!depositerSnap.exists()) {
-              alert("Account yawe ntiboneka mubaguze NeS. Kugira ngo wemererwe gusoma banza uzigura. tugiye kukujyana aho uzigurira. niba ukeneye ubufasha twandikire Whatsapp +250722319367.");
-              router.push("/balance");
-              return;
-            }
+    // 🔥 FREE READING FOR EP 1 TO EP 4
+    const ep = extractSeriesAndEpisode(postData.head).episode;
+    if (ep >= 1 && ep <= 4) {
+      console.log("EP 1 - 4 are free to read, skipping NES deduction.");
+      return; // ⛔ Ntihakorerwa kugabanya NES
+    }
 
-            const currentNes = Number(depositerSnap.data().nes) || 0;
-            if (currentNes < 1) {
-              alert("Nta NeS zihagije ufite zikwemerera gusoma. Nyamuneka banza uzigure. tugiye kukujyana aho uzigurira, niba ubibonye waziguze, twandikire Whatsapp nonaha tugufashe. +25072319367.");
-              router.push("/balance");
-              return;
-            }
+    // 🔥 Normal NES logic ku zindi episodes zose
+    if (username !== author && username.toLowerCase() !== "newtalentsg") {
+      const depositerRef = doc(db, "depositers", username);
+      const depositerSnap = await getDoc(depositerRef);
 
-            await updateDoc(depositerRef, { nes: currentNes - 1 });
+      if (!depositerSnap.exists()) {
+        alert(
+          "Account yawe ntiboneka mubaguze NeS, kugira ngo wemererwe gukomeza gusoma, banza uzigure."
+        );
+        router.push("/balance");
+        return;
+      }
 
-            if (author !== username) {
-              const authorRef = doc(db, "authors", author);
-              const authorSnap = await getDoc(authorRef);
-              if (authorSnap.exists()) {
-                const authorNes = Number(authorSnap.data().nes) || 0;
-                await updateDoc(authorRef, { nes: authorNes + 1 });
-              }
-            }
-          }
-        } catch (err) {
-          console.error("NES update failed:", err);
+      const currentNes = Number(depositerSnap.data().nes) || 0;
+      if (currentNes < 1) {
+        alert(
+          "Nta NeS zihagije ufite zikwemerera gukomeza gusoma iyi nkuru banza uzigure. niba ibi ubibonye waziguze twandikire Whatsapp kuri 0722319367"
+        );
+        router.push("/balance");
+        return;
+      }
+
+      await updateDoc(depositerRef, { nes: currentNes - 1 });
+
+      if (author !== username) {
+        const authorRef = doc(db, "authors", author);
+        const authorSnap = await getDoc(authorRef);
+        if (authorSnap.exists()) {
+          const authorNes = Number(authorSnap.data().nes) || 0;
+          await updateDoc(authorRef, { nes: authorNes + 1 });
         }
-      };
+      }
+    }
+  } catch (err) {
+    console.error("NES update failed:", err);
+  }
+};
 
       handleNES();
-    }
-  }, [postData, router]);
+    };
 
+    checkUser();
+  }
+}, [postData, router]);
+
+  // --- Comments ---
   const handleCommentSubmit = async () => {
     if (!newComment.trim() || !currentUser) return;
     try {
@@ -134,27 +192,55 @@ const incrementViews = async () => {
     }
   };
 
+  // --- Share function ---
   const handleShare = (platform) => {
     const postUrl = window.location.href;
-    const cleanText = postData.story.replace(/<[^>]+>/g, "").slice(0, 200);
-    const text = `${postData.head}\n\n${cleanText}...\nRead more: ${postUrl}`;
 
-    switch(platform) {
+    let cleanText = postData.story
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(/<\/p>/gi, "\n\n")
+      .replace(/<\/div>/gi, "\n")
+      .replace(/<li>/gi, "- ")
+      .replace(/<\/li>/gi, "\n")
+      .replace(/<[^>]+>/g, "");
+
+    cleanText = cleanText
+      .replace(/&nbsp;/g, " ")
+      .replace(/&amp;/g, "&")
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">");
+
+    cleanText = cleanText.slice(0, 1700);
+
+    const text = `${postData.head}\n\n${cleanText.trim()}...\n\nSoma inkuru yose ukanze aha 👉 ${postUrl}`;
+
+    switch (platform) {
       case "whatsapp":
         window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
         break;
       case "telegram":
-        window.open(`https://t.me/share/url?url=${encodeURIComponent(postUrl)}&text=${encodeURIComponent(text)}`, "_blank");
+        window.open(
+          `https://t.me/share/url?url=${encodeURIComponent(postUrl)}&text=${encodeURIComponent(text)}`,
+          "_blank"
+        );
         break;
       case "messenger":
-        window.open(`fb-messenger://share?link=${encodeURIComponent(postUrl)}`, "_blank");
+        window.open(
+          `fb-messenger://share?link=${encodeURIComponent(postUrl)}`,
+          "_blank"
+        );
         break;
       case "facebook":
-        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}`, "_blank");
+        window.open(
+          `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}`,
+          "_blank"
+        );
         break;
       default:
         navigator.clipboard.writeText(text);
-        alert("Text copied to clipboard");
+        alert("Text copied to clipboard ✅");
     }
   };
 
@@ -163,45 +249,141 @@ const incrementViews = async () => {
   return (
     <>
       <Head>
-  <title>{postData.head}</title>
+  <title>{postData.head} - New Talents Stories Group</title>
+
+  <meta
+    name="description"
+    content={postData.story.replace(/<[^>]+>/g, "").slice(0, 160)}
+  />
+  <meta
+    name="keywords"
+    content={`${postData.head}, inkuru nyarwanda, inkuru ndende, stories Rwanda, newtalentsg`}
+  />
+  <meta name="author" content={postData.author || "New Talents Stories"} />
+
+  <link rel="canonical" href={`${domain}/post/${postData.id}`} />
+
+  {/* OPEN GRAPH */}
   <meta property="og:title" content={postData.head} />
-  <meta property="og:description" content={postData.story.replace(/<[^>]+>/g, "").slice(0, 200)} />
+  <meta
+    property="og:description"
+    content={postData.story.replace(/<[^>]+>/g, "").slice(0, 200)}
+  />
   <meta property="og:image" content={`${domain}${postData.imageUrl}`} />
-  <meta property="og:image:width" content="1200" />
-  <meta property="og:image:height" content="630" />
   <meta property="og:url" content={`${domain}/post/${postData.id}`} />
   <meta property="og:type" content="article" />
 
-  {/* Twitter Card */}
+  {/* TWITTER */}
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={postData.head} />
-  <meta name="twitter:description" content={postData.story.replace(/<[^>]+>/g, "").slice(0, 200)} />
+  <meta
+    name="twitter:description"
+    content={postData.story.replace(/<[^>]+>/g, "").slice(0, 200)}
+  />
   <meta name="twitter:image" content={`${domain}${postData.imageUrl}`} />
-  <meta name="twitter:image:width" content="1200" />
-  <meta name="twitter:image:height" content="630" />
+
+  {/* STRUCTURED DATA JSON-LD */}
+  <script
+    type="application/ld+json"
+    dangerouslySetInnerHTML={{
+      __html: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Article",
+        headline: postData.head,
+        image: [`${domain}${postData.imageUrl}`],
+        datePublished: postData.createdAt || "",
+        dateModified: postData.updatedAt || postData.createdAt || "",
+        author: {
+          "@type": "Person",
+          name: postData.author || "New Talents Stories",
+        },
+        publisher: {
+          "@type": "Organization",
+          name: "New Talents Stories Group",
+          logo: {
+            "@type": "ImageObject",
+            url: `${domain}/logo.png`,
+          },
+        },
+        description: postData.story.replace(/<[^>]+>/g, "").slice(0, 200),
+        articleBody: postData.story.replace(/<[^>]+>/g, ""),
+      }),
+    }}
+  />
 </Head>
 
       <Header />
+          {showLoginWarning && (
+  <div style={{
+    position: "fixed",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    background: "#fee4e2",
+    color: "#b42318",
+    padding: "20px",
+    borderRadius: "10px",
+    fontSize: "20px",
+    fontWeight: "bold",
+    border: "2px solid #f97066",
+    zIndex: 9999,
+    width: "90%",
+    maxWidth: "400px",
+    textAlign: "center",
+    boxShadow: "0 4px 20px rgba(0,0,0,0.2)"
+  }}>
+    Musomyi, kugirango ukomeze iyi nkuru, banza wiyandikishe cyangwa winjire.
+  </div>
+)}
       <div className={styles.postContainer}>
-        {postData.imageUrl && <img className={styles.postImage} src={postData.imageUrl} alt={postData.head} />}
+          <Channel />
+        {postData.imageUrl && (
+          <img
+            className={styles.postImage}
+            src={postData.imageUrl}
+            alt={postData.head}
+          />
+        )}
         <h2 className={styles.postTitle}>{postData.head}</h2>
         <Bible />
-        <div className={styles.postStory} dangerouslySetInnerHTML={{ __html: postData.story }} />
+        <div
+          className={styles.postStory}
+          dangerouslySetInnerHTML={{ __html: postData.story }}
+        />
 
         <div className={styles.postMeta}>
           <small>By: {postData.author || "Unknown"}</small>
+          <small style={{ marginLeft: "10px" }}>👁 {views} views</small>
           <div className={styles.shareButtons}>
-            <button className={styles.shareButton} onClick={() => handleShare("whatsapp")}><FaShareAlt /> WhatsApp</button>
-            <button className={styles.shareButton} onClick={() => handleShare("telegram")}><FaShareAlt /> Telegram</button>
-            <button className={styles.shareButton} onClick={() => handleShare("messenger")}><FaShareAlt /> Messenger</button>
-            <button className={styles.shareButton} onClick={() => handleShare("facebook")}><FaShareAlt /> Facebook</button>
-            <button className={styles.shareButton} onClick={() => handleShare("clipboard")}><FaShareAlt /> Copy Link</button>
+            {["whatsapp", "telegram", "messenger", "facebook", "clipboard"].map(
+              (platform) => (
+                <button
+                  key={platform}
+                  className={styles.shareButton}
+                  onClick={() => handleShare(platform)}
+                >
+                  <FaShareAlt /> {platform.charAt(0).toUpperCase() + platform.slice(1)}
+                </button>
+              )
+            )}
           </div>
         </div>
 
         <div className={styles.navigationButtons}>
-          <button className={styles.navButton} disabled={!prevPostId} onClick={() => router.push(`/post/${prevPostId}`)}>⬅ Previous</button>
-          <button className={styles.navButton} disabled={!nextPostId} onClick={() => router.push(`/post/${nextPostId}`)}>Next ➡</button>
+          <button
+            className={styles.navButton}
+            disabled={!prevPostId}
+            onClick={() => router.push(`/post/${prevPostId}`)}
+          >
+            ⬅ Previous
+          </button>
+          <button
+            className={styles.navButton}
+            disabled={!nextPostId}
+            onClick={() => router.push(`/post/${nextPostId}`)}
+          >
+            Next ➡
+          </button>
         </div>
 
         <div className={styles.commentsSection}>
@@ -214,25 +396,37 @@ const incrementViews = async () => {
                 onChange={(e) => setNewComment(e.target.value)}
                 placeholder="Write your comment..."
               />
-              <button className={styles.commentButton} onClick={handleCommentSubmit}>Post Comment</button>
+              <button
+                className={styles.commentButton}
+                onClick={handleCommentSubmit}
+              >
+                Post Comment
+              </button>
             </div>
-          ) : <p>Login to comment.</p>}
-          {comments.length ? comments.map((c, i) => (
-            <div key={i} className={styles.commentItem}>
-              <p>{c.text}</p>
-              <small className={styles.commentAuthor}>By: {c.author}</small>
-            </div>
-          )) : <p>No comments yet.</p>}
+          ) : (
+            <p>Login to comment.</p>
+          )}
+          {comments.length ? (
+            comments.map((c, i) => (
+              <div key={i} className={styles.commentItem}>
+                <p>{c.text}</p>
+                <small className={styles.commentAuthor}>By: {c.author}</small>
+              </div>
+            ))
+          ) : (
+            <p>No comments yet.</p>
+          )}
         </div>
 
         <NesMine username={currentUser} />
       </div>
+          <Channel />
       <Footer />
     </>
   );
 };
 
-// --- SSR logic
+// --- SSR Logic (Get server side props) ---
 export async function getServerSideProps(context) {
   const { id } = context.params;
 
@@ -245,14 +439,33 @@ export async function getServerSideProps(context) {
   const commentsSnap = await getDocs(commentsRef);
   const commentsData = commentsSnap.docs.map((d) => d.data());
 
-  // --- Navigation logic ---
   const allPostsSnap = await getDocs(collection(db, "posts"));
   const allPosts = allPostsSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
+
+  const normalizeTitle = (t) =>
+    t
+      ? t
+          .toUpperCase()
+          .replace(/[^\w]+/g, " ")
+          .replace(/\s+/g, " ")
+          .trim()
+      : "";
+
   const current = extractSeriesAndEpisode(postData.head);
 
   const postsWithInfo = allPosts
     .map((p) => ({ ...p, ...extractSeriesAndEpisode(p.head) }))
-    .filter((p) => p.title?.toUpperCase() === current.title.toUpperCase() && p.episode !== null);
+    .filter(
+      (p) =>
+        normalizeTitle(p.title) === normalizeTitle(current.title) &&
+        p.episode !== null
+    );
+
+  postsWithInfo.forEach((p) => {
+    if (/FINAL(LY)?/i.test(p.head)) {
+      p.episode = 999;
+    }
+  });
 
   const seasonsMap = {};
   postsWithInfo.forEach((p) => {
@@ -261,28 +474,38 @@ export async function getServerSideProps(context) {
   });
 
   Object.values(seasonsMap).forEach((seasonPosts) =>
-    seasonPosts.sort((a, b) => (a.episode === 999 ? 1 : b.episode === 999 ? -1 : a.episode - b.episode))
+    seasonPosts.sort((a, b) => {
+      const ea = a.episode === 999 ? Infinity : a.episode;
+      const eb = b.episode === 999 ? Infinity : b.episode;
+      return ea - eb;
+    })
   );
 
   let sortedPosts = [];
-  Object.keys(seasonsMap).sort((a, b) => a - b).forEach((sn) => sortedPosts.push(...seasonsMap[sn]));
+  Object.keys(seasonsMap)
+    .sort((a, b) => parseInt(a) - parseInt(b))
+    .forEach((sn) => sortedPosts.push(...seasonsMap[sn]));
 
   const currentIndex = sortedPosts.findIndex((p) => p.id === id);
   const prevPostId = currentIndex > 0 ? sortedPosts[currentIndex - 1].id : null;
 
   let nextPostId = null;
   if (currentIndex < sortedPosts.length - 1) {
-    const currentEpisode = sortedPosts[currentIndex].episode;
-    if (currentEpisode === 999) {
-      const nextSeason = current.season + 1;
-      const nextSeasonPost = sortedPosts.find((p) => p.season === nextSeason && p.episode === 1);
+    const currentPost = sortedPosts[currentIndex];
+    if (currentPost.episode === 999) {
+      const nextSeason = currentPost.season + 1;
+      const nextSeasonPost = sortedPosts.find(
+        (p) => p.season === nextSeason && p.episode === 1
+      );
       nextPostId = nextSeasonPost ? nextSeasonPost.id : null;
     } else {
-      nextPostId = sortedPosts[currentIndex + 1].id;
+      nextPostId = sortedPosts[currentIndex + 1]?.id || null;
     }
   }
 
-  return { props: { postData, commentsData, prevPostId, nextPostId } };
+  return {
+    props: { postData, commentsData, prevPostId, nextPostId },
+  };
 }
 
 export default PostDetails;

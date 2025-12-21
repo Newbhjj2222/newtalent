@@ -117,62 +117,25 @@ useEffect(() => {
       incrementViews();
 
 // --- NES logic ---
-const handleNES = async () => {
-  try {
-    const username = storedUsername;
-    const author = postData.author || "Unknown";
+      const handleNES = async () => {
+        try {
+          const author = postData.author || "Unknown";
+          if (author && storedUsername !== author) {
+            const authorRef = doc(db, "authors", author);
+            const authorSnap = await getDoc(authorRef);
 
-    // 🔥 FREE READING FOR EP 1 TO EP 4
-    const ep = extractSeriesAndEpisode(postData.head).episode;
-    if (ep >= 1 && ep <= 4) {
-      console.log("EP 1 - 4 are free to read, skipping NES deduction.");
-      return; // ⛔ Ntihakorerwa kugabanya NES
-    }
-
-    // 🔥 Normal NES logic ku zindi episodes zose
-    if (username !== author && username.toLowerCase() !== "newtalentsg") {
-      const depositerRef = doc(db, "depositers", username);
-      const depositerSnap = await getDoc(depositerRef);
-
-      if (!depositerSnap.exists()) {
-        alert(
-          "Account yawe ntiboneka mubaguze NeS, kugira ngo wemererwe gukomeza gusoma, banza uzigure."
-        );
-        router.push("/balance");
-        return;
-      }
-
-      const currentNes = Number(depositerSnap.data().nes) || 0;
-      if (currentNes < 1) {
-        alert(
-          "Nta NeS zihagije ufite zikwemerera gukomeza gusoma iyi nkuru banza uzigure. niba ibi ubibonye waziguze twandikire Whatsapp kuri 0722319367"
-        );
-        router.push("/balance");
-        return;
-      }
-
-      await updateDoc(depositerRef, { nes: currentNes - 1 });
-
-      if (author !== username) {
-        const authorRef = doc(db, "authors", author);
-        const authorSnap = await getDoc(authorRef);
-        if (authorSnap.exists()) {
-          const authorNes = Number(authorSnap.data().nes) || 0;
-          await updateDoc(authorRef, { nes: authorNes + 1 });
+            if (authorSnap.exists()) {
+              const authorNes = Number(authorSnap.data().nes) || 0;
+              await updateDoc(authorRef, { nes: authorNes + 1 });
+            }
+          }
+        } catch (err) {
+          console.error("NES update failed:", err);
         }
-      }
-    }
-  } catch (err) {
-    console.error("NES update failed:", err);
-  }
-};
-
+      };
       handleNES();
-    };
-
-    checkUser();
-  }
-}, [postData, router]);
+    }
+  }, [postData, router]);
 
   // --- Comments ---
   const handleCommentSubmit = async () => {

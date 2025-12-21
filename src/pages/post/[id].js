@@ -71,71 +71,85 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
 
 // --- Ureba user na views ---
 useEffect(() => {
-  if (typeof window !== "undefined" && postData?.id) {
+  if (typeof window === "undefined" || !postData?.id) return;
 
-    const checkUser = async () => {
-      const storedUsername = localStorage.getItem("username");
+  const checkUser = async () => {
+    const storedUsername = localStorage.getItem("username");
 
-      // 🔹 Niba user adahari
-      if (!storedUsername) {
+    // 🔴 Niba user atinjiye
+    if (!storedUsername) {
+      // Tegereza 50s
+      await new Promise((r) => setTimeout(r, 50000));
 
-        // --- Tegereza 50 seconds mbere yo kwerekana message ---
-        await new Promise((resolve) => setTimeout(resolve, 50000));
+      // Erekana warning
+      setShowLoginWarning(true);
 
-        // --- Yerekane message ---
-        setShowLoginWarning(true);
-
-        // --- Tegereza 3 seconds hanyuma wohereze kuri login ---
-        await new Promise((resolve) => setTimeout(resolve, 10000));
-
-        router.push("/login");
-        return;
-      }
-
-      setCurrentUser(storedUsername);
-
-      // ⏳ Count views nyuma yo gutegereza 60 seconds
-      const incrementViews = async () => {
-        try {
-          const postRef = doc(db, "posts", postData.id);
-
-          // Wait 60 seconds before incrementing views
-          await new Promise((resolve) => setTimeout(resolve, 60000));
-
-          await updateDoc(postRef, { views: increment(1) });
-
-          // Refresh local views
-          const snap = await getDoc(postRef);
-          if (snap.exists()) {
-            setViews(snap.data().views || 0);
-          }
-        } catch (err) {
-          console.error("View update failed:", err);
-        }
-      };
-
-      incrementViews();
-
-// --- NES logic ---
-      const handleNES = async () => {
-        try {
-          const author = postData.author || "Unknown";
-          if (author && storedUsername !== author) {
-            const authorRef = doc(db, "authors", author);
-            const authorSnap = await getDoc(authorRef);
-
-            if (authorSnap.exists()) {
-              const authorNes = Number(authorSnap.data().nes) || 0;
-              await updateDoc(authorRef, { nes: authorNes + 1 });
-            }
-          }
-        } catch (err) {
-          console.error("NES update failed:", err);
-        }
-      };
-      checkUser();
+      // Tegereza 10s wohereze kuri login
+      await new Promise((r) => setTimeout(r, 10000));
+      router.push("/login");
+      return;
     }
-  }, [postData, router]);
+
+    setCurrentUser(storedUsername);
+
+    /* =========================
+       👁️ VIEWS LOGIC
+    ========================= */
+    const incrementViews = async () => {
+      try {
+        const postRef = doc(db, "posts", postData.id);
+
+        // Tegereza 60s
+        await new Promise((r) => setTimeout(r, 60000));
+
+        await updateDoc(postRef, {
+          views: increment(1),
+        });
+
+        const snap = await getDoc(postRef);
+        if (snap.exists()) {
+          setViews(snap.data().views || 0);
+        }
+      } catch (err) {
+        console.error("View update failed:", err);
+      }
+    };
+
+    incrementViews();
+
+    /* =========================
+       ⭐ NES LOGIC
+    ========================= */
+    const handleNES = async () => {
+      try {
+        const author = postData.author;
+        if (!author) return;
+
+        // ❌ Ntutanga NES niba ari NewtalentsG
+        if (storedUsername === "NewtalentsG") return;
+
+        // ❌ Ntutanga NES niba ari author wa post
+        if (storedUsername === author) return;
+
+        const authorRef = doc(db, "authors", author);
+        const authorSnap = await getDoc(authorRef);
+
+        if (!authorSnap.exists()) return;
+
+        // ✅ Ongeramo NES 1
+        await updateDoc(authorRef, {
+          nes: increment(1),
+        });
+      } catch (err) {
+        console.error("NES update failed:", err);
+      }
+    };
+
+    handleNES();
+  };
+
+  checkUser();
+}, [postData, router]);
 
   // --- Comments ---
   const handleCommentSubmit = async () => {

@@ -19,6 +19,7 @@ import Footer from "../../components/Footer";
 import Bible from "../../components/Bible";
 import NesMine from "../../components/NesMine";
 import Channel from "../../components/Channel";
+import pin from "../../components/pin";
 import styles from "../../components/PostDetail.module.css";
 const extractSeriesAndEpisode = (head) => {
   if (!head) return { title: null, season: null, episode: null };
@@ -301,6 +302,7 @@ useEffect(() => {
 </Head>
 
       <Header />
+        <pin />
         {limitWarning && (
   <div
     style={{

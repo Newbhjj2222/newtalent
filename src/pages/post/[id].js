@@ -72,96 +72,107 @@ const PostDetails = ({ postData, commentsData, prevPostId, nextPostId }) => {
 const [limitWarning, setLimitWarning] = useState(false);
 // --- Ureba user na views ---
 useEffect(() => {
-  if (typeof window === "undefined" || !postData?.id) return;
+  if (typeof window !== "undefined" && postData?.id) {
 
-  const runLogic = async () => {
-    const username = localStorage.getItem("username");
+    const checkUser = async () => {
+      const storedUsername = localStorage.getItem("username");
 
-    // 🔴 User atinjiye
-    if (!username) {
-      await new Promise((r) => setTimeout(r, 50000));
-      setShowLoginWarning(true);
-      await new Promise((r) => setTimeout(r, 10000));
-      router.push("/login");
-      return;
+      // 🔹 Niba user adahari
+      if (!storedUsername) {
+
+        // --- Tegereza 50 seconds mbere yo kwerekana message ---
+        await new Promise((resolve) => setTimeout(resolve, 50000));
+
+        // --- Yerekane message ---
+        setShowLoginWarning(true);
+
+        // --- Tegereza 3 seconds hanyuma wohereze kuri login ---
+        await new Promise((resolve) => setTimeout(resolve, 10000));
+
+        router.push("/login");
+        return;
+      }
+
+      setCurrentUser(storedUsername);
+
+      // ⏳ Count views nyuma yo gutegereza 60 seconds
+      const incrementViews = async () => {
+        try {
+          const postRef = doc(db, "posts", postData.id);
+
+          // Wait 60 seconds before incrementing views
+          await new Promise((resolve) => setTimeout(resolve, 60000));
+
+          await updateDoc(postRef, { views: increment(1) });
+
+          // Refresh local views
+          const snap = await getDoc(postRef);
+          if (snap.exists()) {
+            setViews(snap.data().views || 0);
+          }
+        } catch (err) {
+          console.error("View update failed:", err);
+        }
+      };
+
+      incrementViews();
+
+// --- NES logic ---
+const handleNES = async () => {
+  try {
+    const username = storedUsername;
+    const author = postData.author || "Unknown";
+
+    // 🔥 FREE READING FOR EP 1 TO EP 4
+    const ep = extractSeriesAndEpisode(postData.head).episode;
+    if (ep >= 1 && ep <= 4) {
+      console.log("EP 1 - 4 are free to read, skipping NES deduction.");
+      return; // ⛔ Ntihakorerwa kugabanya NES
     }
 
-    setCurrentUser(username);
+    // 🔥 Normal NES logic ku zindi episodes zose
+    if (username !== author && username.toLowerCase() !== "newtalentsg") {
+      const depositerRef = doc(db, "depositers", username);
+      const depositerSnap = await getDoc(depositerRef);
 
-    /* =========================
-       📅 DAILY READ LIMIT (3)
-    ========================= */
-    const today = new Date().toISOString().slice(0, 10);
-    const readKey = `reads_${username}_${today}`;
-
-    let readsToday = Number(localStorage.getItem(readKey)) || 0;
-
-    if (readsToday >= 3) {
-      // 🔎 Reba NES za user
-      const depRef = doc(db, "depositers", username);
-      const depSnap = await getDoc(depRef);
-
-      const userNes = depSnap.exists()
-        ? Number(depSnap.data().nes) || 0
-        : 0;
-
-      // ❌ Nta NES afite
-      if (userNes < 1) {
-        setLimitWarning(true);
-
-        await new Promise((r) => setTimeout(r, 15000));
+      if (!depositerSnap.exists()) {
+        alert(
+          "Account yawe ntiboneka mubaguze NeS, kugira ngo wemererwe gukomeza gusoma, banza uzigure."
+        );
         router.push("/balance");
         return;
       }
 
-      // ✅ Kata NES 1
-      await updateDoc(depRef, {
-        nes: increment(-1),
-      });
-    } else {
-      // ✅ Increment daily free reads
-      localStorage.setItem(readKey, readsToday + 1);
-    }
-
-    /* =========================
-       ⏳ WAIT 60 SECONDS
-    ========================= */
-    await new Promise((r) => setTimeout(r, 60000));
-
-    /* =========================
-       👁️ VIEWS
-    ========================= */
-    try {
-      const postRef = doc(db, "posts", postData.id);
-      await updateDoc(postRef, { views: increment(1) });
-
-      const snap = await getDoc(postRef);
-      if (snap.exists()) {
-        setViews(snap.data().views || 0);
+      const currentNes = Number(depositerSnap.data().nes) || 0;
+      if (currentNes < 1) {
+        alert(
+          "Nta NeS zihagije ufite zikwemerera gukomeza gusoma iyi nkuru banza uzigure. niba ibi ubibonye waziguze twandikire Whatsapp kuri 0722319367"
+        );
+        router.push("/balance");
+        return;
       }
-    } catch (err) {
-      console.error("View update failed:", err);
+
+      await updateDoc(depositerRef, { nes: currentNes - 1 });
+
+      if (author !== username) {
+        const authorRef = doc(db, "authors", author);
+        const authorSnap = await getDoc(authorRef);
+        if (authorSnap.exists()) {
+          const authorNes = Number(authorSnap.data().nes) || 0;
+          await updateDoc(authorRef, { nes: authorNes + 1 });
+        }
+      }
     }
+  } catch (err) {
+    console.error("NES update failed:", err);
+  }
+};
 
-    /* =========================
-       ⭐ NES TO AUTHOR
-    ========================= */
-    try {
-      const author = postData.author;
-      if (!author) return;
+      handleNES();
+    };
 
-      if (username === "NewtalentsG") return;
-      if (username === author) return;
-
-      await updateDoc(doc(db, "authors", author), {
-        nes: increment(1),
-      });
-    } catch (err) {
-      console.error("Author NES update failed:", err);
-    }
-  };
-
-  runLogic();
+    checkUser();
+  }
 }, [postData, router]);
   // --- Comments ---
   const handleCommentSubmit = async () => {

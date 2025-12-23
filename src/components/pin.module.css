@@ -1,0 +1,79 @@
+.pin {
+  width: 100%;
+  max-height: 80px;
+  min-height: 60px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  background: linear-gradient(
+    270deg,
+    #ff512f,
+    #dd2476,
+    #ffb347,
+    #ff512f
+  );
+  background-size: 600% 600%;
+  animation: gradientMove 8s ease infinite;
+
+  border-radius: 12px;
+  color: #fff;
+  overflow: hidden;
+}
+
+@keyframes gradientMove {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.icons {
+  display: flex;
+  gap: 6px;
+  font-size: 18px;
+  animation: floatIcons 3s ease-in-out infinite;
+}
+
+@keyframes floatIcons {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.text {
+  font-size: 13px;
+  line-height: 1.2;
+  font-weight: 500;
+}
+
+.text span {
+  font-weight: 700;
+  color: #ffe066;
+}
+
+/* 📱 Mobile optimization */
+@media (max-width: 480px) {
+  .pin {
+    max-height: 80px;
+    padding: 6px 10px;
+  }
+
+  .text {
+    font-size: 12px;
+  }
+
+  .icons {
+    font-size: 16px;
+  }
+}

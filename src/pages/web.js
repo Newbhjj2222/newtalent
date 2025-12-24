@@ -25,19 +25,26 @@ Link: ${site.previewUrl}`;
   };
 
   const shareWebsite = (site) => {
-    const shareText = `${site.name}
-${site.description}
-Igiciro: ${site.price.toLocaleString()} RWF
-Preview: ${site.previewUrl}`;
+  const shareText = `${site.name}
 
-    navigator.clipboard.writeText(shareText);
-    alert("Link na description byakopiwe 📋");
-  };
+${site.description}
+
+Igiciro: ${site.price.toLocaleString()} RWF
+
+Reba hano:
+https://www.newtalentsg.co.rw/web
+
+Preview:
+${site.previewUrl}`;
+
+  navigator.clipboard.writeText(shareText);
+  alert("Link na description byakopiwe 📋");
+};
 
   return (
     <>
       <Head>
-        <title>Website Zigurishwa | Web Market</title>
+        <title>Website Zigurishwa | Web Market Rwanda</title>
         <meta
           name="description"
           content="Reba website zigurishwa, urebe preview, ugure byoroshye kuri WhatsApp."

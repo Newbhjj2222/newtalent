@@ -53,7 +53,7 @@ ${site.previewUrl}`;
       </Head>
 
       <main className={styles.container}>
-        <h1 className={styles.heading}>Website Zigurishwa</h1>
+        <h1 className={styles.heading}>NetWeb Rwanda</h1>
 
         <div className={styles.grid}>
           {websites.map((site) => (

@@ -1,5 +1,5 @@
 import Head from "next/head";
-import { db } from "../firebase";
+import { db } from "../components/firebase";
 import { collection, getDocs } from "firebase/firestore";
 import styles from "./web.module.css";
 

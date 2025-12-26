@@ -10,8 +10,8 @@ export default async function handler(req, res) {
     ================================ */
     const staticRoutes = [
       "",
-      "/about",
-      "/ibiciro",
+      "/About",
+      "/Ibiciro",
       "/login",
       "/balance",
       "/terms",

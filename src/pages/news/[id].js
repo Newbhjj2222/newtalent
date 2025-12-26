@@ -13,18 +13,24 @@ import {
   increment,
   collection,
   setDoc,
-  serverTimestamp
+  serverTimestamp,
+  onSnapshot,
+  query,
+  orderBy
 } from "firebase/firestore";
 
 import { FiHeart, FiShare2, FiMessageCircle } from "react-icons/fi";
 
+// -------- CLEAN TEXT (FOR META & SHARE) ----------
 const cleanText = html =>
   html?.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim() || "";
 
 export default function SingleNews({ news }) {
   const [comment, setComment] = useState("");
   const [username, setUsername] = useState("");
+  const [comments, setComments] = useState([]);
 
+  // -------- GET USERNAME FROM LOCALSTORAGE ----------
   useEffect(() => {
     let u = localStorage.getItem("username");
     if (!u) {
@@ -34,10 +40,32 @@ export default function SingleNews({ news }) {
     setUsername(u);
   }, []);
 
+  // -------- REALTIME COMMENTS ----------
+  useEffect(() => {
+    const q = query(
+      collection(db, "news", news.id, "comments"),
+      orderBy("timestamp", "desc")
+    );
+
+    const unsub = onSnapshot(q, snap => {
+      const data = snap.docs.map(d => ({
+        id: d.id,
+        ...d.data()
+      }));
+      setComments(data);
+    });
+
+    return () => unsub();
+  }, [news.id]);
+
+  // -------- LIKE ----------
   const likePost = async () => {
-    await updateDoc(doc(db, "news", news.id), { likes: increment(1) });
+    await updateDoc(doc(db, "news", news.id), {
+      likes: increment(1)
+    });
   };
 
+  // -------- SHARE ----------
   const sharePost = () => {
     const summary = cleanText(news.content).slice(0, 300);
     const text = `${news.title}\n\n${summary}...\n${window.location.href}`;
@@ -45,6 +73,7 @@ export default function SingleNews({ news }) {
     alert("Inkuru yakopiwe 📋");
   };
 
+  // -------- SEND COMMENT ----------
   const sendComment = async () => {
     if (!comment.trim()) return;
 
@@ -61,6 +90,7 @@ export default function SingleNews({ news }) {
     setComment("");
   };
 
+  // -------- META DESCRIPTION ----------
   const description = cleanText(news.content).slice(0, 160);
 
   return (
@@ -90,7 +120,7 @@ export default function SingleNews({ news }) {
       <Channel />
 
       <div className={styles.singleContainer}>
-        <h1>{news.title}</h1>
+        <h1 className={styles.singleTitle}>{news.title}</h1>
 
         {news.imageUrl && (
           <img
@@ -105,6 +135,7 @@ export default function SingleNews({ news }) {
           dangerouslySetInnerHTML={{ __html: news.content }}
         />
 
+        {/* ACTIONS */}
         <div className={styles.actions}>
           <button onClick={likePost}>
             <FiHeart /> {news.likes || 0}
@@ -119,14 +150,31 @@ export default function SingleNews({ news }) {
           </span>
         </div>
 
+        {/* COMMENT INPUT */}
         <div className={styles.commentBox}>
           <input
-            placeholder="Andika comment..."
+            placeholder={`Comment nka ${username}...`}
             value={comment}
             onChange={e => setComment(e.target.value)}
             onKeyDown={e => e.key === "Enter" && sendComment()}
           />
-          <button onClick={sendComment}>Send</button>
+          <button onClick={sendComment}>Ohereza</button>
+        </div>
+
+        {/* COMMENTS LIST */}
+        <div className={styles.commentsList}>
+          {comments.length === 0 && (
+            <p className={styles.noComments}>
+              Nta comment irashyirwaho.
+            </p>
+          )}
+
+          {comments.map(c => (
+            <div key={c.id} className={styles.commentItem}>
+              <strong>{c.author}</strong>
+              <p>{c.text}</p>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -135,6 +183,7 @@ export default function SingleNews({ news }) {
   );
 }
 
+// -------- SSR ----------
 export async function getServerSideProps({ params }) {
   const ref = doc(db, "news", params.id);
   const snap = await getDoc(ref);

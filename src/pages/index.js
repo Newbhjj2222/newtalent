@@ -24,20 +24,18 @@ export async function getServerSideProps() {
   try {
     const foldersSnapshot = await getDocs(collection(db, "folders"));
 
-    // 🔹 Fata gusa folders zifite hidden ≠ true
     const visibleDocs = foldersSnapshot.docs.filter(
       (doc) => !doc.data().hidden
     );
 
-    // Fata titles zidasubirwamo  
-    const cleanedTitles = visibleDocs.map((doc) => {  
-      const rawTitle = doc.data().title || "Untitled";  
-      return rawTitle  
-        .replace(/S\d{1,2}E\d{1,2}/gi, "")  
-        .replace(/Ep\s?\d+/gi, "")  
-        .replace(/Episode\s?\d+/gi, "")  
-        .replace(/\s{2,}/g, " ")  
-        .trim();  
+    const cleanedTitles = visibleDocs.map((doc) => {
+      const rawTitle = doc.data().title || "Untitled";
+      return rawTitle
+        .replace(/S\d{1,2}E\d{1,2}/gi, "")
+        .replace(/Ep\s?\d+/gi, "")
+        .replace(/Episode\s?\d+/gi, "")
+        .replace(/\s{2,}/g, " ")
+        .trim();
     });
 
     const uniqueTitles = [...new Set(cleanedTitles)];
@@ -58,7 +56,7 @@ export async function getServerSideProps() {
         title: data.head || "Untitled",
         summary,
         author: data.author || "Unknown",
-        categories: data.categories || ["General"], // 👈 categories array
+        categories: data.categories || ["General"],
       };
     });
 
@@ -92,7 +90,7 @@ export async function getServerSideProps() {
 export default function Home({ trendingPosts, otherPosts, screenTexts, sidebarPosts }) {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
-  const [isSidebarSelected, setIsSidebarSelected] = useState(false); // 👈 check if sidebar filled search
+  const [isSidebarSelected, setIsSidebarSelected] = useState(false);
   const POSTS_PER_PAGE = 25;
   const [visibleCount, setVisibleCount] = useState(POSTS_PER_PAGE);
 
@@ -104,7 +102,7 @@ export default function Home({ trendingPosts, otherPosts, screenTexts, sidebarPo
 
   const handleSelectPost = (title) => {
     setSearchQuery(title);
-    setIsSidebarSelected(true); // 👈 disable editing if from sidebar
+    setIsSidebarSelected(true);
     setVisibleCount(POSTS_PER_PAGE);
 
     if (searchRef.current) {
@@ -122,125 +120,130 @@ export default function Home({ trendingPosts, otherPosts, screenTexts, sidebarPo
   };
 
   return (
-     <>
-      <Head>
-  {/* Title ya post */}
-  <title>{post.head}</title>
+    <>
+      {filteredPosts.slice(0, 1).map((post) => (
+        <Head key={post.id}>
+          <title>{post.title}</title>
+          <meta name="description" content={post.summary} />
+          <link rel="canonical" href={`https://www.newtalentsg.co.rw/post/${post.id}`} />
 
-  {/* Meta description */}
-  <meta name="description" content={post.summary} />
+          {/* Open Graph */}
+          <meta property="og:type" content="article" />
+          <meta property="og:title" content={post.title} />
+          <meta property="og:description" content={post.summary} />
+          <meta property="og:url" content={`https://www.newtalentsg.co.rw/post/${post.id}`} />
+          {post.image && <meta property="og:image" content={post.image} />}
 
-  {/* Canonical link */}
-  <link rel="canonical" href={`https://www.newtalentsg.co.rw/post/${post.id}`} />
+          {/* Twitter Card */}
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:title" content={post.title} />
+          <meta name="twitter:description" content={post.summary} />
+          {post.image && <meta name="twitter:image" content={post.image} />}
 
-  {/* Open Graph / Facebook */}
-  <meta property="og:type" content="article" />
-  <meta property="og:title" content={post.head} />
-  <meta property="og:description" content={post.summary} />
-  <meta property="og:url" content={`https://www.newtalentsg.co.rw/post/${post.id}`} />
-  {post.image && <meta property="og:image" content={post.image} />}
-  
-  {/* Twitter Card */}
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content={post.head} />
-  <meta name="twitter:description" content={post.summary} />
-  {post.image && <meta name="twitter:image" content={post.image} />}
+          {/* Article metadata */}
+          <meta property="article:author" content={post.author} />
+          {post.categories &&
+            post.categories.map((cat, i) => (
+              <meta key={i} property="article:tag" content={cat} />
+            ))}
+        </Head>
+      ))}
 
-  {/* Optional: article metadata */}
-  <meta property="article:author" content={post.author || "Unknown"} />
-  {post.categories && post.categories.map((cat, i) => (
-    <meta key={i} property="article:tag" content={cat} />
-  ))}
-</Head>
-    <div className={stylesHome.page}>
-            <Sound />
-      <Header />
-      <Banner screenTexts={screenTexts} />
-            <PerimeterAdBoard />
-            <SponsorCard />
-      <div className={stylesHome.container}>
-    
-        <main className={stylesHome.mainContent}>
-          <Slider trendingPosts={trendingPosts} />
+      <div className={stylesHome.page}>
+        <Sound />
+        <Header />
+        <Banner screenTexts={screenTexts} />
+        <PerimeterAdBoard />
+        <SponsorCard />
 
-          <section className={stylesHome.postsSection}>
-     <aside className={stylesHome.sidebarWrapper}>
-          <Sidebar posts={sidebarPosts} onSelectPost={handleSelectPost} />
-        </aside>
-            <h2>All Stories</h2>
-            <input
-              type="text"
-              placeholder="Search posts..."
-              className={stylesHome.searchInput}
-              value={searchQuery}
-              onChange={(e) => {
-                if (!isSidebarSelected) { // 👈 prevent typing after sidebar select
-                  setSearchQuery(e.target.value);
-                  setVisibleCount(POSTS_PER_PAGE);
-                }
-              }}
-              ref={searchRef}
-              readOnly={isSidebarSelected} // 👈 disable edit if sidebar selected
-            />
+        <div className={stylesHome.container}>
+          <main className={stylesHome.mainContent}>
+            <Slider trendingPosts={trendingPosts} />
 
-            {filteredPosts.length > 0 ? (
-              <>
-                {filteredPosts.slice(0, visibleCount).map((post) => (
-                  <div key={post.id} className={stylesHome.postCard}>
-  {post.image && (
-    <img
-      src={post.image}
-      alt={post.title}
-                        className={stylesHome.postImage}
-                      />
-                    )}
-                    <div className={stylesHome.postContent}>
-                      <h3>{post.title}</h3>
-                      <p>{post.summary}</p>
+            <section className={stylesHome.postsSection}>
+              <aside className={stylesHome.sidebarWrapper}>
+                <Sidebar posts={sidebarPosts} onSelectPost={handleSelectPost} />
+              </aside>
 
-                      {/* Categories as tags */}
-                      <div className={stylesHome.categoriesWrapper}>
-                        {post.categories &&
-                          post.categories.map((cat, i) => (
-                            <span key={i} className={stylesHome.categoryTag}>
-                              {cat}
-                            </span>
-                          ))}
-                      </div>
+              <h2>All Stories</h2>
+              <input
+                type="text"
+                placeholder="Search posts..."
+                className={stylesHome.searchInput}
+                value={searchQuery}
+                onChange={(e) => {
+                  if (!isSidebarSelected) {
+                    setSearchQuery(e.target.value);
+                    setVisibleCount(POSTS_PER_PAGE);
+                  }
+                }}
+                ref={searchRef}
+                readOnly={isSidebarSelected}
+              />
 
-                      <small className={stylesHome.authorText}>By {post.author}</small>
-                      <div className={stylesHome.postActions}>
-                        <Link href={`/post/${post.id}`} className={stylesHome.actionBtn}>
-                          Read More
-                        </Link>
+              {filteredPosts.length > 0 ? (
+                <>
+                  {filteredPosts.slice(0, visibleCount).map((post) => (
+                    <div key={post.id} className={stylesHome.postCard}>
+                      {post.image && (
+                        <img
+                          src={post.image}
+                          alt={post.title}
+                          className={stylesHome.postImage}
+                        />
+                      )}
+                      <div className={stylesHome.postContent}>
+                        <h3>{post.title}</h3>
+                        <p>{post.summary}</p>
+
+                        <div className={stylesHome.categoriesWrapper}>
+                          {post.categories &&
+                            post.categories.map((cat, i) => (
+                              <span key={i} className={stylesHome.categoryTag}>
+                                {cat}
+                              </span>
+                            ))}
+                        </div>
+
+                        <small className={stylesHome.authorText}>
+                          By {post.author}
+                        </small>
+                        <div className={stylesHome.postActions}>
+                          <Link
+                            href={`/post/${post.id}`}
+                            className={stylesHome.actionBtn}
+                          >
+                            Read More
+                          </Link>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
 
-                {visibleCount < filteredPosts.length && (
-                  <div style={{ textAlign: "center", margin: "20px 0" }}>
-                    <button
-                      onClick={handleLoadMore}
-                      className={stylesHome.loadMoreBtn}
-                    >
-                      Kanda urebe izindi
-                    </button>
-                  </div>
-                )}
-              </>
-            ) : (
-              <p>No posts found.</p>
-            )}
-          </section>
+                  {visibleCount < filteredPosts.length && (
+                    <div style={{ textAlign: "center", margin: "20px 0" }}>
+                      <button
+                        onClick={handleLoadMore}
+                        className={stylesHome.loadMoreBtn}
+                      >
+                        Kanda urebe izindi
+                      </button>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <p>No posts found.</p>
+              )}
+            </section>
 
-          <OtherStories posts={otherPosts} />
-              <Pop />
-        </main>
+            <OtherStories posts={otherPosts} />
+            <Pop />
+          </main>
+        </div>
+
+        <Chat />
+        <Footer />
       </div>
-<Chat />
-      <Footer />
-    </div>
-     </>
+    </>
   );
 }

@@ -251,6 +251,7 @@ const handleNES = async () => {
       <Head>
   <title>{postData.head} - New Talents Stories Group</title>
 
+  {/* Standard SEO */}
   <meta
     name="description"
     content={postData.story.replace(/<[^>]+>/g, "").slice(0, 160)}
@@ -261,28 +262,57 @@ const handleNES = async () => {
   />
   <meta name="author" content={postData.author || "New Talents Stories"} />
 
-  <link rel="canonical" href={`${domain}/post/${postData.id}`} />
+  <link rel="canonical" href={`https://www.newtalentsg.co.rw/post/${postData.id}`} />
 
-  {/* OPEN GRAPH */}
+  {/* ================= OPEN GRAPH / FACEBOOK / WHATSAPP ================= */}
+  <meta property="og:site_name" content="New Talents Stories Group" />
+  <meta property="og:type" content="article" />
   <meta property="og:title" content={postData.head} />
   <meta
     property="og:description"
     content={postData.story.replace(/<[^>]+>/g, "").slice(0, 200)}
   />
-  <meta property="og:image" content={`${domain}${postData.imageUrl}`} />
-  <meta property="og:url" content={`${domain}/post/${postData.id}`} />
-  <meta property="og:type" content="article" />
+  <meta
+    property="og:url"
+    content={`https://www.newtalentsg.co.rw/post/${postData.id}`}
+  />
+  <meta
+    property="og:image"
+    content={
+      postData.imageUrl.startsWith("http")
+        ? postData.imageUrl
+        : `https://www.newtalentsg.co.rw${postData.imageUrl}`
+    }
+  />
+  <meta
+    property="og:image:secure_url"
+    content={
+      postData.imageUrl.startsWith("http")
+        ? postData.imageUrl
+        : `https://www.newtalentsg.co.rw${postData.imageUrl}`
+    }
+  />
+  <meta property="og:image:type" content="image/jpeg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
 
-  {/* TWITTER */}
+  {/* ================= TWITTER ================= */}
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={postData.head} />
   <meta
     name="twitter:description"
     content={postData.story.replace(/<[^>]+>/g, "").slice(0, 200)}
   />
-  <meta name="twitter:image" content={`${domain}${postData.imageUrl}`} />
+  <meta
+    name="twitter:image"
+    content={
+      postData.imageUrl.startsWith("http")
+        ? postData.imageUrl
+        : `https://www.newtalentsg.co.rw${postData.imageUrl}`
+    }
+  />
 
-  {/* STRUCTURED DATA JSON-LD */}
+  {/* ================= STRUCTURED DATA JSON-LD ================= */}
   <script
     type="application/ld+json"
     dangerouslySetInnerHTML={{
@@ -290,7 +320,11 @@ const handleNES = async () => {
         "@context": "https://schema.org",
         "@type": "Article",
         headline: postData.head,
-        image: [`${domain}${postData.imageUrl}`],
+        image: [
+          postData.imageUrl.startsWith("http")
+            ? postData.imageUrl
+            : `https://www.newtalentsg.co.rw${postData.imageUrl}`,
+        ],
         datePublished: postData.createdAt || "",
         dateModified: postData.updatedAt || postData.createdAt || "",
         author: {
@@ -302,7 +336,7 @@ const handleNES = async () => {
           name: "New Talents Stories Group",
           logo: {
             "@type": "ImageObject",
-            url: `${domain}/logo.png`,
+            url: `https://www.newtalentsg.co.rw/logo.png`,
           },
         },
         description: postData.story.replace(/<[^>]+>/g, "").slice(0, 200),

@@ -1,171 +1,99 @@
+
 .container {
-  max-width: 900px;
-  margin: 35px auto;
+  max-width: 1100px;
+  margin: auto;
   padding: 20px;
-  background-color: #ffffff;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 20px;
 }
 
-.newsCard {
-  border: 1px solid #e0e0e0;
+.card {
+  background: #fff;
   border-radius: 12px;
-  padding: 20px;
-  background-color: #fafafa;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-}
-
-.author {
-  font-size: 0.9rem;
-  color: #555555;
-  margin-bottom: 8px;
-}
-
-.title {
-  font-size: 1.5rem;
-  color: #222222;
-  margin-bottom: 12px;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
 }
 
 .image {
   width: 100%;
-  max-height: 400px;
+  height: 200px;
   object-fit: cover;
-  border-radius: 10px;
-  margin-top: 12px;
-}
-.pblock {
-  display: block;
-  margin: 18px 0; /* Big spacing like Facebook */
-  line-height: 1.7;
-}
-.content p {
-  font-size: 1rem;
-  color: #333333;
-  line-height: 1.6;
-  margin-bottom: 10px;
 }
 
-.expandBtn {
-  background: #7BEBC1;
-  color: #fff;
-  border: none;
-  padding: 6px 14px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  margin: 15px;
+.title {
+  font-size: 1.1rem;
+  padding: 15px;
 }
 
-.expandBtn:hover {
-  background-color: #0056b3;
+.summary {
+  padding: 0 15px;
+  color: #555;
+  font-size: 0.95rem;
 }
 
 .actions {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 15px;
-  margin-top: 10px;
-  flex-wrap: wrap;
+  padding: 15px;
 }
 
-.actions button {
+.actions button,
+.readMoreBtn {
+  border: none;
+  background: none;
+  color: #e11d48;
   display: flex;
   align-items: center;
   gap: 6px;
-  background-color: blue;
-  color: yellow;
-  border: 1px solid #d1d1d1;
-  border-radius: 8px;
-  padding: 6px 12px;
   cursor: pointer;
-  font-size: 0.95rem;
+  font-weight: 600;
 }
 
-.actions button:hover {
-  background-color: green;
+.readMoreBtn {
+  text-decoration: none;
 }
 
-.views {
-  font-size: 0.85rem;
-  color: #777;
+.singleContainer {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+}
+
+.singleContainer h1 {
+  margin-bottom: 15px;
 }
 
 .commentBox {
+  margin-top: 20px;
   display: flex;
-  gap: 8px;
-  margin-top: 10px;
+  gap: 10px;
 }
 
 .commentBox input {
   flex: 1;
-  padding: 8px 12px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  font-size: 0.95rem;
-}
-
-.commentBox input:focus {
-  border-color: #007bff;
+  padding: 10px;
 }
 
 .commentBox button {
-  padding: 8px 14px;
-  border-radius: 8px;
+  padding: 10px 15px;
+  background: #e11d48;
   border: none;
-  background-color: #007bff;
   color: #fff;
+  border-radius: 6px;
   cursor: pointer;
 }
 
-.commentBox button:hover {
-  background-color: #0056b3;
-}
-
-.commentsList {
-  margin-top: 10px;
-  padding-left: 10px;
-  border-left: 2px solid #ddd;
-}
-
-.commentItem {
-  margin-bottom: 6px;
-  font-size: 0.95rem;
-  color: #333;
-}
-
-@media (max-width: 768px) {
-  .container {
-    padding: 15px;
+/* Mobile */
+@media (max-width: 600px) {
+  .image {
+    height: 180px;
   }
 
   .title {
-    font-size: 1.3rem;
-  }
-
-  .actions {
-    flex-direction: row;
-    flex-wrap: wrap;
-  }
-}
-
-@media (max-width: 480px) {
-  .newsCard {
-    padding: 15px;
-  }
-
-  .expandBtn {
-    padding: 5px 10px;
-    font-size: 0.85rem;
-  }
-
-  .commentBox input {
-    font-size: 0.9rem;
-  }
-
-  .commentBox button {
-    font-size: 0.9rem;
-    padding: 6px 10px;
+    font-size: 1rem;
   }
 }

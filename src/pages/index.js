@@ -124,39 +124,34 @@ export default function Home({ trendingPosts, otherPosts, screenTexts, sidebarPo
   return (
      <>
       <Head>
-        <title>New Talents Stories Group</title>
-        <meta
-          name="description"
-          content="New Talents Stories group n'urubuga rurimo inkuru zitandukanye zo gusoma zabanditsi batandukanye."
-        />
-        <meta
-          name="keywords"
-          content="newtalentg, new talents stories group, inkuru ndende, inkuru zurukundo, inkuru ngufi, agasobanuye, urubyiruko, newtalentsg, New Talents Stories Group"
-        />
-        <meta name="author" content="New Talents Stories Group" />
+  {/* Title ya post */}
+  <title>{post.head}</title>
 
-        {/* Open Graph */}
-        <meta property="og:title" content="New Talents Stories Group" />
-        <meta
-          property="og:description"
-          content="Urubuga rw’abafite impano mu Rwanda no hanze, rugufasha gusoma inkuru zitandukanye no kwandika no kubyaza inyungu ibihangano byawe."
-        />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://newtalentsg.co.rw/" />
-        <meta property="og:image" content="https://newtalentsg.co.rw/logo.png" />
+  {/* Meta description */}
+  <meta name="description" content={post.summary} />
 
-        {/* Twitter Card */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="New Talents Stories Group" />
-        <meta
-          name="twitter:description"
-          content="Urubuga rw’abafite impano mu Rwanda no hanze, rugufasha kwandika no gusoma inkuru zitandukanye."
-        />
-        <meta name="twitter:image" content="https://newtalentsg.co.rw/logo.png" />
+  {/* Canonical link */}
+  <link rel="canonical" href={`https://www.newtalentsg.co.rw/post/${post.id}`} />
 
-        {/* Canonical link */}
-        <link rel="canonical" href="https://newtalentsg.co.rw/" />
-      </Head>
+  {/* Open Graph / Facebook */}
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content={post.head} />
+  <meta property="og:description" content={post.summary} />
+  <meta property="og:url" content={`https://www.newtalentsg.co.rw/post/${post.id}`} />
+  {post.image && <meta property="og:image" content={post.image} />}
+  
+  {/* Twitter Card */}
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={post.head} />
+  <meta name="twitter:description" content={post.summary} />
+  {post.image && <meta name="twitter:image" content={post.image} />}
+
+  {/* Optional: article metadata */}
+  <meta property="article:author" content={post.author || "Unknown"} />
+  {post.categories && post.categories.map((cat, i) => (
+    <meta key={i} property="article:tag" content={cat} />
+  ))}
+</Head>
     <div className={stylesHome.page}>
             <Sound />
       <Header />

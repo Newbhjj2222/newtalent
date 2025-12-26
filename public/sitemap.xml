@@ -1,16 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
+  <!-- Static Pages Sitemap -->
   <sitemap>
     <loc>https://www.newtalentsg.co.rw/sitemap-static.xml</loc>
+    <lastmod>2025-12-26T00:00:00Z</lastmod>
   </sitemap>
 
+  <!-- All Posts Sitemap -->
   <sitemap>
     <loc>https://www.newtalentsg.co.rw/sitemap-posts.xml</loc>
+    <lastmod>2025-12-26T00:00:00Z</lastmod>
   </sitemap>
 
+  <!-- News Sitemap -->
   <sitemap>
     <loc>https://www.newtalentsg.co.rw/sitemap-news.xml</loc>
+    <lastmod>2025-12-26T00:00:00Z</lastmod>
   </sitemap>
 
 </sitemapindex>

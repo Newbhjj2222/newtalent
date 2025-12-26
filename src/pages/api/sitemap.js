@@ -5,43 +5,75 @@ export default async function handler(req, res) {
   try {
     const domain = "https://www.newtalentsg.co.rw";
 
-    let staticPages = `
-      <url>
-        <loc>${domain}</loc>
-        <changefreq>daily</changefreq>
-        <priority>1.0</priority>
-      </url>
-    `;
+    /* ===============================
+       STATIC PAGES
+    ================================ */
+    const staticRoutes = [
+      "",
+      "/about",
+      "/ibiciro",
+      "/login",
+      "/balance",
+      "/terms",
+      "/contact",
+      "/lyrics",
+      "/news",
+    ];
 
-    // Get all posts
+    const staticPagesXml = staticRoutes
+      .map(
+        (route) => `
+        <url>
+          <loc>${domain}${route}</loc>
+          <changefreq>daily</changefreq>
+          <priority>0.8</priority>
+        </url>
+      `
+      )
+      .join("");
+
+    /* ===============================
+       POSTS
+    ================================ */
     const postsSnapshot = await getDocs(collection(db, "posts"));
     const posts = postsSnapshot.docs.map((doc) => ({
       id: doc.id,
+      ...doc.data(),
     }));
 
-    let postsXml = posts
-      .map((p) => {
+    const postsXml = posts
+      .map((post) => {
+        const lastmod = post.createdAt?.toDate
+          ? post.createdAt.toDate().toISOString()
+          : new Date().toISOString();
+
         return `
-          <url>
-            <loc>${domain}/post/${p.id}</loc>
-            <changefreq>daily</changefreq>
-            <priority>0.9</priority>
-          </url>
-        `;
+        <url>
+          <loc>${domain}/post/${post.id}</loc>
+          <lastmod>${lastmod}</lastmod>
+          <changefreq>daily</changefreq>
+          <priority>0.9</priority>
+        </url>
+      `;
       })
       .join("");
 
+    /* ===============================
+       FINAL SITEMAP
+    ================================ */
     const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
-      <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-        ${staticPages}
-        ${postsXml}
-      </urlset>
-    `;
+<urlset 
+  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"
+>
+  ${staticPagesXml}
+  ${postsXml}
+</urlset>`;
 
-    res.setHeader("Content-Type", "text/xml");
+    res.setHeader("Content-Type", "application/xml");
     res.status(200).send(sitemap);
   } catch (error) {
     console.error(error);
-    res.status(500).send("Error generating sitemap.");
+    res.status(500).send("Error generating sitemap");
   }
 }

@@ -1,4 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-<sitemap><loc>https://www.newtalentsg.co.rw/sitemap-0.xml</loc></sitemap>
+
+  <sitemap>
+    <loc>https://www.newtalentsg.co.rw/sitemap-static.xml</loc>
+  </sitemap>
+
+  <sitemap>
+    <loc>https://www.newtalentsg.co.rw/sitemap-posts.xml</loc>
+  </sitemap>
+
+  <sitemap>
+    <loc>https://www.newtalentsg.co.rw/sitemap-news.xml</loc>
+  </sitemap>
+
 </sitemapindex>

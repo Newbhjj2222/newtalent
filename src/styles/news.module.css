@@ -19,7 +19,7 @@
 
 .image {
   width: 100%;
-  height: 200px;
+  height: auto;
   object-fit: cover;
 }
 
@@ -67,33 +67,117 @@
   margin-bottom: 15px;
 }
 
+/* ================= COMMENT BOX ================= */
 .commentBox {
-  margin-top: 20px;
   display: flex;
+  flex-direction: column;
   gap: 10px;
+  margin-top: 20px;
 }
 
 .commentBox input {
-  flex: 1;
-  padding: 10px;
+  width: 100%;
+  padding: 12px 15px;
+  font-size: 16px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  outline: none;
+  transition: border 0.3s, box-shadow 0.3s;
+}
+
+.commentBox input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 5px rgba(37, 99, 235, 0.5);
 }
 
 .commentBox button {
-  padding: 10px 15px;
-  background: #e11d48;
-  border: none;
+  align-self: flex-end;
+  padding: 8px 20px;
+  background-color: #2563eb;
   color: #fff;
-  border-radius: 6px;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
   cursor: pointer;
+  transition: background 0.3s;
 }
 
-/* Mobile */
-@media (max-width: 600px) {
-  .image {
-    height: 180px;
+.commentBox button:hover {
+  background-color: #1e40af;
+}
+
+/* ================= COMMENTS LIST ================= */
+.commentsList {
+  margin-top: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.commentItem {
+  background-color: #f9f9f9;
+  padding: 12px 15px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  word-wrap: break-word;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.commentItem:hover {
+  background-color: #f3f4f6;
+  transform: translateY(-2px);
+}
+
+.commentItem strong {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #111827;
+}
+
+.commentItem p {
+  margin: 0;
+  color: #374151;
+  line-height: 1.5;
+}
+
+/* ================= NO COMMENTS ================= */
+.noComments {
+  font-style: italic;
+  color: #6b7280;
+  padding: 10px;
+  background-color: #f3f4f6;
+  border-radius: 8px;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px) {
+  .commentBox input {
+    font-size: 14px;
+    padding: 10px 12px;
   }
 
-  .title {
-    font-size: 1rem;
+  .commentBox button {
+    padding: 6px 16px;
+  }
+
+  .commentItem {
+    padding: 10px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .commentBox input {
+    font-size: 13px;
+  }
+
+  .commentBox button {
+    font-size: 14px;
+    padding: 5px 12px;
+  }
+
+  .commentItem {
+    font-size: 14px;
+    padding: 8px 10px;
   }
 }

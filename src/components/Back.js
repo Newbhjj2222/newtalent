@@ -33,7 +33,7 @@ export default function Sound() {
   return (
     <audio
       ref={audioRef}
-      src="/back.mp3" // 👉 Hindura hano ukurikize aho ufite audio
+      src="/Back.mp3" // 👉 Hindura hano ukurikize aho ufite audio
       autoPlay
     />
   );

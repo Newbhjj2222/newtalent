@@ -56,7 +56,7 @@ const Footer = () => {
       </div>
 
       <div className={styles.footerBottom}>
-        <p>© 2025 NewtalentsG. All rights reserved.</p>
+        <p>© 2026 NewtalentsG. All rights reserved. designed by NetWeb</p>
       </div>
     </footer>
   );

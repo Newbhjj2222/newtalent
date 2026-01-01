@@ -17,6 +17,7 @@ import { FaShareAlt } from "react-icons/fa";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import Bible from "../../components/Bible";
+import Back from "../../components/Back";
 import NesMine from "../../components/NesMine";
 import Channel from "../../components/Channel";
 import Pin from "../../components/Pin";
@@ -347,6 +348,7 @@ const handleNES = async () => {
 </Head>
 
       <Header />
+    <Back />
         <Pin />
         {limitWarning && (
   <div

@@ -414,13 +414,6 @@ const handleNES = async () => {
           className={styles.postStory}
           dangerouslySetInnerHTML={{ __html: postData.story }}
         />
-<div className={styles.tagsWrapper}>
-            {post.categories.map((cat, i) => (
-              <span key={i} className={styles.tag}>
-                {cat}
-              </span>
-            ))}
-          </div>
         <div className={styles.postMeta}>
           <small>By: {postData.author || "Unknown"}</small>
           <small style={{ marginLeft: "10px" }}>👁 {views} views</small>

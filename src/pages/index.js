@@ -122,31 +122,40 @@ export default function Home({ trendingPosts, otherPosts, screenTexts, sidebarPo
   return (
     <>
       {filteredPosts.slice(0, 1).map((post) => (
-        <Head key={post.id}>
-          <title>{post.title}</title>
-          <meta name="description" content={post.summary} />
-          <link rel="canonical" href={`https://www.newtalentsg.co.rw/post/${post.id}`} />
+        <Head>
+  <title>New talents stories group</title>
 
-          {/* Open Graph */}
-          <meta property="og:type" content="article" />
-          <meta property="og:title" content={post.title} />
-          <meta property="og:description" content={post.summary} />
-          <meta property="og:url" content={`https://www.newtalentsg.co.rw/post/${post.id}`} />
-          {post.image && <meta property="og:image" content={post.image} />}
+  {/* SEO Description */}
+  <meta
+    name="description"
+    content="soma inkuru zitandukanye zabanditsi batandukanye buri munsi ku isomero ryambere muri africa no ku isi hose. Gura nes point ubu ubone na promotion"
+  />
 
-          {/* Twitter Card */}
-          <meta name="twitter:card" content="summary_large_image" />
-          <meta name="twitter:title" content={post.title} />
-          <meta name="twitter:description" content={post.summary} />
-          {post.image && <meta name="twitter:image" content={post.image} />}
+  {/* Favicon */}
+  <link rel="icon" href="/logo.png" />
 
-          {/* Article metadata */}
-          <meta property="article:author" content={post.author} />
-          {post.categories &&
-            post.categories.map((cat, i) => (
-              <meta key={i} property="article:tag" content={cat} />
-            ))}
-        </Head>
+  {/* Canonical */}
+  <link rel="canonical" href="https://www.newtalentsg.co.rw" />
+
+  {/* Open Graph */}
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="New talents stories group" />
+  <meta
+    property="og:description"
+    content="soma inkuru zitandukanye zabanditsi batandukanye buri munsi ku isomero ryambere muri africa no ku isi hose. Gura nes point ubu ubone na promotion"
+  />
+  <meta property="og:url" content="https://www.newtalentsg.co.rw" />
+  <meta property="og:image" content="https://www.newtalentsg.co.rw/logo.png" />
+
+  {/* Twitter Card */}
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="New talents stories group" />
+  <meta
+    name="twitter:description"
+    content="soma inkuru zitandukanye zabanditsi batandukanye buri munsi ku isomero ryambere muri africa no ku isi hose. Gura nes point ubu ubone na promotion"
+  />
+  <meta name="twitter:image" content="https://www.newtalentsg.co.rw/logo.png" />
+</Head>
       ))}
 
       <div className={stylesHome.page}>

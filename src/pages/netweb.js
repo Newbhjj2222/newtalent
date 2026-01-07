@@ -4,6 +4,8 @@ import React, { useEffect, useState } from 'react';
 import styles from '@/styles/netweb.module.css';
 import { db } from '@/components/firebase';
 import { collection, addDoc, Timestamp } from 'firebase/firestore';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 
 export default function NetWeb() {
   const [username, setUsername] = useState('');
@@ -116,6 +118,8 @@ export default function NetWeb() {
   };
 
   return (
+    <>
+    <Header />
     <div className={styles.container}>
       <h1 className={styles.title}>NetWeb – Website Order</h1>
 
@@ -188,7 +192,7 @@ export default function NetWeb() {
 
         {/* BUDGET */}
         <div className={styles.field}>
-          <label>Budget</label>
+          <label>Budget/ Rwf</label>
           <input
             type="number"
             value={budget}
@@ -226,5 +230,7 @@ export default function NetWeb() {
         </button>
       </form>
     </div>
+<Footer />
+          </>
   );
 }

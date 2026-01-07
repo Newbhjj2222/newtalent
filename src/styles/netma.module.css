@@ -1,0 +1,83 @@
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 24px 16px 60px;
+}
+
+.title {
+  text-align: center;
+  font-size: clamp(24px, 4vw, 32px);
+  font-weight: 800;
+  margin-bottom: 24px;
+}
+
+.loading,
+.noOrders {
+  text-align: center;
+  font-size: 16px;
+  color: #555;
+}
+
+/* ORDER LIST */
+.orderList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 18px;
+}
+
+.orderCard {
+  background: #fff;
+  padding: 20px;
+  border-radius: 14px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.orderCard h2 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.orderCard p {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.deleteBtn {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 12px;
+  background: #e53935;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.deleteBtn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.deleteBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* RESPONSIVE */
+@media(max-width: 600px) {
+  .orderList {
+    grid-template-columns: 1fr;
+  }
+
+  .orderCard {
+    padding: 16px;
+  }
+
+  .deleteBtn {
+    width: 100%;
+    text-align: center;
+  }
+}

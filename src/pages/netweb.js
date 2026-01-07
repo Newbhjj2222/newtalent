@@ -119,9 +119,16 @@ export default function NetWeb() {
 
   return (
     <>
+    <Head>
+        <title>NetWeb Rwanda</title>
+        <meta name="description" content="Order your professional website with NetWeb Rwanda. Choose your pages, components, budget, and delivery date easily. Build a stunning website that boosts your business online." />
+        <meta name="robots" content="index, follow" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta charSet="UTF-8" />
+      </Head>
     <Header />
     <div className={styles.container}>
-      <h1 className={styles.title}>NetWeb – Website Order</h1>
+      <h1 className={styles.title}>NetWeb Rwanda – Website Order</h1>
 
       <form className={styles.form} onSubmit={handleSubmit}>
         {/* USERNAME */}

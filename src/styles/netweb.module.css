@@ -3,7 +3,7 @@
 ====================== */
 .container {
   max-width: 960px;
-  margin: 0 auto;
+  margin: 70px auto;
   padding: 24px 16px 60px;
 }
 
@@ -70,7 +70,8 @@
 }
 
 .options span:hover {
-  background: #f3f4f6;
+  background: blue;
+  color: white;
 }
 
 .active {

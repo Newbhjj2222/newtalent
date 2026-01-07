@@ -36,6 +36,9 @@ const Footer = () => {
           <li>
             <Link href="/poll">RQA game</Link>
           </li>
+           <li>
+            <Link href="/netweb">Koresha website na Netweb Rwanda</Link>
+          </li>
           <li>
             <Link href="/Monitize">Monitization</Link>
           </li>
@@ -56,7 +59,9 @@ const Footer = () => {
       </div>
 
       <div className={styles.footerBottom}>
-        <p>© 2026 NewtalentsG. All rights reserved. designed by NetWeb</p>
+        <p>
+  © {new Date().getFullYear()} NewtalentsG. All rights reserved. Designed by NetWeb Rwanda 
+</p>
       </div>
     </footer>
   );

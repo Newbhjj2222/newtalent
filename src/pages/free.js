@@ -74,7 +74,7 @@ export default function Home({ posts }) {
 <Header />
       <div className={styles.page}>
         <main className={styles.mainContent}>
-          <h1 className={styles.pageTitle}>All Stories</h1>
+          <h1 className={styles.pageTitle}>Free Stories</h1>
 
           {posts.length === 0 && (
             <p className={styles.noPosts}>No posts available.</p>

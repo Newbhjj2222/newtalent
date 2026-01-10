@@ -14,7 +14,7 @@ const Channel = () => {
             Dukurikirane kuri <span>WhatsApp Channel</span>
           </h2>
           <p className={styles.subtitle}>
-            Ujye ubona inkuru nshya, amakuru n’amafilime mashya kugihe buri munsi.
+            Ujye ubona inkuru nshya, amakuru, inama, n'ubumenyi kugihe buri munsi.
           </p>
         </div>
 

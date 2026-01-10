@@ -20,6 +20,7 @@ export default function App({ Component, pageProps }) {
         src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2059573562083386"
         crossOrigin="anonymous"
       />
+          <script defer src="https://shown.io/metrics/Nq92YkDy8W" type="text/javascript"></script>
 
       {/* Dropdown ya Google Translate (igaragara kuri pages zose) */}
       

@@ -133,9 +133,7 @@ export default function PostPage({ post }) {
       </Head>
 <Header />
       <div className={styles.page}>
-        {post.image && (
-          <img src={post.image} alt={post.title} className={styles.postImage} />
-        )}
+        
 
         <div className={styles.postContent}>
           <h1 className={styles.postTitle}>
@@ -145,7 +143,9 @@ export default function PostPage({ post }) {
               : ""}
           </h1>
           <small className={styles.authorText}>By {post.author}</small>
-
+{post.image && (
+          <img src={post.image} alt={post.title} className={styles.postImage} />
+        )}
           <div
             className={styles.postStory}
             dangerouslySetInnerHTML={{ __html: post.story }}

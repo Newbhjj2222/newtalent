@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { db } from "../components/firebase";
 import { collection, query, orderBy, getDocs } from "firebase/firestore";
 import styles from "@/styles/index.module.css";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 // Server-side data fetching
 export async function getServerSideProps() {
@@ -54,7 +56,7 @@ export default function Home({ posts }) {
   const [visibleCount, setVisibleCount] = useState(POSTS_PER_PAGE);
 
   const handlePostClick = (id) => {
-    router.push(`/post/${id}`);
+    router.push(`/free/${id}`);
   };
 
   const handleLoadMore = () => {
@@ -66,10 +68,10 @@ export default function Home({ posts }) {
   return (
     <>
       <Head>
-        <title>All Stories</title>
-        <meta name="description" content="Explore all stories" />
+        <title>Free Stories</title>
+        <meta name="description" content="Soma inkuru zitandukanye kubuntu" />
       </Head>
-
+<Header />
       <div className={styles.page}>
         <main className={styles.mainContent}>
           <h1 className={styles.pageTitle}>All Stories</h1>
@@ -118,6 +120,7 @@ export default function Home({ posts }) {
           )}
         </main>
       </div>
+          <Footer />
     </>
   );
 }

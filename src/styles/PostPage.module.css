@@ -1,0 +1,189 @@
+/* PostPage.module.css */
+
+/* 🔹 Page Layout */
+.page {
+  width: 100%;
+  min-height: 100vh;
+  padding: 20px;
+  box-sizing: border-box;
+  background-color: #fdfdfd;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  display: flex;
+  justify-content: center;
+}
+
+.postContent {
+  max-width: 800px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* 🔹 Post Image */
+.postImage {
+  width: 100%;
+  height: 350px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 15px;
+}
+
+/* 🔹 Post Title & Author */
+.postTitle {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 5px;
+  color: #111;
+}
+
+.authorText {
+  font-size: 0.9rem;
+  color: #777;
+  margin-bottom: 15px;
+}
+
+/* 🔹 Post Story */
+.postStory {
+  font-size: 1rem;
+  line-height: 1.8;
+  color: #333;
+}
+
+/* 🔹 Tags */
+.tagsWrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.tag {
+  background-color: #0070f3;
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+
+/* 🔹 Actions (Share Button) */
+.actionsWrapper {
+  margin-top: 15px;
+}
+
+.shareBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #1e88e5;
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: background-color 0.2s ease;
+}
+
+.shareBtn:hover {
+  background-color: #1565c0;
+}
+
+/* 🔹 Comments Section */
+.commentWrapper {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.commentWrapper h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.commentItem {
+  background-color: #f6f6f6;
+  padding: 10px 15px;
+  border-radius: 8px;
+  border-left: 4px solid #0070f3;
+}
+
+.commentItem small {
+  font-size: 0.8rem;
+  color: #555;
+}
+
+.commentItem p {
+  margin: 5px 0 0;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.commentInput {
+  width: 100%;
+  min-height: 80px;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  resize: vertical;
+  font-size: 0.95rem;
+}
+
+.commentBtn {
+  align-self: flex-start;
+  background-color: #0070f3;
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: background-color 0.2s ease;
+}
+
+.commentBtn:hover {
+  background-color: #005ecb;
+}
+
+/* 🔹 Responsive Adjustments */
+@media (max-width: 768px) {
+  .postImage {
+    height: 250px;
+  }
+
+  .postTitle {
+    font-size: 1.6rem;
+  }
+
+  .postStory {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .page {
+    padding: 15px;
+  }
+
+  .postImage {
+    height: 200px;
+  }
+
+  .postTitle {
+    font-size: 1.4rem;
+  }
+
+  .postStory {
+    font-size: 0.9rem;
+  }
+
+  .shareBtn, .commentBtn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .commentInput {
+    min-height: 70px;
+  }
+}

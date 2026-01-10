@@ -1,8 +1,7 @@
 'use client';
 import React, { useState, useEffect } from "react";
 import Head from "next/head";
-import { useRouter } from "next/navigation";
-import { usePathname } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { db } from "../../components/firebase";
 import {
   doc,
@@ -17,6 +16,8 @@ import styles from "../../styles/PostPage.module.css";
 import { FaShareAlt } from "react-icons/fa";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
+
+// Fetch post data server-side
 export async function getServerSideProps(context) {
   const { id } = context.params;
 
@@ -68,7 +69,7 @@ export default function PostPage({ post }) {
     }
   }, [pathname]);
 
-  // 🟢 Fetch comments in real-time
+  // Fetch comments in real-time
   useEffect(() => {
     const commentsRef = collection(db, "free", post.id, "comments");
     const q = query(commentsRef, orderBy("createdAt", "desc"));
@@ -84,18 +85,29 @@ export default function PostPage({ post }) {
     return () => unsubscribe();
   }, [post.id]);
 
-  // 🟢 Handle comment submit
+  // Handle comment submission
   const handleCommentSubmit = async () => {
     if (comment.trim() === "") return;
 
     try {
       const commentsRef = collection(db, "free", post.id, "comments");
+
+      // Get username from localStorage or use default "Anonymous"
+      let username = "Anonymous";
+      if (typeof window !== "undefined") {
+        const storedUser = localStorage.getItem("username");
+        if (storedUser && storedUser.trim() !== "") {
+          username = storedUser;
+        }
+      }
+
       await addDoc(commentsRef, {
         content: comment,
-        author: "Anonymous", // bisa kongeraho user authentication
+        author: username,
         createdAt: new Date().toISOString(),
       });
-      setComment("");
+
+      setComment(""); // Clear textarea after submitting
     } catch (err) {
       console.error("Error submitting comment:", err);
       alert("Failed to submit comment.");
@@ -131,9 +143,13 @@ export default function PostPage({ post }) {
           <meta key={i} property="article:tag" content={cat} />
         ))}
       </Head>
-<Header />
+
+      <Header />
+
       <div className={styles.page}>
-        
+        {post.image && (
+          <img src={post.image} alt={post.title} className={styles.postImage} />
+        )}
 
         <div className={styles.postContent}>
           <h1 className={styles.postTitle}>
@@ -143,9 +159,7 @@ export default function PostPage({ post }) {
               : ""}
           </h1>
           <small className={styles.authorText}>By {post.author}</small>
-{post.image && (
-          <img src={post.image} alt={post.title} className={styles.postImage} />
-        )}
+
           <div
             className={styles.postStory}
             dangerouslySetInnerHTML={{ __html: post.story }}
@@ -165,6 +179,7 @@ export default function PostPage({ post }) {
             </button>
           </div>
 
+          {/* Comments Section */}
           <div className={styles.commentWrapper}>
             <h3>Comments ({comments.length})</h3>
 
@@ -189,7 +204,8 @@ export default function PostPage({ post }) {
           </div>
         </div>
       </div>
-              <Footer />
+
+      <Footer />
     </>
   );
 }

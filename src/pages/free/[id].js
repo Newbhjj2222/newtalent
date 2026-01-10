@@ -16,6 +16,9 @@ import styles from "../../styles/PostPage.module.css";
 import { FaShareAlt } from "react-icons/fa";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
+import Bible from "../../components/Bible";
+import Channel from "../../components/Channel";
+
 
 // Fetch post data server-side
 export async function getServerSideProps(context) {
@@ -145,11 +148,10 @@ export default function PostPage({ post }) {
       </Head>
 
       <Header />
+        <Channel />
 
       <div className={styles.page}>
-        {post.image && (
-          <img src={post.image} alt={post.title} className={styles.postImage} />
-        )}
+        
 
         <div className={styles.postContent}>
           <h1 className={styles.postTitle}>
@@ -159,7 +161,10 @@ export default function PostPage({ post }) {
               : ""}
           </h1>
           <small className={styles.authorText}>By {post.author}</small>
-
+{post.image && (
+          <img src={post.image} alt={post.title} className={styles.postImage} />
+        )}
+          <Bible />
           <div
             className={styles.postStory}
             dangerouslySetInnerHTML={{ __html: post.story }}

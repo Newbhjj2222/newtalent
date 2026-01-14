@@ -55,6 +55,7 @@ const Header = () => {
         <li><Link href="/balance" onClick={closeMenu}>Your Balance</Link></li>
         <li><Link href="/tv" onClick={closeMenu}>NewtalentsG TV</Link></li>
         <li><Link href="/login" onClick={closeMenu}>Login</Link></li>
+        <li><Link href="/free" onClick={closeMenu}>Free Stories</Link></li>
         <li><Link href="/news" onClick={closeMenu}>News / Fashions</Link></li>
         <li><Link href="/lyrics" onClick={closeMenu}>Songs & Lyrics</Link></li>
         <li><Link href="/Nesgain" onClick={closeMenu}>Nesgain Game</Link></li>

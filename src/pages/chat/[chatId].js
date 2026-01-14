@@ -27,27 +27,35 @@ import {
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 
-export default function Chat() {
+export default function Chat({ initialMessages }) {
   const router = useRouter();
   const { chatId } = router.query;
 
-  const username =
-    typeof window !== "undefined"
-      ? localStorage.getItem("username")
-      : null;
-
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState(initialMessages || []);
   const [text, setText] = useState("");
   const [recording, setRecording] = useState(false);
   const [typingUser, setTypingUser] = useState(null);
+  const [username, setUsername] = useState(null);
 
   const recorderRef = useRef(null);
   const chunksRef = useRef([]);
   const bottomRef = useRef(null);
 
-  /* ================= JOIN CHAT ================= */
+  /* ================= LOAD USERNAME FROM LOCALSTORAGE ================= */
   useEffect(() => {
-    if (!chatId || !username) return;
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("username");
+      if (!stored) {
+        router.push("/"); // redirect niba nta username
+      } else {
+        setUsername(stored);
+      }
+    }
+  }, []);
+
+  /* ================= JOIN CHAT & LISTEN ================= */
+  useEffect(() => {
+    if (!chatId || !username) return; // wait for username
 
     const chatRef = doc(db, "chats", chatId);
 
@@ -72,7 +80,7 @@ export default function Chat() {
       }
     });
 
-    /* ===== TYPING LISTENER ===== */
+    // Typing listener
     const unsubTyping = onSnapshot(chatRef, (snap) => {
       const data = snap.data();
       if (!data?.typing) return;
@@ -84,23 +92,21 @@ export default function Chat() {
       setTypingUser(other || null);
     });
 
-    /* ===== ORDERED MESSAGES ===== */
+    // Messages listener
     const q = query(
       collection(db, "chats", chatId, "messages"),
       orderBy("createdAt", "asc")
     );
 
     const unsubMsgs = onSnapshot(q, (snap) => {
-      setMessages(
-        snap.docs.map((d) => ({ id: d.id, ...d.data() }))
-      );
+      setMessages(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
     });
 
     return () => {
       unsubMsgs();
       unsubTyping();
     };
-  }, [chatId]);
+  }, [chatId, username]);
 
   /* ================= AUTO SCROLL ================= */
   useEffect(() => {
@@ -183,14 +189,10 @@ export default function Chat() {
 
   /* ================= SEEN ================= */
   const markAsSeen = async (msg) => {
-    if (
-      msg.sender !== username &&
-      !msg.seenBy?.includes(username)
-    ) {
-      await updateDoc(
-        doc(db, "chats", chatId, "messages", msg.id),
-        { seenBy: arrayUnion(username) }
-      );
+    if (msg.sender !== username && !msg.seenBy?.includes(username)) {
+      await updateDoc(doc(db, "chats", chatId, "messages", msg.id), {
+        seenBy: arrayUnion(username),
+      });
     }
   };
 
@@ -202,107 +204,127 @@ export default function Chat() {
 
   /* ================= END CHAT ================= */
   const endChat = async () => {
-    const msgs = await getDocs(
-      collection(db, "chats", chatId, "messages")
-    );
+    const msgs = await getDocs(collection(db, "chats", chatId, "messages"));
     for (const m of msgs.docs) await deleteDoc(m.ref);
     await deleteDoc(doc(db, "chats", chatId));
     router.push("/");
   };
 
-  /* ================= UI ================= */
   return (
     <>
-    <Header />
-    <div className={styles.container}>
-      {/* HEADER */}
-      <div className={styles.header}>
-        <button className={styles.copyBtn} onClick={copyLink}>
-          <FiCopy /> Copy Link
-        </button>
-        <button className={styles.endBtn} onClick={endChat}>
-          End Chat ❌
-        </button>
-      </div>
-
-      {/* TYPING */}
-      {typingUser && (
-        <div className={styles.typing}>
-          {typingUser} is typing...
+      <Header />
+      <div className={styles.container}>
+        {/* HEADER */}
+        <div className={styles.header}>
+          <button className={styles.copyBtn} onClick={copyLink}>
+            <FiCopy /> Copy Link
+          </button>
+          <button className={styles.endBtn} onClick={endChat}>
+            End Chat ❌
+          </button>
         </div>
-      )}
 
-      {/* MESSAGES */}
-      <div className={styles.messages}>
-        {messages.map((m) => {
-          const mine = m.sender === username;
-          markAsSeen(m);
+        {/* TYPING */}
+        {typingUser && (
+          <div className={styles.typing}>{typingUser} is typing...</div>
+        )}
 
-          return (
-            <div
-              key={m.id}
-              className={`${styles.msg} ${
-                mine ? styles.me : styles.other
-              }`}
-            >
-              {m.type === "text" && <p>{m.text}</p>}
+        {/* MESSAGES */}
+        <div className={styles.messages}>
+          {messages.map((m) => {
+            const mine = m.sender === username;
+            markAsSeen(m);
 
-              {m.type === "image" && (
-                <img src={m.mediaUrl} className={styles.image} />
-              )}
+            return (
+              <div
+                key={m.id}
+                className={`${styles.msg} ${mine ? styles.me : styles.other}`}
+              >
+                {m.type === "text" && <p>{m.text}</p>}
+                {m.type === "image" && (
+                  <img src={m.mediaUrl} className={styles.image} />
+                )}
+                {m.type === "audio" && (
+                  <audio controls src={m.mediaUrl} />
+                )}
+                {mine && (
+                  <span className={styles.seen}>
+                    {m.seenBy?.length ? "✓✓" : "✓"}
+                  </span>
+                )}
+              </div>
+            );
+          })}
+          <div ref={bottomRef} />
+        </div>
 
-              {m.type === "audio" && (
-                <audio controls src={m.mediaUrl} />
-              )}
-
-              {mine && (
-                <span className={styles.seen}>
-                  {m.seenBy?.length ? "✓✓" : "✓"}
-                </span>
-              )}
-            </div>
-          );
-        })}
-        <div ref={bottomRef} />
-      </div>
-
-      {/* FOOTER */}
-      <div className={styles.footer}>
-        <input
-          className={styles.input}
-          value={text}
-          onChange={(e) => {
-            setText(e.target.value);
-            setTyping(true);
-          }}
-          onBlur={() => setTyping(false)}
-          onKeyDown={(e) => e.key === "Enter" && sendText()}
-          placeholder="Type a message..."
-        />
-
-        <label className={styles.iconBtn}>
-          <FiImage />
+        {/* FOOTER */}
+        <div className={styles.footer}>
           <input
-            hidden
-            type="file"
-            accept="image/*"
-            onChange={(e) => sendImage(e.target.files[0])}
+            className={styles.input}
+            value={text}
+            onChange={(e) => {
+              setText(e.target.value);
+              setTyping(true);
+            }}
+            onBlur={() => setTyping(false)}
+            onKeyDown={(e) => e.key === "Enter" && sendText()}
+            placeholder="Type a message..."
           />
-        </label>
 
-        <button
-          className={styles.iconBtn}
-          onClick={recording ? stopRecording : startRecording}
-        >
-          {recording ? <FiStopCircle /> : <FiMic />}
-        </button>
+          <label className={styles.iconBtn}>
+            <FiImage />
+            <input
+              hidden
+              type="file"
+              accept="image/*"
+              onChange={(e) => sendImage(e.target.files[0])}
+            />
+          </label>
 
-        <button className={styles.iconBtn} onClick={sendText}>
-          <FiSend />
-        </button>
+          <button
+            className={styles.iconBtn}
+            onClick={recording ? stopRecording : startRecording}
+          >
+            {recording ? <FiStopCircle /> : <FiMic />}
+          </button>
+
+          <button className={styles.iconBtn} onClick={sendText}>
+            <FiSend />
+          </button>
+        </div>
       </div>
-    </div>
-<Footer />
-              </>
+      <Footer />
+    </>
   );
+}
+
+/* ================= SSR: initial messages ================= */
+export async function getServerSideProps(context) {
+  const { chatId } = context.params;
+
+  const chatRef = doc(db, "chats", chatId);
+  const chatSnap = await getDoc(chatRef);
+
+  if (!chatSnap.exists()) {
+    return { notFound: true };
+  }
+
+  const msgsSnap = await getDocs(
+    query(
+      collection(db, "chats", chatId, "messages"),
+      orderBy("createdAt", "asc")
+    )
+  );
+
+  const initialMessages = msgsSnap.docs.map((d) => ({
+    id: d.id,
+    ...d.data(),
+  }));
+
+  return {
+    props: {
+      initialMessages,
+    },
+  };
 }

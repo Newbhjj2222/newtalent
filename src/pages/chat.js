@@ -1,6 +1,8 @@
 import { collection, doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../components/firebase";
 import { useRouter } from "next/router";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
 
 export default function Home() {
   const router = useRouter();
@@ -20,9 +22,13 @@ export default function Home() {
   };
 
   return (
+    <>
+    <Header />
     <div style={{ padding: 40 }}>
       <h2>Love Connection Chat ❤️</h2>
       <button onClick={launchChat}>Launch Chat</button>
     </div>
+<Footer/>
+  </>
   );
 }

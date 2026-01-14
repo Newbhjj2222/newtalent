@@ -19,6 +19,12 @@ const Footer = () => {
             <Link href="/tv">Newtalentg Tv</Link>
           </li>
           <li>
+            <Link href="/web">Web market Rwanda</Link>
+          </li>
+         <li>
+            <Link href="/chat">Private Chat</Link>
+          </li>
+          <li>
             <Link href="/balance">Your Balance</Link>
           </li>
            <li>

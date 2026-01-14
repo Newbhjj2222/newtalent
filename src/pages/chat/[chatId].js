@@ -12,7 +12,7 @@ import {
   getDocs,
 } from "firebase/firestore";
 import { db } from "../../components/firebase";
-import { uploadToCloudinary } from "../../utils/cloudinary";
+import { uploadToCloudinary } from "@/utils/cloudinary";
 import styles from "../../styles/chat.module.css";
 import {
   FiCopy,

@@ -7,7 +7,7 @@ export default function Home() {
 
   const launchChat = async () => {
     const username = localStorage.getItem("username");
-    if (!username) return alert("Set username first");
+    if (!username) return alert("Username missing");
 
     const chatRef = doc(collection(db, "chats"));
     await setDoc(chatRef, {
@@ -20,8 +20,9 @@ export default function Home() {
   };
 
   return (
-    <button onClick={launchChat}>
-      Launch Love Chat ❤️
-    </button>
+    <div style={{ padding: 40 }}>
+      <h2>Love Connection Chat ❤️</h2>
+      <button onClick={launchChat}>Launch Chat</button>
+    </div>
   );
 }

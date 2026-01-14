@@ -1,0 +1,89 @@
+.container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #0f172a;
+  color: white;
+}
+
+.header {
+  padding: 12px;
+  display: flex;
+  justify-content: space-between;
+  background: #020617;
+}
+
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.msg {
+  max-width: 75%;
+  padding: 10px;
+  border-radius: 14px;
+}
+
+.me {
+  align-self: flex-end;
+  background: linear-gradient(135deg, #ec4899, #f43f5e);
+}
+
+.other {
+  align-self: flex-start;
+  background: #334155;
+}
+
+.image {
+  max-width: 100%;
+  border-radius: 12px;
+}
+
+.footer {
+  padding: 10px;
+  display: flex;
+  gap: 8px;
+  background: #020617;
+}
+
+.input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 20px;
+  border: none;
+  outline: none;
+}
+
+.iconBtn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #1e293b;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.copyBtn {
+  background: #ec4899;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 20px;
+  color: white;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+@media (max-width: 600px) {
+  .msg {
+    max-width: 90%;
+  }
+}

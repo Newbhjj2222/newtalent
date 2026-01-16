@@ -8,7 +8,7 @@ import {
   FaWhatsapp,
 } from "react-icons/fa";
 import styles from "./web.module.css";
-import Net from "../components/Net;
+import Net from "../components/Net";
 
 const WHATSAPP_NUMBER = "250722319367";
 

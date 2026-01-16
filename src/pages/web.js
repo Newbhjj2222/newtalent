@@ -8,6 +8,7 @@ import {
   FaWhatsapp,
 } from "react-icons/fa";
 import styles from "./web.module.css";
+import Net from "../components/Net;
 
 const WHATSAPP_NUMBER = "250722319367";
 
@@ -44,14 +45,31 @@ ${site.previewUrl}`;
   return (
     <>
       <Head>
-        <title>Website Zigurishwa | Web Market Rwanda</title>
-        <meta
-          name="description"
-          content="Reba website zigurishwa, urebe preview, ugure byoroshye kuri WhatsApp."
-        />
-        <meta name="robots" content="index, follow" />
-      </Head>
+  <title>Website Zigurishwa | Web Market Rwanda</title>
 
+  <meta
+    name="description"
+    content="Reba website zigurishwa, urebe preview, ugure byoroshye kuri WhatsApp."
+  />
+  <meta name="robots" content="index, follow" />
+
+  {/* Favicon */}
+  <link rel="icon" href="/net.png" />
+
+  {/* Open Graph (Facebook, WhatsApp, LinkedIn) */}
+  <meta property="og:title" content="Website Zigurishwa | Web Market Rwanda" />
+  <meta
+    property="og:description"
+    content="Reba website zigurishwa, urebe preview, ugure byoroshye kuri WhatsApp."
+  />
+  <meta property="og:image" content="/net.png" />
+  <meta property="og:type" content="website" />
+
+  {/* Twitter Card */}
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="/net.png" />
+</Head>
+<Net />
       <main className={styles.container}>
         <h1 className={styles.heading}>NetWeb Rwanda</h1>
 

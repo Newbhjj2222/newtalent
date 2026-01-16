@@ -6,7 +6,7 @@ import Head from 'next/head';
 import styles from '@/styles/netweb.module.css';
 import { db } from '@/components/firebase';
 import { collection, addDoc, Timestamp } from 'firebase/firestore';
-import Header from '@/components/Header';
+import net from '@/components/net';
 import Footer from '@/components/Footer';
 
 export default function NetWeb() {
@@ -103,7 +103,7 @@ export default function NetWeb() {
         <meta charSet="UTF-8" />
       </Head>
 
-      <Header />
+      <net />
 
       <div className={styles.container}>
         <h1 className={styles.title}>NetWeb – Website Order</h1>

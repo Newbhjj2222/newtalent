@@ -54,6 +54,10 @@
   100% { opacity: 0; transform: translateY(4px); }
 }
 
+.logoImage {
+  width: 120px;   /* hindura uko ubishaka */
+  height: auto;
+   }
 /* =========================
    NAV LINKS (DESKTOP)
 ========================= */

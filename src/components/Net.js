@@ -45,18 +45,12 @@ const Header = () => {
         ref={menuRef}
         className={`${styles.navLinks} ${isOpen ? styles.open : ''}`}
       >
-        <li><Link href="/" onClick={closeMenu}>Homepage</Link></li>
+        <li><Link href="/netweb" onClick={closeMenu}>NetWeb Rwanda| koresha website</Link></li>
+        <li><Link href="/" onClick={closeMenu}>Soma Inkuru</Link></li>
+        <li><Link href="/web" onClick={closeMenu}>Webmarket Rwanda</Link></li>
         <li><Link href="/About" onClick={closeMenu}>About</Link></li>
         <li><Link href="/contact" onClick={closeMenu}>Contact</Link></li>
-        <li><Link href="/Ibiciro" onClick={closeMenu}>Ibiciro by’inkuru</Link></li>
-        <li><Link href="/balance" onClick={closeMenu}>Your Balance</Link></li>
-        <li><Link href="/tv" onClick={closeMenu}>NewtalentsG TV</Link></li>
         <li><Link href="/login" onClick={closeMenu}>Login</Link></li>
-        <li><Link href="/free" onClick={closeMenu}>Free Stories</Link></li>
-        <li><Link href="/news" onClick={closeMenu}>News / Fashions</Link></li>
-        <li><Link href="/lyrics" onClick={closeMenu}>Songs & Lyrics</Link></li>
-        <li><Link href="/Nesgain" onClick={closeMenu}>Nesgain Game</Link></li>
-        <li><Link href="/poll" onClick={closeMenu}>RQA Game</Link></li>
         <li><Link href="/profile" onClick={closeMenu}>Profile</Link></li>
       </ul>
     </header>

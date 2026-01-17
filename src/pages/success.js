@@ -50,11 +50,7 @@ export default function SuccessPage() {
             plan = "weakly";
             nes = 25;
             break;
-          case 500:
-            plan = "monthly";
-            nes = 60;
-            break;
-          case 800:
+          case 400:
             plan = "bestreader";
             nes = 1000;
             break;

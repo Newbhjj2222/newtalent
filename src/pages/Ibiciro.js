@@ -85,17 +85,10 @@ const plans = [
     details: "Umusomyi yishyura 250 RWF ku cyumweru, agasoma ibice 25 mu minsi 7.",
     extra: "Igice kimwe gihwanye na 10 RWF. Iyo icyumweru kirangiye utazikoresheje zirarangira.",
   },
-  
   {
-    title: "🟢 Ukwezi NeS 60 – 500 RWF",
-    price: "500 RWF / ukwezi",
-    details: "Umusomyi yishyura 500 RWF ku kwezi, agasoma ibice 60.",
-    extra: "Igice kimwe gihwanye na 8.34 RWF. Ni plan ihendutse cyane ku bakunda gusoma buri munsi.",
-  },
-  {
-    title: "🟢 Bestreader– 800 RWF",
-    price: "800 RWF / ukwezi",
-    details: "Umusomyi yishyura 800 RWF agahabwa uburenganzira busesuye bwo gusoma inkuru zose.",
+    title: "🟢 Bestreader– 400 RWF",
+    price: "400 RWF / ukwezi",
+    details: "Umusomyi yishyura 400 RWF agahabwa uburenganzira busesuye bwo gusoma inkuru zose.",
     extra: "Ni “VIP Plan” (All Access). Iyo ukwezi gushize irahagarara.",
   },
 ];

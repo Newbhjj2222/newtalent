@@ -1,51 +1,48 @@
-const fs = require("fs");
-const fetch = require("node-fetch");
+import fs from "fs";
+import path from "path";
+import * as deepl from "deepl";
+import source from "../locales/source.js";
 
-const API_KEY = "cf5e91d5-f80f-485d-ac2d-a0e588525499:fx"; // ⚠️ hardcoded
-const TARGET_LANGS = ["EN", "FR", "SW", "DE", "RW"];
+// 🔑 Shyiramo API key yawe
+const authKey = "cf5e91d5-f80f-485d-ac2d-a0e588525499:fx";
+const deeplClient = new deepl.DeepLClient(authKey);
 
-const source = require("../locales/source");
+// Izi ni languages ushaka
+const targetLangs = ["EN", "FR", "SW", "DE", "RW"];
 
-// Translate function (auto-detect)
-async function translate(text, targetLang) {
-  // niba target ari RW, dusubiza text uko iri
-  if (targetLang === "RW") return text;
-  
-  const res = await fetch("https://api.deepl.com/v2/translate", {
-    method: "POST",
-    headers: {
-      "Authorization": `DeepL-Auth-Key ${API_KEY}`,
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: new URLSearchParams({
-      text,
-      target_lang: targetLang,
-    }),
-  });
-  
-  const data = await res.json();
-  return data.translations[0].text;
+async function translateText(text, targetLang) {
+  try {
+    // RW original, subiza text uko iri
+    if (targetLang === "RW") return text;
+
+    const result = await deeplClient.translateText(text, null, targetLang);
+    return result.text || text; // safety check
+
+  } catch (err) {
+    console.error(`❌ Translation failed for: "${text}" →`, err);
+    return text;
+  }
 }
 
 async function generate() {
-  for (const lang of TARGET_LANGS) {
-    const result = {};
-    
-    for (const key of Object.keys(source)) {
-      console.log(`🔁 [${key}] → ${lang}`);
-      result[key] = await translate(source[key], lang);
+  const outDir = path.join("src", "locales");
+  if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
+
+  for (const lang of targetLangs) {
+    const translated = {};
+    for (const key in source) {
+      console.log(`🔁 Translating [${key}] → ${lang}`);
+      translated[key] = await translateText(source[key], lang);
     }
-    
-    const fileContent = `export default ${JSON.stringify(
-      result,
-      null,
-      2
-    )};`;
-    
-    fs.writeFileSync(`locales/${lang.toLowerCase()}.js`, fileContent);
+
+    // Save as JSON
+    fs.writeFileSync(
+      path.join(outDir, `${lang.toLowerCase()}.json`),
+      JSON.stringify(translated, null, 2)
+    );
+
+    console.log(`✅ ${lang} translations done`);
   }
-  
-  console.log("✅ Translations zakozwe neza (auto-detect)");
 }
 
 generate();

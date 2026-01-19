@@ -6,24 +6,22 @@ import { useEffect, useState } from "react";
 import "video.js/dist/video-js.css";
 
 import NotificationChecker from "../components/NotificationChecker";
+import LanguageSelector from "../components/LanguageSelector";
 import { LanguageProvider, useLanguage } from "../context/LanguageContext";
 import { translateText } from "../lib/translate";
 
-// 🔁 Wrapper ikora auto-translation kuri pageProps zose
 function TranslatorWrapper({ Component, pageProps }) {
   const { language } = useLanguage();
   const [translatedProps, setTranslatedProps] = useState(pageProps);
 
   useEffect(() => {
     async function runTranslation() {
-      // English → ntidusobanura
       if (language === "EN") {
         setTranslatedProps(pageProps);
         return;
       }
 
       const newProps = {};
-
       for (const key in pageProps) {
         if (typeof pageProps[key] === "string") {
           newProps[key] = await translateText(pageProps[key], language);
@@ -65,10 +63,13 @@ export default function App({ Component, pageProps }) {
           strategy="afterInteractive"
         />
 
-        {/* Notifications */}
+        {/* 🔤 Language selector (igaragara kuri pages zose) */}
+        <div style={{ padding: "10px", textAlign: "right" }}>
+          <LanguageSelector />
+        </div>
+
         <NotificationChecker />
 
-        {/* Page with auto-translation */}
         <TranslatorWrapper Component={Component} pageProps={pageProps} />
       </>
     </LanguageProvider>

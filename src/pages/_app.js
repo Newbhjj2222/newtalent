@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 import "video.js/dist/video-js.css";
 
 import NotificationChecker from "../components/NotificationChecker";
-import LanguageSelector from "../components/LanguageSelector";
 import { LanguageProvider, useLanguage } from "../context/LanguageContext";
 import { translateText } from "../lib/translate";
 
@@ -64,10 +63,7 @@ export default function App({ Component, pageProps }) {
         />
 
         {/* 🔤 Language selector (igaragara kuri pages zose) */}
-        <div style={{ padding: "10px", textAlign: "right" }}>
-          <LanguageSelector />
-        </div>
-
+        
         <NotificationChecker />
 
         <TranslatorWrapper Component={Component} pageProps={pageProps} />

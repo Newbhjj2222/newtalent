@@ -1,5 +1,5 @@
 // pages/_app.js
-import "@/styles/globals.css";
+
 import Script from "next/script";
 import Head from "next/head";
 import 'video.js/dist/video-js.css';

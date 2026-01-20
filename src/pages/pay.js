@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 
 export default function PayPage() {
   const [username, setUsername] = useState("");
-  const [amount, setAmount] = useState("");
   const [reason, setReason] = useState("");
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState("");
@@ -15,8 +14,8 @@ export default function PayPage() {
   }, []);
 
   const generateLink = async () => {
-    if (!amount || Number(amount) < 100) {
-      setMsg("Shyiramo amafaranga nibura 100 RWF");
+    if (!username) {
+      setMsg("Username not found");
       return;
     }
 
@@ -28,11 +27,7 @@ export default function PayPage() {
       const res = await fetch("/api/pay", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username,
-          amount,
-          reason,
-        }),
+        body: JSON.stringify({ username, reason }),
       });
 
       const data = await res.json();
@@ -68,17 +63,6 @@ export default function PayPage() {
       <p><b>User:</b> {username || "Unknown"}</p>
 
       <div style={{ marginBottom: 15 }}>
-        <label>Amafaranga (RWF)</label>
-        <input
-          type="number"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          placeholder="Urugero: 1000"
-          style={{ width: "100%", padding: 8, marginTop: 5 }}
-        />
-      </div>
-
-      <div style={{ marginBottom: 15 }}>
         <label>Impamvu yo kwishyura</label>
         <input
           type="text"
@@ -99,6 +83,7 @@ export default function PayPage() {
           color: "#fff",
           border: "none",
           borderRadius: 5,
+          cursor: loading ? "not-allowed" : "pointer",
         }}
       >
         {loading ? "Generating..." : "Generate Payment Link"}

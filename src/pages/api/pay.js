@@ -1,18 +1,22 @@
 import axios from "axios";
 import crypto from "crypto";
 
+// ⚠️ LIVE PAWAPAY TOKEN (nk'uko wabishatse)
 const PAWAPAY_TOKEN =
   "eyJraWQiOiIxIiwiYWxnIjoiRVMyNTYifQ.eyJ0dCI6IkFBVCIsInN1YiI6IjIwMTgiLCJtYXYiOiIxIiwiZXhwIjoyMDgwMzgxOTU2LCJpYXQiOjE3NjQ4NDkxNTYsInBtIjoiREFGLFBBRiIsImp0aSI6ImI0YWM3MzQ4LWYyNDEtNDVjNy04MmQ1LTI0ZTgwZjVlZmJhNSJ9.8qxWc0Aph9QhrhKcfPXvaFe5l_RzSPjOWsCGFr6W88QpMmcyWwqm7W7M83-UCE4OrM8UQZOncdnx-t1MACbObA";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
-    return res
-      .status(405)
-      .json({ error: "Method Not Allowed" });
+    return res.status(405).json({
+      error: {
+        message: "Method Not Allowed",
+      },
+    });
   }
 
-  const { username, amount, reason } = req.body;
+  const { amount, reason } = req.body;
 
+  // ===== VALIDATION =====
   if (!amount) {
     return res.status(400).json({
       error: {
@@ -23,21 +27,18 @@ export default async function handler(req, res) {
 
   const depositId = crypto.randomUUID();
 
+  // ===== BODY ISHYIRWA UKO PAWAPAY DOCS ZIBIVUGA (LIVE) =====
   const bodyToSend = {
     depositId,
-    amount: String(amount),
-    currency: "RWF",
-    country: "RWA",
-    reason: reason || "Payment",
     returnUrl: `https://www.newtalentsg.co.rw/payment-success?depositId=${depositId}`,
-    metadata: {
-      username: username || "guest",
-    },
+    amount: String(amount),   // ⚠️ IGOMBA KUBA STRING
+    country: "RWA",           // Rwanda
+    reason: reason || "Payment",
   };
 
   try {
     const response = await axios.post(
-      "https://api.pawapay.io/v2/paymentpage",
+      "https://api.pawapay.io/v2/paymentpage", // ✅ LIVE ENDPOINT
       bodyToSend,
       {
         headers: {
@@ -47,10 +48,11 @@ export default async function handler(req, res) {
       }
     );
 
+    // ===== SUCCESS =====
     if (!response.data?.redirectUrl) {
       return res.status(500).json({
         error: {
-          message: "No redirectUrl returned from pawaPay",
+          message: "pawaPay did not return redirectUrl",
           raw: response.data,
         },
       });
@@ -62,12 +64,10 @@ export default async function handler(req, res) {
     });
 
   } catch (err) {
-    // 👉 HANO TUYOHEREZA ERROR YA PAWAPAY UKO IRI
+    // ===== ERROR NYAYO YA PAWAPAY (RAW) =====
     return res.status(err.response?.status || 400).json({
-      error: {
+      error: err.response?.data || {
         message: err.message,
-        status: err.response?.status,
-        pawapay: err.response?.data, // ← FULL RAW ERROR
       },
     });
   }

@@ -3,33 +3,26 @@ import { useState, useEffect } from "react";
 
 export default function PayPage() {
   const [username, setUsername] = useState("");
-  const [nesPoints, setNesPoints] = useState("10");
+  const [amount, setAmount] = useState("");
+  const [reason, setReason] = useState("");
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState("");
-
-  // Mapping of nesPoints to amount (RWF)
-  const nesPointsMapping = {
-    "15": 150,
-    "25": 250,
-    "60": 500,
-    "1000": 800
-  };
-
-  const amount = nesPointsMapping[nesPoints];
+  const [paymentLink, setPaymentLink] = useState("");
 
   useEffect(() => {
     const u = localStorage.getItem("username");
     if (u) setUsername(u);
   }, []);
 
-  const handlePay = async () => {
-    if (!username) {
-      setMsg("Username not found in localStorage");
+  const generateLink = async () => {
+    if (!amount || Number(amount) < 100) {
+      setMsg("Shyiramo amafaranga nibura 100 RWF");
       return;
     }
 
     setLoading(true);
     setMsg("");
+    setPaymentLink("");
 
     try {
       const res = await fetch("/api/pay", {
@@ -37,8 +30,8 @@ export default function PayPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           username,
-          nesPoints,
-          amount   //  <<<<<<<<<<  IMPORTANT: TURAYOHEREZA NONEHO
+          amount,
+          reason,
         }),
       });
 
@@ -46,17 +39,12 @@ export default function PayPage() {
       setLoading(false);
 
       if (!res.ok) {
-        let errorMsg =
-          typeof data.error === "object"
-            ? JSON.stringify(data.error)
-            : data.error;
-
-        setMsg("Error: " + errorMsg);
+        setMsg("Error: " + (data.error || "Payment failed"));
         return;
       }
 
-      // Redirect to payment page
-      window.location.href = data.redirectUrl;
+      // payment link ya pawaPay
+      setPaymentLink(data.redirectUrl);
 
     } catch (err) {
       setLoading(false);
@@ -65,72 +53,71 @@ export default function PayPage() {
   };
 
   return (
-    <div
-      style={{
-        maxWidth: 400,
-        margin: "50px auto",
-        padding: 20,
-        border: "1px solid #ccc",
-        borderRadius: 10,
-      }}
-    >
-      <h2 style={{ textAlign: "center", marginBottom: 20 }}>💰 Buy NES Points</h2>
+    <div style={{
+      maxWidth: 400,
+      margin: "50px auto",
+      padding: 20,
+      border: "1px solid #ccc",
+      borderRadius: 10,
+    }}>
+      <h2 style={{ textAlign: "center" }}>💳 Generate Payment Link</h2>
 
-      <p><b>Logged as:</b> {username || "No username found"}</p>
+      <p><b>User:</b> {username || "Unknown"}</p>
 
       <div style={{ marginBottom: 15 }}>
-        <label>NES Points:</label>
+        <label>Amafaranga (RWF)</label>
+        <input
+          type="number"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          placeholder="Urugero: 1000"
+          style={{ width: "100%", padding: 8, marginTop: 5 }}
+        />
+      </div>
 
-        <select
-          value={nesPoints}
-          onChange={(e) => setNesPoints(e.target.value)}
-          style={{
-            width: "100%",
-            padding: 8,
-            marginTop: 5,
-            borderRadius: 5,
-            border: "1px solid #ccc",
-          }}
-        >
-          
-          <option value="15">15 NES Points</option>
-          <option value="25">25 Nes icyumweru</option>
-          <option value="60">60 NES ukwezi</option>
-          <option value="1000">1000 NES ukwezi</option>
-        </select>
-
-        <p style={{ marginTop: 5 }}>Amafaranga wishyura: {amount} RWF</p>
+      <div style={{ marginBottom: 15 }}>
+        <label>Impamvu yo kwishyura</label>
+        <input
+          type="text"
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          placeholder="Urugero: Subscription"
+          style={{ width: "100%", padding: 8, marginTop: 5 }}
+        />
       </div>
 
       <button
-        onClick={handlePay}
+        onClick={generateLink}
         disabled={loading}
         style={{
           width: "100%",
           padding: 10,
-          borderRadius: 5,
-          border: "none",
-          backgroundColor: "#4CAF50",
+          backgroundColor: "#2563eb",
           color: "#fff",
-          fontWeight: "bold",
+          border: "none",
+          borderRadius: 5,
           cursor: loading ? "not-allowed" : "pointer",
         }}
       >
-        {loading ? "Processing..." : "Pay Now"}
+        {loading ? "Generating..." : "Generate Payment Link"}
       </button>
 
+      {paymentLink && (
+        <div style={{ marginTop: 20 }}>
+          <p>🔗 Payment Link:</p>
+          <a
+            href={paymentLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: "#2563eb", wordBreak: "break-all" }}
+          >
+            {paymentLink}
+          </a>
+        </div>
+      )}
+
       {msg && (
-        <p
-          style={{
-            marginTop: 20,
-            padding: 10,
-            borderRadius: 5,
-            backgroundColor: msg.startsWith("Error")
-              ? "#f8d7da"
-              : "#d4edda",
-            color: msg.startsWith("Error") ? "#721c24" : "#155724",
-          }}
-        >
+        <p style={{ marginTop: 15, color: "red" }}>
           {msg}
         </p>
       )}

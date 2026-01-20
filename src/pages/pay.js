@@ -39,16 +39,19 @@ export default function PayPage() {
       setLoading(false);
 
       if (!res.ok) {
-        setMsg("Error: " + (data.error || "Payment failed"));
+        if (typeof data.error === "object") {
+          setMsg(JSON.stringify(data.error, null, 2));
+        } else {
+          setMsg(String(data.error || "Payment failed"));
+        }
         return;
       }
 
-      // payment link ya pawaPay
       setPaymentLink(data.redirectUrl);
 
     } catch (err) {
       setLoading(false);
-      setMsg("Network error: " + err.message);
+      setMsg(err.message);
     }
   };
 
@@ -96,7 +99,6 @@ export default function PayPage() {
           color: "#fff",
           border: "none",
           borderRadius: 5,
-          cursor: loading ? "not-allowed" : "pointer",
         }}
       >
         {loading ? "Generating..." : "Generate Payment Link"}
@@ -117,9 +119,20 @@ export default function PayPage() {
       )}
 
       {msg && (
-        <p style={{ marginTop: 15, color: "red" }}>
+        <pre
+          style={{
+            marginTop: 15,
+            padding: 10,
+            background: "#fee2e2",
+            color: "#7f1d1d",
+            borderRadius: 6,
+            whiteSpace: "pre-wrap",
+            wordBreak: "break-word",
+            fontSize: 12,
+          }}
+        >
           {msg}
-        </p>
+        </pre>
       )}
     </div>
   );

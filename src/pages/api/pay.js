@@ -28,16 +28,17 @@ export default async function handler(req, res) {
     const depositId = randomUUID();
 
     const payload = {
-      depositId: depositId,
-      amount: amount.toString(), // ex: "5000"
-      country: "RWA",
-      reason: "Live website payment",
-      statementDescription: "ONLINE PAYMENT",
-      language: "EN",
+      const { amount, country } = req.body;
 
-      // URL user asubiramo nyuma yo kwishyura
-      returnUrl: "https://yourdomain.com/payment-result"
-    };
+const payload = {
+  depositId,
+  amount: amount.toString(),
+  country, // RWA, KEN, UGA, etc
+  reason: "Live payment",
+  statementDescription: "ONLINE PAYMENT",
+  language: "EN",
+  returnUrl: "https://newtalentsg.co.rw/payment-result",
+};
 
     const response = await fetch(PAWAPAY_URL, {
       method: "POST",

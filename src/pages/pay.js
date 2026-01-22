@@ -1,82 +1,115 @@
-"use client";
-import { useState, useEffect } from "react";
+// pages/pay.js
+import { useState } from "react";
 
-export default function PayPage() {
-  const [username, setUsername] = useState("");
+export default function Pay() {
   const [amount, setAmount] = useState("");
-  const [reason, setReason] = useState("");
-  const [country, setCountry] = useState("RWA");
   const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState("");
-  const [paymentLink, setPaymentLink] = useState("");
-  const [depositId, setDepositId] = useState("");
+  const [error, setError] = useState("");
 
-  useEffect(() => {
-    const u = localStorage.getItem("username");
-    if (u) setUsername(u);
-  }, []);
+  const handlePay = async (e) => {
+    e.preventDefault();
+    setError("");
 
-  const generateLink = async () => {
-    if (!username || !amount || !country) {
-      setMsg("Shyiramo username, amount na country");
+    if (!amount) {
+      setError("Hitamo amafaranga ubanze");
       return;
     }
 
-    setLoading(true);
-    setMsg("");
-    setPaymentLink("");
-
     try {
+      setLoading(true);
+
       const res = await fetch("/api/pay", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, amount, reason, country }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ amount }),
       });
 
       const data = await res.json();
-      setLoading(false);
 
-      if (!res.ok) {
-        setMsg(JSON.stringify(data.error, null, 2));
-        return;
+      if (data.redirectUrl) {
+        // 🔴 Redirect kuri PawaPay Payment Page
+        window.location.href = data.redirectUrl;
+      } else {
+        setError("Ntibyashobotse gutangiza payment");
       }
-
-      setPaymentLink(data.redirectUrl);
-      setDepositId(data.depositId);
-
     } catch (err) {
+      setError("Habaye ikibazo, ongera ugerageze");
+    } finally {
       setLoading(false);
-      setMsg("Network error: " + err.message);
     }
   };
 
   return (
-    <div style={{ maxWidth: 400, margin: "50px auto", padding: 20, border: "1px solid #ccc", borderRadius: 10 }}>
-      <h2 style={{ textAlign: "center" }}>💳 Generate Payment Link</h2>
+    <div style={styles.container}>
+      <form onSubmit={handlePay} style={styles.card}>
+        <h2 style={styles.title}>Hitamo amafaranga yo kwishyura</h2>
 
-      <p><b>User:</b> {username || "Unknown"}</p>
+        <select
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          style={styles.select}
+        >
+          <option value="">-- Hitamo amafaranga --</option>
+          <option value="1000">1,000 RWF</option>
+          <option value="2000">2,000 RWF</option>
+          <option value="5000">5,000 RWF</option>
+          <option value="10000">10,000 RWF</option>
+          <option value="20000">20,000 RWF</option>
+          <option value="50000">50,000 RWF</option>
+        </select>
 
-      <input type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="Amount (RWF)" style={{ width: "100%", marginBottom: 10, padding: 8 }} />
-      <input type="text" value={reason} onChange={e => setReason(e.target.value)} placeholder="Reason" style={{ width: "100%", marginBottom: 10, padding: 8 }} />
-      <select value={country} onChange={e => setCountry(e.target.value)} style={{ width: "100%", marginBottom: 10, padding: 8 }}>
-        <option value="RWA">Rwanda</option>
-        <option value="UGA">Uganda</option>
-        <option value="KEN">Kenya</option>
-        <option value="GHA">Ghana</option>
-      </select>
+        {error && <p style={styles.error}>{error}</p>}
 
-      <button onClick={generateLink} disabled={loading} style={{ width: "100%", padding: 10, backgroundColor: "#2563eb", color: "#fff", border: "none", borderRadius: 5 }}>
-        {loading ? "Generating..." : "Generate Payment Link"}
-      </button>
-
-      {paymentLink && (
-        <div style={{ marginTop: 20 }}>
-          <p>🔗 Payment Link:</p>
-          <a href={paymentLink} target="_blank" rel="noopener noreferrer">{paymentLink}</a>
-        </div>
-      )}
-
-      {msg && <pre style={{ marginTop: 15, padding: 10, background: "#fee2e2", color: "#7f1d1d", borderRadius: 6 }}>{msg}</pre>}
+        <button type="submit" disabled={loading} style={styles.button}>
+          {loading ? "Tegereza..." : "Next"}
+        </button>
+      </form>
     </div>
   );
 }
+
+const styles = {
+  container: {
+    minHeight: "100vh",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    background: "#f5f7fa",
+  },
+  card: {
+    background: "#fff",
+    padding: "30px",
+    width: "100%",
+    maxWidth: "400px",
+    borderRadius: "10px",
+    boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
+  },
+  title: {
+    marginBottom: "20px",
+    textAlign: "center",
+  },
+  select: {
+    width: "100%",
+    padding: "12px",
+    fontSize: "16px",
+    marginBottom: "15px",
+  },
+  button: {
+    width: "100%",
+    padding: "12px",
+    fontSize: "16px",
+    background: "#0d6efd",
+    color: "#fff",
+    border: "none",
+    borderRadius: "6px",
+    cursor: "pointer",
+  },
+  error: {
+    color: "red",
+    marginBottom: "10px",
+    fontSize: "14px",
+    textAlign: "center",
+  },
+};

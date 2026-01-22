@@ -49,19 +49,19 @@ export default function Pay() {
 
         {/* SELECT COUNTRY */}
         <select
-          value={country}
-          onChange={(e) => setCountry(e.target.value)}
-          style={styles.select}
-        >
-          <option value="">-- Hitamo igihugu --</option>
-          <option value="RWA">🇷🇼 Rwanda</option>
-          <option value="KEN">🇰🇪 Kenya</option>
-          <option value="UGA">🇺🇬 Uganda</option>
-          <option value="TZA">🇹🇿 Tanzania</option>
-          <option value="NGA">🇳🇬 Nigeria</option>
-          <option value="GHA">🇬🇭 Ghana</option>
-          <option value="ZAF">🇿🇦 South Africa</option>
-        </select>
+  value={country}
+  onChange={(e) => setCountry(e.target.value)}
+  style={styles.select}
+>
+  <option value="">-- Hitamo igihugu --</option>
+
+  <option value="RWA">🇷🇼 Rwanda</option>
+  <option value="KEN">🇰🇪 Kenya</option>
+  <option value="UGA">🇺🇬 Uganda</option>
+  <option value="COD">🇨🇩 RDC (DR Congo)</option>
+  <option value="COG">🇨🇬 Congo Brazzaville</option>
+  <option value="ZMB">🇿🇲 Zambia</option>
+</select>
 
         {/* SELECT AMOUNT */}
         <select

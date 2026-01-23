@@ -82,7 +82,7 @@ const NesMineSSR = ({ username, initialNesTotal }) => {
 miningInterval.current = setInterval(async () => {
   await addNesToUser(1); // +1 NES buri gihe
 }, 900000); // buri minota 15
-
+    };
   // 🔹 Stop mining
   useEffect(() => {
     return () => {

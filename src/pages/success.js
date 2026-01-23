@@ -52,7 +52,7 @@ export default function SuccessPage() {
             break;
           case 400:
             plan = "bestreader";
-            nes = 1000;
+            nes = 50;
             break;
           default:
             plan = "unknown";

@@ -1,11 +1,11 @@
-'use client'; // 🔹 Only client-side
+'use client';
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { auth, db } from '../components/firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
-import styles from '../components/Register.module.css';
+import styles from '../styles/Register.module.css';
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Link from "next/link";
@@ -18,20 +18,18 @@ const Register = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [refCode, setRefCode] = useState('');
-  const [isLoading, setIsLoading] = useState(false); // 🔹 loading state
+  const [isLoading, setIsLoading] = useState(false);
 
-  /** Fata referral code iri muri URL */
   useEffect(() => {
     const code = searchParams.get('ref');
     if (code) setRefCode(code);
   }, [searchParams]);
 
-  /** Generate referral code */
   const generateReferralCode = (length = 6) => {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     let code = "";
     for (let i = 0; i < length; i++) {
-      code += chars.charAt(Math.floor(Math.random() * chars.length));
+      code += chars[Math.floor(Math.random() * chars.length)];
     }
     return code;
   };
@@ -40,10 +38,9 @@ const Register = () => {
     e.preventDefault();
     if (!username) return alert("Andika username");
 
-    setIsLoading(true); // 🔹 button igaragaze ko yakanzweho
+    setIsLoading(true);
 
     try {
-      // 1️⃣ Firebase Authentication
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
@@ -51,13 +48,10 @@ const Register = () => {
       );
       const uid = userCredential.user.uid;
 
-      // 2️⃣ Fata document ya data
       const dataDocRef = doc(db, "userdate", "data");
-      const dataDocSnap = await getDoc(dataDocRef);
-      let existingData = {};
-      if (dataDocSnap.exists()) existingData = dataDocSnap.data();
+      const dataSnap = await getDoc(dataDocRef);
+      const existingData = dataSnap.exists() ? dataSnap.data() : {};
 
-      // 3️⃣ Shyiramo user nshya
       const referralCode = generateReferralCode();
       const newUserData = {
         fName: username,
@@ -69,25 +63,21 @@ const Register = () => {
       const updatedData = { ...existingData, [uid]: newUserData };
       await setDoc(dataDocRef, updatedData);
 
-      // 4️⃣ NES kuri new user
-      const depositerRef = doc(db, 'depositers', username);
-      await setDoc(depositerRef, { nes: 5 });
+      await setDoc(doc(db, 'depositers', username), { nes: 5 });
 
-      // 5️⃣ NES kuri referrer
       if (refCode) {
         for (const key in updatedData) {
           if (updatedData[key].referralCode === refCode) {
-            const referrerUsername = updatedData[key].fName;
-            const referrerDepositRef = doc(db, 'depositers', referrerUsername);
-            const refSnap = await getDoc(referrerDepositRef);
+            const refUsername = updatedData[key].fName;
+            const refDoc = doc(db, 'depositers', refUsername);
+            const refSnap = await getDoc(refDoc);
 
             if (refSnap.exists()) {
-              const currentNes = refSnap.data().nes || 0;
-              await updateDoc(referrerDepositRef, {
-                nes: currentNes + 10,
+              await updateDoc(refDoc, {
+                nes: (refSnap.data().nes || 0) + 10,
               });
             } else {
-              await setDoc(referrerDepositRef, { nes: 10 });
+              await setDoc(refDoc, { nes: 10 });
             }
             break;
           }
@@ -98,7 +88,7 @@ const Register = () => {
     } catch (error) {
       alert(error.message);
     } finally {
-      setIsLoading(false); // 🔹 garura button normal
+      setIsLoading(false);
     }
   };
 
@@ -107,7 +97,7 @@ const Register = () => {
       <Header />
 
       <div className={styles.container}>
-        <h2>Register</h2>
+        <h2 className={styles.title}>Register</h2>
 
         <form onSubmit={handleRegister} className={styles.form}>
           <input

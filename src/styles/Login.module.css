@@ -1,0 +1,190 @@
+/* =====================
+   CONTAINER
+===================== */
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #f4f6fa;
+  padding: 16px;
+}
+
+/* =====================
+   TITLE
+===================== */
+.title {
+  margin-bottom: 18px;
+  color: #1f2937;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+/* =====================
+   FORM
+===================== */
+.form {
+  width: 100%;
+  max-width: 420px;
+  background: #ffffff;
+  padding: 28px;
+  border-radius: 12px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+/* =====================
+   MESSAGE
+===================== */
+.messageDiv {
+  margin-bottom: 14px;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 14px;
+  text-align: center;
+  background: #ecfeff;
+  color: #0369a1;
+}
+
+/* =====================
+   INPUT GROUP
+===================== */
+.inputGroup {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  background: #fff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.inputGroup:focus-within {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15);
+}
+
+.inputGroup i {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+/* =====================
+   INPUT
+===================== */
+.inputGroup input {
+  border: none;
+  outline: none;
+  flex: 1;
+  font-size: 15px;
+  background: transparent;
+}
+
+/* =====================
+   BUTTON
+===================== */
+.btn {
+  width: 100%;
+  padding: 13px;
+  margin-top: 6px;
+  background: #4f46e5;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.btn:hover {
+  background: #4338ca;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn:disabled {
+  pointer-events: none;
+}
+
+/* =====================
+   LOADING STATE
+===================== */
+.loading {
+  background: #9ca3af;
+  cursor: not-allowed;
+  opacity: 0.75;
+}
+
+/* =====================
+   REGISTER LINK
+===================== */
+.registerLink {
+  margin-top: 16px;
+  text-align: center;
+  font-size: 14px;
+  color: #374151;
+}
+
+.registerLink a {
+  color: #4f46e5;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.registerLink a:hover {
+  text-decoration: underline;
+}
+
+/* =====================
+   📱 SMALL PHONES (≤ 480px)
+===================== */
+@media (max-width: 480px) {
+  .form {
+    padding: 20px;
+    border-radius: 10px;
+  }
+
+  .title {
+    font-size: 20px;
+  }
+
+  .inputGroup {
+    padding: 11px 12px;
+  }
+
+  .btn {
+    font-size: 15px;
+    padding: 12px;
+  }
+}
+
+/* =====================
+   📲 TABLETS (481px – 768px)
+===================== */
+@media (min-width: 481px) and (max-width: 768px) {
+  .form {
+    max-width: 460px;
+  }
+
+  .title {
+    font-size: 22px;
+  }
+}
+
+/* =====================
+   💻 DESKTOP (≥ 1024px)
+===================== */
+@media (min-width: 1024px) {
+  .form {
+    max-width: 440px;
+  }
+
+  .title {
+    font-size: 26px;
+  }
+}

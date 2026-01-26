@@ -70,6 +70,24 @@
   color: #6b7280;
   font-size: 14px;
 }
+.resetBtn {
+  margin-top: 10px;
+  background: none;
+  border: none;
+  color: #4f46e5;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.resetBtn:hover {
+  text-decoration: underline;
+}
+
+.resetBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 
 /* =====================
    INPUT

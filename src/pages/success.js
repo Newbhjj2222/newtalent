@@ -1,9 +1,16 @@
-// pages/success.js
 'use client';
 
 import { useEffect, useState } from "react";
 import { db } from "@/components/firebase";
 import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
+
+/**
+ * Normalize username:
+ * "Emmy", " emmy ", "EMMY" => "emmy"
+ */
+function normalizeUsername(username) {
+  return username.trim().toLowerCase();
+}
 
 export default function SuccessPage() {
   const [data, setData] = useState(null);
@@ -13,6 +20,7 @@ export default function SuccessPage() {
   useEffect(() => {
     async function processPayment() {
       try {
+        // 1. Fata payload
         const params = new URLSearchParams(window.location.search);
         const payloadParam = params.get("payload");
 
@@ -26,18 +34,24 @@ export default function SuccessPage() {
         setData(parsedData);
 
         const transaction = parsedData?.data?.result?.[0];
-        if (!transaction) return;
+        if (!transaction) {
+          setError("No transaction data");
+          return;
+        }
 
+        // 2. Fata customerId (username)
         const rawCustomerId = transaction.metadata?.customerId;
-        if (!rawCustomerId) return;
-
-        // normalize username
-        const customerId = rawCustomerId.trim().toLowerCase();
         const amount = Number(transaction.depositedAmount);
 
-        if (!customerId || isNaN(amount)) return;
+        if (!rawCustomerId || isNaN(amount)) {
+          setError("Invalid payment data");
+          return;
+        }
 
-        // Determine plan & NES based on amount
+        // 3. Normalize username
+        const customerId = normalizeUsername(rawCustomerId);
+
+        // 4. Hitamo plan na NES hashingiwe ku mafaranga
         let plan = "";
         let nes = 0;
 
@@ -47,52 +61,60 @@ export default function SuccessPage() {
             nes = 1;
             break;
           case 150:
-            plan = "Daily";
-            nes = 12;
+            plan = "daily";
+            nes = 15;
             break;
           case 250:
-            plan = "weakly";
-            nes = 20;
+            plan = "weekly";
+            nes = 25;
             break;
           case 400:
             plan = "bestreader";
-            nes = 30;
+            nes = 50;
             break;
           default:
             plan = "unknown";
             nes = 0;
         }
 
+        // 5. Reba niba user asanzwe ari muri Firestore
         const depositerRef = doc(db, "depositers", customerId);
         const existingDoc = await getDoc(depositerRef);
 
-         let totalNES = nes;
+        let totalNES = nes;
 
         if (existingDoc.exists()) {
-         const data = existingDoc.data();
-          totalNES += data.nes || 0;
-     }
+          const oldData = existingDoc.data();
+          totalNES += oldData.nes || 0;
+        }
 
-           await setDoc(
+        // 6. Andika / uvugurure user
+        await setDoc(
           depositerRef,
-      {
-      username: rawCustomerId.trim(), // ushobora kubika uko yanditswe bwa mbere
-      username_normalized: customerId, // emmy
-      plan,
-      nes: totalNES,
-      amount,
-      timestamp: serverTimestamp(),
-  },
-  { merge: true }
-);
+          {
+            username: rawCustomerId.trim(),       // uko user yanditse izina
+            username_normalized: customerId,      // emmy
+            plan,
+            nes: totalNES,
+            amount,
+            lastPaymentAmount: amount,
+            updatedAt: serverTimestamp(),
+            createdAt: existingDoc.exists()
+              ? existingDoc.data().createdAt
+              : serverTimestamp(),
+          },
+          { merge: true }
+        );
 
-        setMessage(`You have NES ${totalNES}! Redirecting...`);
+        // 7. Message & redirect
+        setMessage(`Wahawe NES ${nes}. Ubu ufite zose ${totalNES}.`);
+
         setTimeout(() => {
           window.location.href = "https://www.newtalentsg.co.rw";
         }, 5000);
 
       } catch (err) {
-        console.error("Error processing payment:", err);
+        console.error("Payment processing error:", err);
         setError("Failed to process payment");
       }
     }
@@ -100,7 +122,8 @@ export default function SuccessPage() {
     processPayment();
   }, []);
 
-  // Responsive CSS
+  /* ================= UI ================= */
+
   const containerStyle = {
     minHeight: "100vh",
     display: "flex",
@@ -181,13 +204,13 @@ export default function SuccessPage() {
               <strong>Amount:</strong> {transaction.depositedAmount} {transaction.currency}
             </p>
             <p style={textStyle}>
-              <strong>Customer ID:</strong> {transaction.metadata?.customerId}
+              <strong>Customer:</strong> {transaction.metadata?.customerId}
             </p>
             <p style={textStyle}>
               <strong>Order ID:</strong> {transaction.metadata?.orderId}
             </p>
             <p style={textStyle}>
-              <strong>Payment Method:</strong> {transaction.correspondent}
+              <strong>Method:</strong> {transaction.correspondent}
             </p>
           </>
         )}
@@ -196,4 +219,4 @@ export default function SuccessPage() {
       </div>
     </div>
   );
-        }
+}

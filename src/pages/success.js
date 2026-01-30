@@ -28,7 +28,11 @@ export default function SuccessPage() {
         const transaction = parsedData?.data?.result?.[0];
         if (!transaction) return;
 
-        const customerId = transaction.metadata?.customerId;
+        const rawCustomerId = transaction.metadata?.customerId;
+        if (!rawCustomerId) return;
+
+        // normalize username
+        const customerId = rawCustomerId.trim().toLowerCase();
         const amount = Number(transaction.depositedAmount);
 
         if (!customerId || isNaN(amount)) return;
@@ -44,15 +48,15 @@ export default function SuccessPage() {
             break;
           case 150:
             plan = "Daily";
-            nes = 15;
+            nes = 12;
             break;
           case 250:
             plan = "weakly";
-            nes = 25;
+            nes = 20;
             break;
           case 400:
             plan = "bestreader";
-            nes = 50;
+            nes = 30;
             break;
           default:
             plan = "unknown";
@@ -62,23 +66,25 @@ export default function SuccessPage() {
         const depositerRef = doc(db, "depositers", customerId);
         const existingDoc = await getDoc(depositerRef);
 
-        let totalNES = nes;
+         let totalNES = nes;
 
         if (existingDoc.exists()) {
-          const data = existingDoc.data();
-          totalNES += data.nes || 0; // Guteranya NES zishyashya n’izari zihari
-        }
+         const data = existingDoc.data();
+          totalNES += data.nes || 0;
+     }
 
-        await setDoc(
+           await setDoc(
           depositerRef,
-          {
-            plan,
-            nes: totalNES,
-            amount,
-            timestamp: serverTimestamp(), // igihe nyacyo
-          },
-          { merge: true } // merge if doc exists
-        );
+      {
+      username: rawCustomerId.trim(), // ushobora kubika uko yanditswe bwa mbere
+      username_normalized: customerId, // emmy
+      plan,
+      nes: totalNES,
+      amount,
+      timestamp: serverTimestamp(),
+  },
+  { merge: true }
+);
 
         setMessage(`You have NES ${totalNES}! Redirecting...`);
         setTimeout(() => {

@@ -20,13 +20,14 @@ export default function SuccessPage() {
   useEffect(() => {
     async function processPayment() {
       try {
-        // 1. Fata payload
+        /* =======================
+           1. FATA PAYLOAD
+        ======================== */
         const params = new URLSearchParams(window.location.search);
         const payloadParam = params.get("payload");
 
         if (!payloadParam) {
-          setError("No payload received");
-          return;
+          throw new Error("No payload received");
         }
 
         const decoded = decodeURIComponent(payloadParam);
@@ -35,24 +36,32 @@ export default function SuccessPage() {
 
         const transaction = parsedData?.data?.result?.[0];
         if (!transaction) {
-          setError("No transaction data");
-          return;
+          throw new Error("No transaction found");
         }
 
-        // 2. Fata customerId (username)
+        /* =======================
+           2. DATA Z'INGENZI
+        ======================== */
         const rawCustomerId = transaction.metadata?.customerId;
-        const amount = Number(transaction.depositedAmount);
+        const amount = parseInt(transaction.depositedAmount, 10);
 
-        if (!rawCustomerId || isNaN(amount)) {
-          setError("Invalid payment data");
-          return;
+        if (!rawCustomerId) {
+          throw new Error("CustomerId missing");
         }
 
-        // 3. Normalize username
+        if (!Number.isFinite(amount)) {
+          throw new Error("Invalid amount");
+        }
+
+        /* =======================
+           3. NORMALIZE USERNAME
+        ======================== */
         const customerId = normalizeUsername(rawCustomerId);
 
-        // 4. Hitamo plan na NES hashingiwe ku mafaranga
-        let plan = "";
+        /* =======================
+           4. PLAN & NES
+        ======================== */
+        let plan = "unknown";
         let nes = 0;
 
         switch (amount) {
@@ -62,22 +71,21 @@ export default function SuccessPage() {
             break;
           case 150:
             plan = "daily";
-            nes = 15;
+            nes = 12;
             break;
           case 250:
             plan = "weekly";
-            nes = 25;
+            nes = 20;
             break;
           case 400:
             plan = "bestreader";
-            nes = 50;
+            nes = 40;
             break;
-          default:
-            plan = "unknown";
-            nes = 0;
         }
 
-        // 5. Reba niba user asanzwe ari muri Firestore
+        /* =======================
+           5. FIRESTORE LOGIC
+        ======================== */
         const depositerRef = doc(db, "depositers", customerId);
         const existingDoc = await getDoc(depositerRef);
 
@@ -85,28 +93,29 @@ export default function SuccessPage() {
 
         if (existingDoc.exists()) {
           const oldData = existingDoc.data();
-          totalNES += oldData.nes || 0;
+          totalNES += Number(oldData.nes || 0);
         }
 
-        // 6. Andika / uvugurure user
+        /* =======================
+           6. SAVE (NO ERROR HERE)
+        ======================== */
         await setDoc(
           depositerRef,
           {
-            username: rawCustomerId.trim(),       // uko user yanditse izina
-            username_normalized: customerId,      // emmy
+            username: rawCustomerId.trim(),
+            username_normalized: customerId,
             plan,
             nes: totalNES,
-            amount,
             lastPaymentAmount: amount,
             updatedAt: serverTimestamp(),
-            createdAt: existingDoc.exists()
-              ? existingDoc.data().createdAt
-              : serverTimestamp(),
+            createdAt: serverTimestamp(),
           },
           { merge: true }
         );
 
-        // 7. Message & redirect
+        /* =======================
+           7. SUCCESS MESSAGE
+        ======================== */
         setMessage(`Wahawe NES ${nes}. Ubu ufite zose ${totalNES}.`);
 
         setTimeout(() => {
@@ -114,7 +123,7 @@ export default function SuccessPage() {
         }, 5000);
 
       } catch (err) {
-        console.error("Payment processing error:", err);
+        console.error("PROCESS PAYMENT ERROR:", err);
         setError("Failed to process payment");
       }
     }
@@ -122,16 +131,17 @@ export default function SuccessPage() {
     processPayment();
   }, []);
 
-  /* ================= UI ================= */
-
+  /* =======================
+     UI
+  ======================== */
   const containerStyle = {
     minHeight: "100vh",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
     padding: "20px",
-    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-    background: "linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%)",
+    fontFamily: "Segoe UI, sans-serif",
+    background: "linear-gradient(135deg,#fdfbfb,#ebedee)",
   };
 
   const cardStyle = {
@@ -139,36 +149,17 @@ export default function SuccessPage() {
     width: "100%",
     background: "#fff",
     borderRadius: "15px",
-    boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
+    boxShadow: "0 10px 25px rgba(0,0,0,.1)",
     padding: "30px",
     textAlign: "center",
-  };
-
-  const headingStyle = {
-    fontSize: "1.8rem",
-    marginBottom: "15px",
-    color: "#333",
-  };
-
-  const textStyle = {
-    fontSize: "1.1rem",
-    marginBottom: "10px",
-    color: "#555",
-  };
-
-  const messageStyle = {
-    fontSize: "1.2rem",
-    fontWeight: "600",
-    color: "#0070f3",
-    marginTop: "20px",
   };
 
   if (error) {
     return (
       <div style={containerStyle}>
         <div style={cardStyle}>
-          <h1 style={headingStyle}>Payment Error</h1>
-          <p style={textStyle}>{error}</p>
+          <h2>Payment Error</h2>
+          <p>{error}</p>
         </div>
       </div>
     );
@@ -178,7 +169,7 @@ export default function SuccessPage() {
     return (
       <div style={containerStyle}>
         <div style={cardStyle}>
-          <h1 style={headingStyle}>Processing payment...</h1>
+          <h2>Processing payment...</h2>
         </div>
       </div>
     );
@@ -189,33 +180,19 @@ export default function SuccessPage() {
   return (
     <div style={containerStyle}>
       <div style={cardStyle}>
-        <h1 style={headingStyle}>Payment Status</h1>
+        <h2>Payment Successful</h2>
 
-        <p style={textStyle}>
-          <strong>Status:</strong> {data.status}
-        </p>
+        <p><strong>Status:</strong> {data.status}</p>
 
         {transaction && (
           <>
-            <p style={textStyle}>
-              <strong>Deposit ID:</strong> {transaction.depositId}
-            </p>
-            <p style={textStyle}>
-              <strong>Amount:</strong> {transaction.depositedAmount} {transaction.currency}
-            </p>
-            <p style={textStyle}>
-              <strong>Customer:</strong> {transaction.metadata?.customerId}
-            </p>
-            <p style={textStyle}>
-              <strong>Order ID:</strong> {transaction.metadata?.orderId}
-            </p>
-            <p style={textStyle}>
-              <strong>Method:</strong> {transaction.correspondent}
-            </p>
+            <p><strong>Deposit ID:</strong> {transaction.depositId}</p>
+            <p><strong>Amount:</strong> {transaction.depositedAmount} {transaction.currency}</p>
+            <p><strong>User:</strong> {transaction.metadata?.customerId}</p>
           </>
         )}
 
-        {message && <p style={messageStyle}>{message}</p>}
+        {message && <p style={{ marginTop: 20, fontWeight: "bold" }}>{message}</p>}
       </div>
     </div>
   );

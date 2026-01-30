@@ -1,21 +1,14 @@
 import { useState } from "react";
 import { db } from "@/components/firebase";
-import {
-  collection,
-  getDocs,
-  doc,
-  deleteDoc,
-} from "firebase/firestore";
+import { collection, getDocs, doc, deleteDoc } from "firebase/firestore";
 
 export async function getServerSideProps() {
   try {
-    // Fetch all depositers from Firestore
     const snap = await getDocs(collection(db, "depositers"));
-    const users = snap.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
+    const users = snap.docs.map(d => ({
+      id: d.id,       // doc.id = username nyayo
+      nes: d.data().nes || 0,
     }));
-
     return { props: { users } };
   } catch (err) {
     console.error(err);
@@ -23,11 +16,10 @@ export async function getServerSideProps() {
   }
 }
 
-export default function AdminPageSSR({ users: initialUsers, error }) {
+export default function AdminSSR({ users: initialUsers, error }) {
   const [users, setUsers] = useState(initialUsers);
 
-  // Delete a user (client-side)
-  async function handleDelete(id) {
+  const handleDelete = async (id) => {
     if (!confirm("Are you sure you want to delete this user?")) return;
     try {
       await deleteDoc(doc(db, "depositers", id));
@@ -36,7 +28,7 @@ export default function AdminPageSSR({ users: initialUsers, error }) {
       console.error(err);
       alert("Failed to delete user");
     }
-  }
+  };
 
   // Inline CSS
   const containerStyle = {
@@ -45,7 +37,6 @@ export default function AdminPageSSR({ users: initialUsers, error }) {
     fontFamily: "Segoe UI, sans-serif",
     background: "linear-gradient(135deg,#fdfbfb,#ebedee)",
   };
-
   const cardStyle = {
     maxWidth: "800px",
     margin: "20px auto",
@@ -54,14 +45,10 @@ export default function AdminPageSSR({ users: initialUsers, error }) {
     boxShadow: "0 10px 25px rgba(0,0,0,.1)",
     padding: "20px",
   };
-
   const headingStyle = { fontSize: "1.5rem", marginBottom: "20px" };
-
   const tableStyle = { width: "100%", borderCollapse: "collapse" };
-
   const thStyle = { textAlign: "left", borderBottom: "2px solid #ddd", padding: "10px" };
   const tdStyle = { borderBottom: "1px solid #eee", padding: "10px" };
-
   const buttonStyle = {
     padding: "5px 10px",
     background: "#ff4d4f",
@@ -91,8 +78,8 @@ export default function AdminPageSSR({ users: initialUsers, error }) {
             <tbody>
               {users.map(user => (
                 <tr key={user.id}>
-                  <td style={tdStyle}>{user.username}</td>
-                  <td style={tdStyle}>{user.nes || 0}</td>
+                  <td style={tdStyle}>{user.id}</td>
+                  <td style={tdStyle}>{user.nes}</td>
                   <td style={tdStyle}>
                     <button style={buttonStyle} onClick={() => handleDelete(user.id)}>
                       Delete

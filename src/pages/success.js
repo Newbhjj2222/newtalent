@@ -5,11 +5,14 @@ import { db } from "@/components/firebase";
 import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 
 /**
- * Normalize username:
- * "Emmy", " emmy ", "EMMY" => "emmy"
+ * Capitalize first letter only
+ * " emmy " => "Emmy"
+ * "EMMY"   => "Emmy"
  */
-function normalizeUsername(username) {
-  return username.trim().toLowerCase();
+function capitalize(value) {
+  if (!value) return "";
+  const v = value.toString().trim().toLowerCase();
+  return v.charAt(0).toUpperCase() + v.slice(1);
 }
 
 export default function SuccessPage() {
@@ -21,70 +24,62 @@ export default function SuccessPage() {
     async function processPayment() {
       try {
         /* =======================
-           1. FATA PAYLOAD
+           1. GET PAYLOAD
         ======================== */
         const params = new URLSearchParams(window.location.search);
         const payloadParam = params.get("payload");
 
-        if (!payloadParam) {
-          throw new Error("No payload received");
-        }
+        if (!payloadParam) throw new Error("no payload");
 
         const decoded = decodeURIComponent(payloadParam);
         const parsedData = JSON.parse(decoded);
         setData(parsedData);
 
         const transaction = parsedData?.data?.result?.[0];
-        if (!transaction) {
-          throw new Error("No transaction found");
-        }
+        if (!transaction) throw new Error("no transaction");
 
         /* =======================
-           2. DATA Z'INGENZI
+           2. IMPORTANT DATA
         ======================== */
         const rawCustomerId = transaction.metadata?.customerId;
-        const amount = parseInt(transaction.depositedAmount, 10);
+        const amount = Number(transaction.depositedAmount);
 
-        if (!rawCustomerId) {
-          throw new Error("CustomerId missing");
-        }
-
-        if (!Number.isFinite(amount)) {
-          throw new Error("Invalid amount");
-        }
+        if (!rawCustomerId) throw new Error("missing customerId");
+        if (!Number.isFinite(amount)) throw new Error("invalid amount");
 
         /* =======================
-           3. NORMALIZE USERNAME
+           3. CAPITALIZE USERNAME
         ======================== */
-        const customerId = normalizeUsername(rawCustomerId);
+        const customerId = capitalize(rawCustomerId); // Document ID
 
         /* =======================
            4. PLAN & NES
         ======================== */
-        let plan = "unknown";
+        let plan = "Unknown";
         let nes = 0;
 
         switch (amount) {
           case 10:
-            plan = "single";
+            plan = "Single";
             nes = 1;
             break;
           case 150:
-            plan = "daily";
+            plan = "Daily";
             nes = 12;
             break;
           case 250:
-            plan = "weekly";
+            plan = "Weekly";
             nes = 20;
             break;
           case 400:
-            plan = "bestreader";
+            plan = "BestReader";
             nes = 40;
             break;
         }
 
         /* =======================
-           5. FIRESTORE LOGIC
+           5. FIRESTORE
+           (Document ID = Uppercase start)
         ======================== */
         const depositerRef = doc(db, "depositers", customerId);
         const existingDoc = await getDoc(depositerRef);
@@ -97,13 +92,12 @@ export default function SuccessPage() {
         }
 
         /* =======================
-           6. SAVE (NO ERROR HERE)
+           6. SAVE DATA
         ======================== */
         await setDoc(
           depositerRef,
           {
-            username: rawCustomerId.trim(),
-            username_normalized: customerId,
+            username: customerId,
             plan,
             nes: totalNES,
             lastPaymentAmount: amount,
@@ -188,11 +182,15 @@ export default function SuccessPage() {
           <>
             <p><strong>Deposit ID:</strong> {transaction.depositId}</p>
             <p><strong>Amount:</strong> {transaction.depositedAmount} {transaction.currency}</p>
-            <p><strong>User:</strong> {transaction.metadata?.customerId}</p>
+            <p><strong>User:</strong> {customerId}</p>
           </>
         )}
 
-        {message && <p style={{ marginTop: 20, fontWeight: "bold" }}>{message}</p>}
+        {message && (
+          <p style={{ marginTop: 20, fontWeight: "bold" }}>
+            {message}
+          </p>
+        )}
       </div>
     </div>
   );

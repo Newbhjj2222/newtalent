@@ -2,43 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { db } from "@/components/firebase";
-import {
-  collection,
-  query,
-  where,
-  getDocs,
-  doc,
-  setDoc,
-  serverTimestamp
-} from "firebase/firestore";
-
-/**
- * Normalize username for search only
- * "NewtalentsG", "newtalentsg", "NEWTALENTSG" => "newtalentsg"
- */
-function normalizeUsername(value) {
-  return value.toString().trim().toLowerCase();
-}
-
-/**
- * Find existing user (case-insensitive)
- */
-async function findUserByUsername(rawUsername) {
-  const key = normalizeUsername(rawUsername);
-
-  const q = query(
-    collection(db, "depositers"),
-    where("username_key", "==", key)
-  );
-
-  const snap = await getDocs(q);
-
-  if (!snap.empty) {
-    return snap.docs[0]; // existing user
-  }
-
-  return null;
-}
+import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 
 export default function SuccessPage() {
   const [data, setData] = useState(null);
@@ -65,14 +29,11 @@ export default function SuccessPage() {
         /* =======================
            2. IMPORTANT DATA
         ======================== */
-        const rawCustomerId = transaction.metadata?.customerId;
+        const username = transaction.metadata?.customerId?.trim(); // Document ID
         const amount = Number(transaction.depositedAmount);
 
-        if (!rawCustomerId) throw new Error("Missing customerId");
+        if (!username) throw new Error("Missing customerId");
         if (!Number.isFinite(amount)) throw new Error("Invalid amount");
-
-        const usernameDisplay = rawCustomerId.trim();          // NewtalentsG
-        const usernameKey = normalizeUsername(rawCustomerId); // newtalentsg
 
         /* =======================
            3. PLAN & NES
@@ -100,18 +61,15 @@ export default function SuccessPage() {
         }
 
         /* =======================
-           4. FIND OR CREATE USER
+           4. FETCH EXISTING DOC
         ======================== */
-        const existingUser = await findUserByUsername(rawCustomerId);
-
-        const depositerRef = existingUser
-          ? existingUser.ref
-          : doc(collection(db, "depositers")); // auto ID
+        const depositerRef = doc(db, "depositers", username);
+        const existingDoc = await getDoc(depositerRef);
 
         let totalNES = nes;
-
-        if (existingUser) {
-          totalNES += Number(existingUser.data().nes || 0);
+        if (existingDoc.exists()) {
+          const oldData = existingDoc.data();
+          totalNES += Number(oldData.nes || 0);
         }
 
         /* =======================
@@ -120,13 +78,12 @@ export default function SuccessPage() {
         await setDoc(
           depositerRef,
           {
-            username: usernameDisplay, // exact as typed
-            username_key: usernameKey, // lowercase search key
+            username, // Document ID
             plan,
             nes: totalNES,
             lastPaymentAmount: amount,
             updatedAt: serverTimestamp(),
-            createdAt: serverTimestamp(),
+            createdAt: existingDoc.exists() ? oldData.createdAt : serverTimestamp(),
           },
           { merge: true }
         );
@@ -152,13 +109,8 @@ export default function SuccessPage() {
   /* =======================
      UI
   ======================== */
-  if (error) {
-    return <div style={{ padding: 40 }}>❌ {error}</div>;
-  }
-
-  if (!data) {
-    return <div style={{ padding: 40 }}>Processing payment...</div>;
-  }
+  if (error) return <div style={{ padding: 40 }}>❌ {error}</div>;
+  if (!data) return <div style={{ padding: 40 }}>Processing payment...</div>;
 
   return (
     <div style={{ padding: 40 }}>

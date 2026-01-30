@@ -2,7 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { db } from "@/components/firebase";
-import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  setDoc,
+  serverTimestamp,
+  collection,
+  query,
+  where,
+  getDocs
+} from "firebase/firestore";
 
 /**
  * Capitalize first letter only
@@ -13,6 +22,33 @@ function capitalize(value) {
   if (!value) return "";
   const v = value.toString().trim().toLowerCase();
   return v.charAt(0).toUpperCase() + v.slice(1);
+}
+
+/**
+ * Normalize for search (case-insensitive)
+ */
+function normalizeKey(value) {
+  return value.toString().trim().toLowerCase();
+}
+
+/**
+ * Find existing user by username (case-insensitive)
+ */
+async function findUserByUsername(username) {
+  const key = normalizeKey(username);
+
+  const q = query(
+    collection(db, "depositers"),
+    where("username_key", "==", key)
+  );
+
+  const snap = await getDocs(q);
+
+  if (!snap.empty) {
+    return snap.docs[0]; // found
+  }
+
+  return null;
 }
 
 export default function SuccessPage() {
@@ -28,7 +64,6 @@ export default function SuccessPage() {
         ======================== */
         const params = new URLSearchParams(window.location.search);
         const payloadParam = params.get("payload");
-
         if (!payloadParam) throw new Error("no payload");
 
         const decoded = decodeURIComponent(payloadParam);
@@ -48,9 +83,10 @@ export default function SuccessPage() {
         if (!Number.isFinite(amount)) throw new Error("invalid amount");
 
         /* =======================
-           3. CAPITALIZE USERNAME
+           3. USERNAME LOGIC
         ======================== */
-        const customerId = capitalize(rawCustomerId); // Document ID
+        const usernameDisplay = capitalize(rawCustomerId);   // Emmy
+        const usernameKey = normalizeKey(rawCustomerId);     // emmy
 
         /* =======================
            4. PLAN & NES
@@ -78,17 +114,18 @@ export default function SuccessPage() {
         }
 
         /* =======================
-           5. FIRESTORE
-           (Document ID = Uppercase start)
+           5. FIND OR CREATE USER
         ======================== */
-        const depositerRef = doc(db, "depositers", customerId);
-        const existingDoc = await getDoc(depositerRef);
+        const existingUser = await findUserByUsername(rawCustomerId);
+
+        const depositerRef = existingUser
+          ? existingUser.ref
+          : doc(collection(db, "depositers")); // auto ID
 
         let totalNES = nes;
 
-        if (existingDoc.exists()) {
-          const oldData = existingDoc.data();
-          totalNES += Number(oldData.nes || 0);
+        if (existingUser) {
+          totalNES += Number(existingUser.data().nes || 0);
         }
 
         /* =======================
@@ -97,7 +134,8 @@ export default function SuccessPage() {
         await setDoc(
           depositerRef,
           {
-            username: customerId,
+            username: usernameDisplay,   // Emmy
+            username_key: usernameKey,   // emmy
             plan,
             nes: totalNES,
             lastPaymentAmount: amount,
@@ -108,7 +146,7 @@ export default function SuccessPage() {
         );
 
         /* =======================
-           7. SUCCESS MESSAGE
+           7. SUCCESS
         ======================== */
         setMessage(`Wahawe NES ${nes}. Ubu ufite zose ${totalNES}.`);
 
@@ -128,70 +166,18 @@ export default function SuccessPage() {
   /* =======================
      UI
   ======================== */
-  const containerStyle = {
-    minHeight: "100vh",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: "20px",
-    fontFamily: "Segoe UI, sans-serif",
-    background: "linear-gradient(135deg,#fdfbfb,#ebedee)",
-  };
-
-  const cardStyle = {
-    maxWidth: "500px",
-    width: "100%",
-    background: "#fff",
-    borderRadius: "15px",
-    boxShadow: "0 10px 25px rgba(0,0,0,.1)",
-    padding: "30px",
-    textAlign: "center",
-  };
-
   if (error) {
-    return (
-      <div style={containerStyle}>
-        <div style={cardStyle}>
-          <h2>Payment Error</h2>
-          <p>{error}</p>
-        </div>
-      </div>
-    );
+    return <div style={{ padding: 40 }}>❌ {error}</div>;
   }
 
   if (!data) {
-    return (
-      <div style={containerStyle}>
-        <div style={cardStyle}>
-          <h2>Processing payment...</h2>
-        </div>
-      </div>
-    );
+    return <div style={{ padding: 40 }}>Processing payment...</div>;
   }
 
-  const transaction = data?.data?.result?.[0];
-
   return (
-    <div style={containerStyle}>
-      <div style={cardStyle}>
-        <h2>Payment Successful</h2>
-
-        <p><strong>Status:</strong> {data.status}</p>
-
-        {transaction && (
-          <>
-            <p><strong>Deposit ID:</strong> {transaction.depositId}</p>
-            <p><strong>Amount:</strong> {transaction.depositedAmount} {transaction.currency}</p>
-            <p><strong>User:</strong> {customerId}</p>
-          </>
-        )}
-
-        {message && (
-          <p style={{ marginTop: 20, fontWeight: "bold" }}>
-            {message}
-          </p>
-        )}
-      </div>
+    <div style={{ padding: 40 }}>
+      <h2>Payment Successful</h2>
+      {message && <p><strong>{message}</strong></p>}
     </div>
   );
 }

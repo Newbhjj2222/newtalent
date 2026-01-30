@@ -3,39 +3,28 @@
 import { useEffect, useState } from "react";
 import { db } from "@/components/firebase";
 import {
-  doc,
-  getDoc,
-  setDoc,
-  serverTimestamp,
   collection,
   query,
   where,
-  getDocs
+  getDocs,
+  doc,
+  setDoc,
+  serverTimestamp
 } from "firebase/firestore";
 
 /**
- * Capitalize first letter only
- * " emmy " => "Emmy"
- * "EMMY"   => "Emmy"
+ * Normalize username for search only
+ * "NewtalentsG", "newtalentsg", "NEWTALENTSG" => "newtalentsg"
  */
-function capitalize(value) {
-  if (!value) return "";
-  const v = value.toString().trim().toLowerCase();
-  return v.charAt(0).toUpperCase() + v.slice(1);
-}
-
-/**
- * Normalize for search (case-insensitive)
- */
-function normalizeKey(value) {
+function normalizeUsername(value) {
   return value.toString().trim().toLowerCase();
 }
 
 /**
- * Find existing user by username (case-insensitive)
+ * Find existing user (case-insensitive)
  */
-async function findUserByUsername(username) {
-  const key = normalizeKey(username);
+async function findUserByUsername(rawUsername) {
+  const key = normalizeUsername(rawUsername);
 
   const q = query(
     collection(db, "depositers"),
@@ -45,7 +34,7 @@ async function findUserByUsername(username) {
   const snap = await getDocs(q);
 
   if (!snap.empty) {
-    return snap.docs[0]; // found
+    return snap.docs[0]; // existing user
   }
 
   return null;
@@ -64,14 +53,14 @@ export default function SuccessPage() {
         ======================== */
         const params = new URLSearchParams(window.location.search);
         const payloadParam = params.get("payload");
-        if (!payloadParam) throw new Error("no payload");
+        if (!payloadParam) throw new Error("No payload");
 
         const decoded = decodeURIComponent(payloadParam);
         const parsedData = JSON.parse(decoded);
         setData(parsedData);
 
         const transaction = parsedData?.data?.result?.[0];
-        if (!transaction) throw new Error("no transaction");
+        if (!transaction) throw new Error("No transaction");
 
         /* =======================
            2. IMPORTANT DATA
@@ -79,17 +68,14 @@ export default function SuccessPage() {
         const rawCustomerId = transaction.metadata?.customerId;
         const amount = Number(transaction.depositedAmount);
 
-        if (!rawCustomerId) throw new Error("missing customerId");
-        if (!Number.isFinite(amount)) throw new Error("invalid amount");
+        if (!rawCustomerId) throw new Error("Missing customerId");
+        if (!Number.isFinite(amount)) throw new Error("Invalid amount");
+
+        const usernameDisplay = rawCustomerId.trim();          // NewtalentsG
+        const usernameKey = normalizeUsername(rawCustomerId); // newtalentsg
 
         /* =======================
-           3. USERNAME LOGIC
-        ======================== */
-        const usernameDisplay = capitalize(rawCustomerId);   // Emmy
-        const usernameKey = normalizeKey(rawCustomerId);     // emmy
-
-        /* =======================
-           4. PLAN & NES
+           3. PLAN & NES
         ======================== */
         let plan = "Unknown";
         let nes = 0;
@@ -114,7 +100,7 @@ export default function SuccessPage() {
         }
 
         /* =======================
-           5. FIND OR CREATE USER
+           4. FIND OR CREATE USER
         ======================== */
         const existingUser = await findUserByUsername(rawCustomerId);
 
@@ -129,13 +115,13 @@ export default function SuccessPage() {
         }
 
         /* =======================
-           6. SAVE DATA
+           5. SAVE TO FIRESTORE
         ======================== */
         await setDoc(
           depositerRef,
           {
-            username: usernameDisplay,   // Emmy
-            username_key: usernameKey,   // emmy
+            username: usernameDisplay, // exact as typed
+            username_key: usernameKey, // lowercase search key
             plan,
             nes: totalNES,
             lastPaymentAmount: amount,
@@ -146,7 +132,7 @@ export default function SuccessPage() {
         );
 
         /* =======================
-           7. SUCCESS
+           6. SUCCESS
         ======================== */
         setMessage(`Wahawe NES ${nes}. Ubu ufite zose ${totalNES}.`);
 

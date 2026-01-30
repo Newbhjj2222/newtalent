@@ -12,9 +12,7 @@ export default function SuccessPage() {
   useEffect(() => {
     async function processPayment() {
       try {
-        /* =======================
-           1. GET PAYLOAD
-        ======================== */
+        // 1. GET PAYLOAD
         const params = new URLSearchParams(window.location.search);
         const payloadParam = params.get("payload");
         if (!payloadParam) throw new Error("No payload");
@@ -26,18 +24,14 @@ export default function SuccessPage() {
         const transaction = parsedData?.data?.result?.[0];
         if (!transaction) throw new Error("No transaction");
 
-        /* =======================
-           2. IMPORTANT DATA
-        ======================== */
-        const username = transaction.metadata?.customerId?.trim(); // Document ID
+        // 2. IMPORTANT DATA
+        const username = transaction.metadata?.customerId?.trim();
         const amount = Number(transaction.depositedAmount);
 
         if (!username) throw new Error("Missing customerId");
         if (!Number.isFinite(amount)) throw new Error("Invalid amount");
 
-        /* =======================
-           3. PLAN & NES
-        ======================== */
+        // 3. PLAN & NES
         let plan = "Unknown";
         let nes = 0;
 
@@ -60,39 +54,42 @@ export default function SuccessPage() {
             break;
         }
 
-        /* =======================
-           4. FETCH EXISTING DOC
-        ======================== */
+        // 4. FETCH EXISTING DOC
         const depositerRef = doc(db, "depositers", username);
         const existingDoc = await getDoc(depositerRef);
 
-        let totalNES = nes;
         if (existingDoc.exists()) {
+          // Document ihari -> update NES gusa
           const oldData = existingDoc.data();
-          totalNES += Number(oldData.nes || 0);
+          const totalNES = (Number(oldData.nes) || 0) + nes;
+
+          await setDoc(
+            depositerRef,
+            {
+              nes: totalNES,
+              plan,
+              lastPaymentAmount: amount,
+              updatedAt: serverTimestamp(),
+            },
+            { merge: true }
+          );
+
+          setMessage(`Wongeye NES ${nes}. Ubu ufite zose ${totalNES}.`);
+        } else {
+          // Document ntihari -> shyiramo nshya
+          await setDoc(depositerRef, {
+            username,
+            plan,
+            nes,
+            lastPaymentAmount: amount,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+          });
+
+          setMessage(`Murakaza neza! Wahawe NES ${nes}.`);
         }
 
-        /* =======================
-           5. SAVE TO FIRESTORE
-        ======================== */
-        await setDoc(
-          depositerRef,
-          {
-            username, // Document ID
-            plan,
-            nes: totalNES,
-            lastPaymentAmount: amount,
-            updatedAt: serverTimestamp(),
-            createdAt: existingDoc.exists() ? oldData.createdAt : serverTimestamp(),
-          },
-          { merge: true }
-        );
-
-        /* =======================
-           6. SUCCESS
-        ======================== */
-        setMessage(`Wahawe NES ${nes}. Ubu ufite zose ${totalNES}.`);
-
+        // 5. REDIRECT
         setTimeout(() => {
           window.location.href = "https://www.newtalentsg.co.rw";
         }, 5000);
@@ -106,9 +103,7 @@ export default function SuccessPage() {
     processPayment();
   }, []);
 
-  /* =======================
-     UI
-  ======================== */
+  // UI
   if (error) return <div style={{ padding: 40 }}>❌ {error}</div>;
   if (!data) return <div style={{ padding: 40 }}>Processing payment...</div>;
 

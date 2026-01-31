@@ -12,7 +12,7 @@ export default function RefundPolicy() {
         <title>Refund Policy | NewTalentsG</title>
         <meta
           name="description"
-          content="Menya amabwiriza ya NewTalentsG ajyanye no gusubizwa amafaranga (Refund Policy) ku kugura NES na plans zitandukanye."
+          content="Menya amabwiriza ya NewTalentsG ajyanye no gusubizwa amafaranga (Refund Policy) ku bagura NES na services zitandukanye."
         />
         <meta
           name="keywords"
@@ -93,13 +93,13 @@ export default function RefundPolicy() {
             <h2>5. Uko wasaba refund</h2>
             <p>Ohereza ibisobanuro bikurikira:</p>
             <ul>
-              <li>Username</li>
+              <li>Username ukoresha kurubuga</li>
               <li>Igihe wishyuriye</li>
-              <li>Umubare w’amafaranga</li>
+              <li>Umubare w’amafaranga wishyuye</li>
               <li>Impamvu usaba refund</li>
             </ul>
             <p className="contact">
-              📩 <strong>Email:</strong> support@newtalentsg.co.rw <br />
+              📩 <strong>Email:</strong> Admin@newtalentsg.co.rw <br />
               🌐 <strong>Website:</strong> www.newtalentsg.co.rw
             </p>
           </section>
@@ -107,8 +107,8 @@ export default function RefundPolicy() {
           <section>
             <h2>6. Igihe cyo gusubizwa amafaranga</h2>
             <p>
-              Iyo refund yemerewe, amafaranga asubizwa mu gihe kiri hagati
-              y’iminsi <strong>3–7 y’akazi</strong>, bitewe n’uburyo bwo kwishyura
+              Iyo refund yemewe, amafaranga asubizwa mu gihe kiri hagati
+              y’iminsi <strong>2–7 y’akazi</strong>, bitewe n’uburyo bwo kwishyura
               bwakoreshejwe.
             </p>
           </section>

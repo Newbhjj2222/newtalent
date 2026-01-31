@@ -40,6 +40,9 @@ const Footer = () => {
             <Link href="/contact">Contact</Link>
           </li>
           <li>
+            <Link href="/refound">Refund Policy</Link>
+          </li>
+          <li>
             <Link href="/poll">RQA game</Link>
           </li>
            <li>

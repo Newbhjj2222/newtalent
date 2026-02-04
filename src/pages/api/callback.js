@@ -1,5 +1,5 @@
 // pages/api/callback.js
-
+export const runtime = 'edge';
 export default async function handler(req, res) {
   try {
     // Ushobora kwakira POST/PUT/GET/DELETE n'ibindi byose

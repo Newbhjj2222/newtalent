@@ -1,7 +1,7 @@
 // pages/api/sitemap-posts.js
 import { db } from "@/components/firebase";
 import { collection, getDocs, orderBy, query } from "firebase/firestore";
-
+export const runtime = 'edge';
 export default async function handler(req, res) {
   try {
     const domain = "https://www.newtalentsg.co.rw";

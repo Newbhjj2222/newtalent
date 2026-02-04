@@ -1,6 +1,6 @@
 // pages/api/withdraw.js
 import axios from 'axios';
-
+export const runtime = 'edge';
 export default async function handler(req, res) {
   // Fata payload n'ikibazo cyose muri body
   const { amount, recipient } = req.body || {};

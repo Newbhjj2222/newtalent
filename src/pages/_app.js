@@ -12,7 +12,7 @@ export default function App({ Component, pageProps }) {
        <Head>
         {/* Title (default) */}
         <title>
-          New Talents Stories Group | Inkuru rwanda, Inkuru zigezweho, Inkuru z'urukundo, Inkuru zo guswera, inkuru nshya
+          New Talents Stories Group | Inkuru rwanda, Inkuru zigezweho, Inkuru z'urukundo, Inkuru zabantu bakuru, inkuru nshya
         </title>
 
         {/* Meta Description */}

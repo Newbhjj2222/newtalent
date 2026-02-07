@@ -1,0 +1,47 @@
+/* components/BannerSlider.module.css */
+
+.banner {
+  width: 100%;
+  height: 200px;
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  border-radius: 12px;
+}
+
+.overlay {
+  width: 100%;
+  text-align: center;
+}
+
+.slider {
+  display: inline-block;
+  animation: slideText 12s infinite;
+}
+
+.slider span {
+  display: block;
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #ffffff;
+  line-height: 2.2rem;
+}
+
+@keyframes slideText {
+  0% { transform: translateY(0); }
+  20% { transform: translateY(0); }
+
+  25% { transform: translateY(-2.2rem); }
+  45% { transform: translateY(-2.2rem); }
+
+  50% { transform: translateY(-4.4rem); }
+  70% { transform: translateY(-4.4rem); }
+
+  75% { transform: translateY(-6.6rem); }
+  95% { transform: translateY(-6.6rem); }
+
+  100% { transform: translateY(0); }
+}

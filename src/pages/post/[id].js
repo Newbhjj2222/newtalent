@@ -21,6 +21,7 @@ import Back from "../../components/Back";
 import NesMine from "../../components/NesMine";
 import Channel from "../../components/Channel";
 import Pin from "../../components/Pin";
+import BannerSlider from "@/components/BannerSlider";
 import styles from "../../components/PostDetail.module.css";
 const extractSeriesAndEpisode = (head) => {
   if (!head) return { title: null, season: null, episode: null };
@@ -415,6 +416,7 @@ const handleNES = async () => {
           dangerouslySetInnerHTML={{ __html: postData.story }}
         />
         <div className={styles.postMeta}>
+          <BannerSlider />
           <small>By: {postData.author || "Unknown"}</small>
           <small style={{ marginLeft: "10px" }}>👁 {views} views</small>
           <div className={styles.shareButtons}>
